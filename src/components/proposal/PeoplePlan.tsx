@@ -24,8 +24,8 @@ const roles = [
     title: "ML Engineer (Contract)",
     type: "phase2",
     color: "from-violet-400 to-purple-500",
-    budget: "$250k/year",
-    budgetDetail: "Phase II consideration",
+    budget: "$125k",
+    budgetDetail: "6-month engagement",
     timing: "Full-time contract",
     responsibilities: [
       "Hardening data pipelines & feature store",
@@ -39,8 +39,8 @@ const roles = [
     title: "Product Designer",
     type: "phase2",
     color: "from-pink-400 to-rose-500",
-    budget: "TBD",
-    budgetDetail: "Phase II consideration",
+    budget: "$25k–$50k",
+    budgetDetail: "6-month engagement",
     timing: "Contract or fractional",
     responsibilities: [
       "Feed & extension UX refinement",

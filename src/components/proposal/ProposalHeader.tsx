@@ -12,7 +12,7 @@ export default function ProposalHeader() {
       className="fixed top-0 left-0 right-0 z-50 px-6 py-4 backdrop-blur-xl bg-slate-950/60 border-b border-white/5"
     >
       <nav className="max-w-6xl mx-auto flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-3">
+        <Link href="/" className="flex items-center gap-3 pointer-events-none">
           <SynapseLogo />
           <span className="text-xl font-semibold tracking-tight text-white">Synapse</span>
           <span className="text-[10px] bg-emerald-500 text-white px-2 py-0.5 rounded font-bold uppercase tracking-wider">
@@ -22,11 +22,11 @@ export default function ProposalHeader() {
         
         <div className="flex items-center gap-3">
           <Link
-            href="/"
+            href="/explainer"
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-200 text-sm font-medium text-white/80 hover:text-white"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             RAG Explainer
           </Link>

@@ -26,32 +26,32 @@ const mvpBudget = [
 
 const phase2Budget = [
   {
-    category: "Personnel — You (Year 1)",
-    amount: "$250k",
-    detail: "Full year",
+    category: "Personnel — You (6 months)",
+    amount: "$125k",
+    detail: "$250k/year prorated",
     type: "people",
   },
   {
     category: "ML Engineer (Contract)",
-    amount: "$250k",
-    detail: "Phase II hire",
+    amount: "$125k",
+    detail: "6-month engagement",
     type: "people",
   },
   {
     category: "Designer (Contract)",
-    amount: "$50k–$100k",
+    amount: "$25k–$50k",
     detail: "Fractional/contract",
     type: "people",
   },
   {
-    category: "AI & Tooling (12 months)",
-    amount: "$15k–$25k",
+    category: "AI & Tooling (6 months)",
+    amount: "$8k–$15k",
     detail: "Run budget + growth",
     type: "infra",
   },
   {
-    category: "Total Year 1 (Phase II)",
-    amount: "$565k–$625k",
+    category: "Total Phase II (6 months)",
+    amount: "$283k–$315k",
     detail: "Full team + infra",
     type: "total",
   },
@@ -147,7 +147,7 @@ export default function BudgetRecommendation() {
               </div>
               <div>
                 <h3 className="text-xl font-bold text-white">Phase II — Scale</h3>
-                <p className="text-sm text-slate-400">Full Year 1</p>
+                <p className="text-sm text-slate-400">6 months post-MVP</p>
               </div>
             </div>
             <div className="space-y-3">
@@ -198,7 +198,7 @@ export default function BudgetRecommendation() {
               <div>
                 <h4 className="font-semibold text-white mb-2">People Costs Dominate</h4>
                 <p className="text-sm text-slate-400">
-                  Personnel is ~90% of total cost. Infra/tooling ($25k–$40k/year) is relatively cheap compared to talent investment ($500k+/year at Phase II scale).
+                  Personnel is ~90% of total cost. Infra/tooling (~$20k for 10 months) is relatively cheap compared to talent investment (~$360k for full build).
                 </p>
               </div>
             </div>
@@ -210,7 +210,7 @@ export default function BudgetRecommendation() {
               <div>
                 <h4 className="font-semibold text-white mb-2">Phased Build Strategy</h4>
                 <p className="text-sm text-slate-400">
-                  Phase I (~$93k) establishes core infrastructure and validates oncology MVP. Phase II expands team and scales to full vision.
+                  Phase I (4 months, ~$93k) establishes core infrastructure. Phase II (6 months, ~$300k) expands team and scales to full vision.
                 </p>
               </div>
             </div>
@@ -233,7 +233,7 @@ export default function BudgetRecommendation() {
             <span className="text-white font-semibold">Phase I (MVP):</span> ~$93k total (4 months) = $83k personnel + $10k tooling
           </blockquote>
           <blockquote className="text-lg md:text-xl text-slate-300 leading-relaxed">
-            <span className="text-white font-semibold">Phase II (Scale):</span> $565k–$625k/year = $500k–$550k team + $15k–$75k infra
+            <span className="text-white font-semibold">Phase II (Scale):</span> ~$300k (6 months) = $275k team + $8k–$15k infra
           </blockquote>
           <div className="mt-6 pt-6 border-t border-white/10">
             <p className="text-sm text-slate-400">

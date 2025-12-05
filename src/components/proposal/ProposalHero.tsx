@@ -59,9 +59,9 @@ export default function ProposalHero() {
           className="flex flex-wrap justify-center gap-4 mb-16"
         >
           {[
-            { label: "Build Time", value: "3–4 months", subtext: "MVP Phase" },
-            { label: "Phase I Total", value: "~$93k", subtext: "$83k people + $10k tools" },
-            { label: "Phase II/Year", value: "$565k+", subtext: "Full team + infra" },
+            { label: "Phase I", value: "~$93k", subtext: "4 months • MVP" },
+            { label: "Phase II", value: "~$300k", subtext: "6 months • Scale" },
+            { label: "Total Build", value: "~$393k", subtext: "10 months end-to-end" },
           ].map((stat) => (
             <div
               key={stat.label}

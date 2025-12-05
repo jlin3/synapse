@@ -1,27 +1,36 @@
-import Header from "@/components/Header";
-import Hero from "@/components/Hero";
-import Pipeline from "@/components/Pipeline";
-import WhyRAG from "@/components/WhyRAG";
-import ConcreteExample from "@/components/ConcreteExample";
-import DesignLevers from "@/components/DesignLevers";
-import FailureModes from "@/components/FailureModes";
-import MathSection from "@/components/MathSection";
-import InterviewTip from "@/components/InterviewTip";
-import Footer from "@/components/Footer";
+"use client";
 
-export default function Home() {
+import ProposalHeader from "@/components/proposal/ProposalHeader";
+import ProposalHero from "@/components/proposal/ProposalHero";
+import SummaryTable from "@/components/proposal/SummaryTable";
+import MVPScope from "@/components/proposal/MVPScope";
+import BaselineArchitecture from "@/components/proposal/BaselineArchitecture";
+import OptionA from "@/components/proposal/OptionA";
+import OptionB from "@/components/proposal/OptionB";
+import OptionC from "@/components/proposal/OptionC";
+import PeoplePlan from "@/components/proposal/PeoplePlan";
+import Timeline from "@/components/proposal/Timeline";
+import BudgetRecommendation from "@/components/proposal/BudgetRecommendation";
+import NextSteps from "@/components/proposal/NextSteps";
+import ProposalFooter from "@/components/proposal/ProposalFooter";
+
+export default function ProposalPage() {
   return (
-    <main className="min-h-screen">
-      <Header />
-      <Hero />
-      <Pipeline />
-      <WhyRAG />
-      <ConcreteExample />
-      <DesignLevers />
-      <FailureModes />
-      <MathSection />
-      <InterviewTip />
-      <Footer />
+    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
+      <ProposalHeader />
+      <ProposalHero />
+      <SummaryTable />
+      <MVPScope />
+      <BaselineArchitecture />
+      <OptionA />
+      <OptionB />
+      <OptionC />
+      <PeoplePlan />
+      <Timeline />
+      <BudgetRecommendation />
+      <NextSteps />
+      <ProposalFooter />
     </main>
   );
 }
+
