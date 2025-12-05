@@ -66,7 +66,7 @@ export default function NextSteps() {
             Concrete Next Steps
           </h2>
           <p className="text-xl text-slate-400 max-w-2xl mx-auto">
-            Action items to move forward with the proposal
+            Immediate action items for MVP kickoff
           </p>
         </motion.div>
 
@@ -98,17 +98,6 @@ export default function NextSteps() {
           ))}
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.7, duration: 0.5 }}
-          className="mt-12 text-center"
-        >
-          <p className="text-lg text-slate-400">
-            Position yourself as: <span className="text-white font-semibold">&quot;I&apos;ll own the entire pipeline end-to-end, and here&apos;s the tool budget I need to do it right.&quot;</span>
-          </p>
-        </motion.div>
       </div>
     </section>
   );

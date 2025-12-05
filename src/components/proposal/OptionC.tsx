@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Cloud, Cpu, DollarSign, ThumbsUp, ThumbsDown, Rocket } from "lucide-react";
+import { Cloud, Cpu, DollarSign, ThumbsUp, ThumbsDown } from "lucide-react";
 
 const stackItems = [
   { label: "Cloud", value: "GCP only" },
@@ -169,20 +169,6 @@ export default function OptionC() {
           </motion.div>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.4, duration: 0.5 }}
-          className="mt-8 p-4 rounded-xl bg-blue-500/5 border border-blue-500/20"
-        >
-          <div className="flex items-start gap-3">
-            <Rocket className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-slate-400">
-              <span className="text-blue-400 font-medium">When to choose this:</span> You raise enough $$ that an extra couple of thousand per month for infra is trivial, and you really want &quot;Google inside&quot; as part of the enterprise story.
-            </p>
-          </div>
-        </motion.div>
       </div>
     </section>
   );

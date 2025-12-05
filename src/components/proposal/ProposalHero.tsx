@@ -59,16 +59,17 @@ export default function ProposalHero() {
           className="flex flex-wrap justify-center gap-4 mb-16"
         >
           {[
-            { label: "Build Time", value: "3–4 months" },
-            { label: "MVP Budget", value: "$6k–$15k" },
-            { label: "Run Rate", value: "$800–$2k/mo" },
-          ].map((stat, i) => (
+            { label: "Build Time", value: "3–4 months", subtext: "MVP Phase" },
+            { label: "Phase I Total", value: "~$93k", subtext: "$83k people + $10k tools" },
+            { label: "Phase II/Year", value: "$565k+", subtext: "Full team + infra" },
+          ].map((stat) => (
             <div
               key={stat.label}
               className="px-6 py-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] backdrop-blur-sm"
             >
               <div className="text-xs uppercase tracking-wider text-slate-500 mb-1">{stat.label}</div>
               <div className="text-xl font-bold text-white">{stat.value}</div>
+              {stat.subtext && <div className="text-xs text-slate-500 mt-1">{stat.subtext}</div>}
             </div>
           ))}
         </motion.div>

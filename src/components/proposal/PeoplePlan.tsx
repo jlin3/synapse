@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { User, Users, Code, Settings, BarChart3 } from "lucide-react";
+import { User, Users, Code, Settings, BarChart3, Palette } from "lucide-react";
 
 const roles = [
   {
@@ -9,7 +9,8 @@ const roles = [
     title: "You (Founding ML / Full-Stack Engineer)",
     type: "core",
     color: "from-emerald-400 to-teal-500",
-    budget: "Primary",
+    budget: "$250k/year",
+    budgetDetail: "~$83k for 4-month MVP",
     responsibilities: [
       "Overall architecture & tech choices",
       "Ingestion, parsing, embedding pipeline",
@@ -20,14 +21,31 @@ const roles = [
   },
   {
     icon: Code,
-    title: "ML / Data Engineer (Contract)",
-    type: "optional",
+    title: "ML Engineer (Contract)",
+    type: "phase2",
     color: "from-violet-400 to-purple-500",
-    budget: "$20k–$40k",
-    timing: "2–3 days/week for 3–4 months",
+    budget: "$250k/year",
+    budgetDetail: "Phase II consideration",
+    timing: "Full-time contract",
     responsibilities: [
       "Hardening data pipelines & feature store",
-      "Adding proper eval harness & offline metrics (AUC, NDCG@K, recall@K)",
+      "Deep ranking model development",
+      "Proper eval harness & offline metrics (AUC, NDCG@K, recall@K)",
+      "Scale engineering for production load",
+    ],
+  },
+  {
+    icon: Palette,
+    title: "Product Designer",
+    type: "phase2",
+    color: "from-pink-400 to-rose-500",
+    budget: "TBD",
+    budgetDetail: "Phase II consideration",
+    timing: "Contract or fractional",
+    responsibilities: [
+      "Feed & extension UX refinement",
+      "Lab pages & institution dashboards",
+      "Design system for Synapse products",
     ],
   },
   {
@@ -36,22 +54,11 @@ const roles = [
     type: "optional",
     color: "from-blue-400 to-cyan-500",
     budget: "$5k–$15k",
+    budgetDetail: "MVP phase only",
     timing: "5–10 hours/week",
     responsibilities: [
       "GCP project setup, IAM, secrets, Terraform",
       "Monitoring, logging, cost controls",
-    ],
-  },
-  {
-    icon: BarChart3,
-    title: "Data Analyst / Applied Scientist",
-    type: "later",
-    color: "from-amber-400 to-orange-500",
-    budget: "TBD",
-    timing: "Post-MVP",
-    responsibilities: [
-      "Heavy iteration on ranking features and experiments",
-      "A/B testing and metric analysis",
     ],
   },
 ];
@@ -99,16 +106,16 @@ export default function PeoplePlan() {
                   <role.icon className="w-6 h-6 text-white" />
                 </div>
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
                     <h3 className="text-lg font-semibold text-white">{role.title}</h3>
                     {role.type === "optional" && (
                       <span className="px-2 py-0.5 text-[10px] rounded bg-violet-500/20 text-violet-300 uppercase font-medium">
                         Nice to have
                       </span>
                     )}
-                    {role.type === "later" && (
-                      <span className="px-2 py-0.5 text-[10px] rounded bg-amber-500/20 text-amber-300 uppercase font-medium">
-                        Later
+                    {role.type === "phase2" && (
+                      <span className="px-2 py-0.5 text-[10px] rounded bg-cyan-500/20 text-cyan-300 uppercase font-medium">
+                        Phase II
                       </span>
                     )}
                   </div>
@@ -124,6 +131,9 @@ export default function PeoplePlan() {
                       <span className="w-1 h-1 rounded-full bg-emerald-500" />
                       <span className="text-emerald-400 font-medium">{role.budget}</span>
                     </span>
+                    {role.budgetDetail && (
+                      <span className="text-slate-500 text-xs">({role.budgetDetail})</span>
+                    )}
                   </div>
 
                   <ul className={`space-y-2 ${role.type === "core" ? "md:grid md:grid-cols-2 md:gap-x-6 md:space-y-0" : ""}`}>
@@ -142,18 +152,6 @@ export default function PeoplePlan() {
           ))}
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.5, duration: 0.5 }}
-          className="mt-8 p-6 rounded-2xl bg-gradient-to-r from-emerald-500/5 to-teal-500/5 border border-emerald-500/20 text-center"
-        >
-          <p className="text-slate-300">
-            <span className="text-white font-semibold">&quot;I&apos;ll own the entire pipeline end-to-end,</span>
-            <span className="text-slate-400"> and here&apos;s the tool budget I need to do it right.&quot;</span>
-          </p>
-        </motion.div>
       </div>
     </section>
   );

@@ -164,17 +164,6 @@ export default function OptionA() {
           </motion.div>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.4, duration: 0.5 }}
-          className="mt-8 p-4 rounded-xl bg-amber-500/5 border border-amber-500/20 text-center"
-        >
-          <p className="text-sm text-slate-400">
-            <span className="text-amber-400 font-medium">When this makes sense:</span> You&apos;re extremely cost-sensitive and willing to invest time in infra. For Synapse, where defensibility is data/community rather than infra, this is <span className="text-rose-400">not recommended</span> as the primary path.
-          </p>
-        </motion.div>
       </div>
     </section>
   );
