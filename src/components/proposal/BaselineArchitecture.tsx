@@ -77,7 +77,7 @@ export default function BaselineArchitecture() {
             Baseline Architecture
           </h2>
           <p className="text-xl text-slate-400 max-w-3xl mx-auto">
-            The three options share the same conceptual pipeline — differences are mostly &quot;who runs which piece&quot;
+            RAG + Recommender pipeline powering personalized feeds — options differ in &quot;who runs which piece&quot;
           </p>
         </motion.div>
 

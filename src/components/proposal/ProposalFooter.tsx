@@ -19,7 +19,7 @@ export default function ProposalFooter() {
             <SynapseLogo />
             <div>
               <span className="text-xl font-semibold text-white">Synapse</span>
-              <p className="text-sm text-slate-500">RAG System v1 Proposal</p>
+              <p className="text-sm text-slate-500">Personalized Feed v1 Proposal</p>
             </div>
           </div>
 

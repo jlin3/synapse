@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Synapse RAG System v1 — Budget & Architecture Proposal",
-  description: "MVP Recommender proposal for Synapse: 3-4 month oncology-first personalized research recommender with three implementation options and detailed cost analysis.",
+  title: "Synapse Personalized Feed v1 — Budget & Architecture Proposal",
+  description: "Personalized research feed system for Synapse: RAG + recommender architecture powering oncology-first discovery with community signal integration.",
   openGraph: {
-    title: "Synapse RAG System v1 — Budget & Architecture Proposal",
-    description: "MVP build budget $6k-$15k • Run rate $800-$2k/mo • 3-4 month timeline",
+    title: "Synapse Personalized Feed v1 — Budget & Architecture Proposal",
+    description: "RAG + Recommender system • Phase I ~$93k • Phase II $565k+/year",
     type: "website",
   },
 };

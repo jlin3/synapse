@@ -28,9 +28,9 @@ export default function ProposalHero() {
         </motion.div>
 
         <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] mb-6">
-          <span className="block text-white/90">SYNAPSE RAG</span>
+          <span className="block text-white/90">SYNAPSE</span>
           <span className="block bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
-            SYSTEM v1
+            PERSONALIZED FEED
           </span>
         </h1>
 
@@ -40,7 +40,7 @@ export default function ProposalHero() {
           transition={{ delay: 0.4, duration: 0.6 }}
           className="text-xl md:text-2xl text-slate-400 max-w-2xl mx-auto mb-4"
         >
-          Budget & Architecture Proposal
+          v1 Budget & Architecture Proposal
         </motion.p>
 
         <motion.p
@@ -49,7 +49,7 @@ export default function ProposalHero() {
           transition={{ delay: 0.5, duration: 0.6 }}
           className="text-base text-slate-500 max-w-xl mx-auto mb-12"
         >
-          Oncology-first personalized research recommender with community signal integration
+          RAG + Recommender system powering personalized research discovery for oncology
         </motion.p>
 
         <motion.div

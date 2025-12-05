@@ -72,7 +72,7 @@ export default function SummaryTable() {
             Summary — MVP Options
           </h2>
           <p className="text-xl text-slate-400 max-w-2xl mx-auto">
-            Three implementation paths for Synapse&apos;s oncology recommender
+            Three implementation paths for the Personalized Feed system
           </p>
         </motion.div>
 
