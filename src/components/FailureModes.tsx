@@ -62,13 +62,13 @@ export default function FailureModes() {
         >
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-100 text-amber-700 text-sm font-medium mb-4">
             <AlertTriangle className="w-4 h-4" />
-            Things That Go Wrong
+            Watch Out For
           </span>
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
             Common Failure Modes
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Mentioning 2–3 of these + mitigations shows practical understanding
+            Known pitfalls and how we address them
           </p>
         </motion.div>
 
@@ -122,4 +122,3 @@ export default function FailureModes() {
     </section>
   );
 }
-

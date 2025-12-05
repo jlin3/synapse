@@ -14,13 +14,13 @@ export default function MathSection() {
           className="text-center mb-12"
         >
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 text-slate-700 text-sm font-medium mb-4">
-            Just Enough Math
+            Under the Hood
           </span>
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
             The Core Equation
           </h2>
           <p className="text-xl text-gray-600">
-            Show you understand it, but keep it simple
+            The math that powers semantic retrieval
           </p>
         </motion.div>
 
@@ -121,7 +121,7 @@ export default function MathSection() {
           className="mt-8 grid md:grid-cols-2 gap-6"
         >
           <div className="glass rounded-2xl p-6">
-            <h4 className="font-semibold text-gray-500 mb-3">Traditional ML</h4>
+            <h4 className="font-semibold text-gray-500 mb-3">Traditional ML Approach</h4>
             <code className="text-sm block bg-gray-100 rounded-lg p-3 text-gray-800">
               features = [cosine_sim(q, doc_i)]<br/>
               → GBDT → label
@@ -145,4 +145,3 @@ export default function MathSection() {
     </section>
   );
 }
-

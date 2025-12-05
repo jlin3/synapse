@@ -18,7 +18,7 @@ export default function Hero() {
           className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/60 border border-gray-200 mb-8"
         >
           <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-          <span className="text-sm text-gray-600 font-medium">The Pattern Powering Modern AI</span>
+          <span className="text-sm text-gray-600 font-medium">Internal Knowledge Base</span>
         </motion.div>
 
         <h1 className="text-6xl md:text-8xl font-bold tracking-tight leading-[0.9] mb-6">
@@ -72,4 +72,3 @@ export default function Hero() {
     </section>
   );
 }
-

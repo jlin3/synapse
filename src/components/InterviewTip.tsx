@@ -1,17 +1,17 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Quote, Copy, Check } from "lucide-react";
+import { Bookmark, Copy, Check } from "lucide-react";
 import { useState } from "react";
 
-const oneLiners = [
+const keyDefinitions = [
   {
-    context: "30-second definition",
-    quote: "RAG is a pattern where, before calling an LLM, I run a search over my own documents, pull the top-k relevant chunks, and stuff them into the prompt so the model answers grounded in that retrieved context.",
+    context: "The Core Pattern",
+    quote: "RAG is a pattern where, before calling an LLM, we run a search over our own documents, pull the top-k relevant chunks, and stuff them into the prompt so the model answers grounded in that retrieved context.",
   },
   {
     context: "RAG vs Fine-tuning",
-    quote: "If the knowledge changes often or is large and structured, I default to RAG. If I need the model to change its behavior or style, I reach for fine-tuning.",
+    quote: "If the knowledge changes often or is large and structured, we use RAG. If we need the model to change its behavior or style, we reach for fine-tuning.",
   },
   {
     context: "RAG vs Semantic Search",
@@ -39,19 +39,19 @@ export default function InterviewTip() {
           className="text-center mb-12"
         >
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-indigo-500/10 text-blue-700 text-sm font-medium mb-4">
-            <Quote className="w-4 h-4" />
-            Interview Ready
+            <Bookmark className="w-4 h-4" />
+            Quick Reference
           </span>
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-            One-Liners to Memorize
+            Key Definitions
           </h2>
           <p className="text-xl text-gray-600">
-            Fire these off confidently, then go deeper
+            How we talk about RAG across the team
           </p>
         </motion.div>
 
         <div className="space-y-6">
-          {oneLiners.map((item, index) => (
+          {keyDefinitions.map((item, index) => (
             <motion.div
               key={item.context}
               initial={{ opacity: 0, y: 20 }}
@@ -83,7 +83,7 @@ export default function InterviewTip() {
           ))}
         </div>
 
-        {/* Big quote card */}
+        {/* Summary card */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -98,10 +98,10 @@ export default function InterviewTip() {
               At query time we embed the user question, retrieve the most similar chunks, optionally rerank them, and
               then pass both the question and those chunks into an LLM. The LLM&apos;s job is just to read that context
               and synthesize an answer, not to guess from pretraining.
-              <span className="text-blue-400 font-semibold"> That&apos;s RAG in a sentence.</span>
+              <span className="text-blue-400 font-semibold"> That&apos;s RAG in a nutshell.</span>
             </p>
             <p className="text-sm text-slate-400">
-              — How to explain RAG to an engineer on your team
+              — The full picture in one paragraph
             </p>
           </div>
         </motion.div>
@@ -109,4 +109,3 @@ export default function InterviewTip() {
     </section>
   );
 }
-
