@@ -60,8 +60,8 @@ export default function ProposalHero() {
         >
           {[
             { label: "Phase I", value: "~$93k", subtext: "4 months • MVP" },
-            { label: "Phase II", value: "~$300k", subtext: "6 months • Scale" },
-            { label: "Total Build", value: "~$393k", subtext: "10 months end-to-end" },
+            { label: "Phase II", value: "~$420k", subtext: "6 months • Scale" },
+            { label: "Total Build", value: "~$513k", subtext: "10 months end-to-end" },
           ].map((stat) => (
             <div
               key={stat.label}

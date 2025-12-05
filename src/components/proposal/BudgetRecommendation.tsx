@@ -26,13 +26,19 @@ const mvpBudget = [
 
 const phase2Budget = [
   {
-    category: "Personnel — You (6 months)",
+    category: "Founding Engineer (6 months)",
     amount: "$125k",
     detail: "$250k/year prorated",
     type: "people",
   },
   {
     category: "ML Engineer (Contract)",
+    amount: "$125k",
+    detail: "6-month engagement",
+    type: "people",
+  },
+  {
+    category: "Data / Backend Engineer",
     amount: "$125k",
     detail: "6-month engagement",
     type: "people",
@@ -51,7 +57,7 @@ const phase2Budget = [
   },
   {
     category: "Total Phase II (6 months)",
-    amount: "$283k–$315k",
+    amount: "$408k–$440k",
     detail: "Full team + infra",
     type: "total",
   },
@@ -198,7 +204,7 @@ export default function BudgetRecommendation() {
               <div>
                 <h4 className="font-semibold text-white mb-2">People Costs Dominate</h4>
                 <p className="text-sm text-slate-400">
-                  Personnel is ~90% of total cost. Infra/tooling (~$20k for 10 months) is relatively cheap compared to talent investment (~$360k for full build).
+                  Personnel is ~95% of total cost. Infra/tooling (~$20k for 10 months) is relatively cheap compared to talent investment (~$480k for full build).
                 </p>
               </div>
             </div>
@@ -210,7 +216,7 @@ export default function BudgetRecommendation() {
               <div>
                 <h4 className="font-semibold text-white mb-2">Phased Build Strategy</h4>
                 <p className="text-sm text-slate-400">
-                  Phase I (4 months, ~$93k) establishes core infrastructure. Phase II (6 months, ~$300k) expands team and scales to full vision.
+                  Phase I (4 months, ~$93k) establishes core infrastructure. Phase II (6 months, ~$420k) scales team to 4 engineers + designer.
                 </p>
               </div>
             </div>
@@ -233,7 +239,7 @@ export default function BudgetRecommendation() {
             <span className="text-white font-semibold">Phase I (MVP):</span> ~$93k total (4 months) = $83k personnel + $10k tooling
           </blockquote>
           <blockquote className="text-lg md:text-xl text-slate-300 leading-relaxed">
-            <span className="text-white font-semibold">Phase II (Scale):</span> ~$300k (6 months) = $275k team + $8k–$15k infra
+            <span className="text-white font-semibold">Phase II (Scale):</span> ~$420k (6 months) = $400k team + $10k–$15k infra
           </blockquote>
           <div className="mt-6 pt-6 border-t border-white/10">
             <p className="text-sm text-slate-400">

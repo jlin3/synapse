@@ -1,12 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { User, Users, Code, Settings, BarChart3, Palette } from "lucide-react";
+import { User, Users, Code, Settings, Database, Palette } from "lucide-react";
 
 const roles = [
   {
     icon: User,
-    title: "You (Founding ML / Full-Stack Engineer)",
+    title: "Founding Full-Stack + ML Engineer",
     type: "core",
     color: "from-emerald-400 to-teal-500",
     budget: "$250k/year",
@@ -28,10 +28,25 @@ const roles = [
     budgetDetail: "6-month engagement",
     timing: "Full-time contract",
     responsibilities: [
-      "Hardening data pipelines & feature store",
       "Deep ranking model development",
       "Proper eval harness & offline metrics (AUC, NDCG@K, recall@K)",
+      "Model serving optimization",
+      "Experimentation framework",
+    ],
+  },
+  {
+    icon: Database,
+    title: "Data / Backend Engineer (Contract)",
+    type: "phase2",
+    color: "from-blue-400 to-indigo-500",
+    budget: "$125k",
+    budgetDetail: "6-month engagement",
+    timing: "Full-time contract",
+    responsibilities: [
+      "Data pipelines & feature store hardening",
       "Scale engineering for production load",
+      "Backend API optimization",
+      "Data quality & monitoring",
     ],
   },
   {
@@ -52,7 +67,7 @@ const roles = [
     icon: Settings,
     title: "Infra / DevOps (Fractional)",
     type: "optional",
-    color: "from-blue-400 to-cyan-500",
+    color: "from-cyan-400 to-teal-500",
     budget: "$5k–$15k",
     budgetDetail: "MVP phase only",
     timing: "5–10 hours/week",
@@ -83,7 +98,7 @@ export default function PeoplePlan() {
             People Plan & Roles
           </h2>
           <p className="text-xl text-slate-400 max-w-2xl mx-auto">
-            MVP is achievable with yourself as primary engineer plus optional fractional help
+            Led by a technically strong founding full-stack + ML engineer
           </p>
         </motion.div>
 
