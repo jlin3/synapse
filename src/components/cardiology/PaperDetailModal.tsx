@@ -1,8 +1,9 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ExternalLink, Loader2, Sparkles, Baby, ListChecks, Bookmark, Share2, Link2, Check } from "lucide-react";
+import { X, ExternalLink, Loader2, Sparkles, Baby, ListChecks, Bookmark, Share2, Link2, Check, Quote, FileText } from "lucide-react";
 import { useState, useEffect } from "react";
+import { generateBibTeX, generateAPA, copyToClipboard } from "@/lib/citations";
 
 interface Paper {
   id: string;
@@ -21,12 +22,23 @@ interface PaperInsights {
   highlights: string[];
 }
 
+interface RelatedPaper {
+  id: string;
+  title: string;
+  authors: string[];
+  publicationDate: string;
+  doi: string | null;
+  citedByCount: number;
+  journal: string | null;
+}
+
 interface PaperDetailModalProps {
   paper: Paper | null;
   isOpen: boolean;
   onClose: () => void;
   isBookmarked?: boolean;
   onToggleBookmark?: () => void;
+  onSelectPaper?: (paper: Paper) => void;
 }
 
 type TabType = "synthesis" | "eli5" | "highlights";
@@ -37,6 +49,7 @@ export default function PaperDetailModal({
   onClose,
   isBookmarked,
   onToggleBookmark,
+  onSelectPaper,
 }: PaperDetailModalProps) {
   const [activeTab, setActiveTab] = useState<TabType>("synthesis");
   const [insights, setInsights] = useState<PaperInsights | null>(null);
@@ -44,10 +57,14 @@ export default function PaperDetailModal({
   const [error, setError] = useState<string | null>(null);
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [copiedCitation, setCopiedCitation] = useState<"bibtex" | "apa" | null>(null);
+  const [relatedPapers, setRelatedPapers] = useState<RelatedPaper[]>([]);
+  const [loadingRelated, setLoadingRelated] = useState(false);
 
   useEffect(() => {
     if (paper && isOpen) {
       fetchInsights();
+      fetchRelatedPapers();
     }
   }, [paper?.id, isOpen]);
 
@@ -89,6 +106,28 @@ export default function PaperDetailModal({
       console.error("Error fetching insights:", err);
     } finally {
       setLoadingInsights(false);
+    }
+  };
+
+  const fetchRelatedPapers = async () => {
+    if (!paper) return;
+    
+    setLoadingRelated(true);
+    setRelatedPapers([]);
+    
+    try {
+      const response = await fetch(`/api/related-papers?id=${encodeURIComponent(paper.id)}`);
+      
+      if (!response.ok) {
+        throw new Error("Failed to fetch related papers");
+      }
+      
+      const data = await response.json();
+      setRelatedPapers(data.relatedPapers || []);
+    } catch (err) {
+      console.error("Error fetching related papers:", err);
+    } finally {
+      setLoadingRelated(false);
     }
   };
 
@@ -146,6 +185,26 @@ export default function PaperDetailModal({
     const subject = `Research Paper: ${paper?.title}`;
     const body = `I thought you might find this research paper interesting:\n\n${paper?.title}\n\n${getShareUrl()}`;
     window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  };
+
+  const handleCopyBibTeX = async () => {
+    if (!paper) return;
+    const bibtex = generateBibTeX(paper);
+    const success = await copyToClipboard(bibtex);
+    if (success) {
+      setCopiedCitation("bibtex");
+      setTimeout(() => setCopiedCitation(null), 2000);
+    }
+  };
+
+  const handleCopyAPA = async () => {
+    if (!paper) return;
+    const apa = generateAPA(paper);
+    const success = await copyToClipboard(apa);
+    if (success) {
+      setCopiedCitation("apa");
+      setTimeout(() => setCopiedCitation(null), 2000);
+    }
   };
 
   return (
@@ -279,17 +338,44 @@ export default function PaperDetailModal({
                 </div>
               </div>
 
-              {paper.doi && (
-                <a
-                  href={`https://doi.org/${paper.doi.replace("https://doi.org/", "")}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
+              {/* Action Buttons */}
+              <div className="mt-4 flex flex-wrap items-center gap-2">
+                {paper.doi && (
+                  <a
+                    href={`https://doi.org/${paper.doi.replace("https://doi.org/", "")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    Read Full Paper
+                  </a>
+                )}
+                
+                {/* Citation Buttons */}
+                <button
+                  onClick={handleCopyBibTeX}
+                  className="inline-flex items-center gap-2 px-3 py-2 bg-zinc-800 text-zinc-300 text-sm font-medium rounded-lg hover:bg-zinc-700 transition-colors border border-zinc-700"
                 >
-                  <ExternalLink className="w-4 h-4" />
-                  Read Full Paper
-                </a>
-              )}
+                  {copiedCitation === "bibtex" ? (
+                    <Check className="w-4 h-4 text-green-400" />
+                  ) : (
+                    <FileText className="w-4 h-4" />
+                  )}
+                  {copiedCitation === "bibtex" ? "Copied!" : "BibTeX"}
+                </button>
+                <button
+                  onClick={handleCopyAPA}
+                  className="inline-flex items-center gap-2 px-3 py-2 bg-zinc-800 text-zinc-300 text-sm font-medium rounded-lg hover:bg-zinc-700 transition-colors border border-zinc-700"
+                >
+                  {copiedCitation === "apa" ? (
+                    <Check className="w-4 h-4 text-green-400" />
+                  ) : (
+                    <Quote className="w-4 h-4" />
+                  )}
+                  {copiedCitation === "apa" ? "Copied!" : "APA"}
+                </button>
+              </div>
             </div>
 
             {/* Content */}
@@ -400,6 +486,58 @@ export default function PaperDetailModal({
                   </p>
                 </div>
               )}
+
+              {/* Related Papers */}
+              <div className="border-t border-zinc-800 pt-6 mt-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="p-1.5 bg-cyan-500/20 rounded-lg">
+                    <LinkIcon className="w-4 h-4 text-cyan-400" />
+                  </div>
+                  <h3 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider">
+                    Related Papers
+                  </h3>
+                </div>
+
+                {loadingRelated ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="w-6 h-6 text-cyan-500 animate-spin" />
+                  </div>
+                ) : relatedPapers.length === 0 ? (
+                  <p className="text-sm text-zinc-500 py-4">No related papers found</p>
+                ) : (
+                  <div className="space-y-3">
+                    {relatedPapers.map((related) => (
+                      <button
+                        key={related.id}
+                        onClick={() => {
+                          if (onSelectPaper) {
+                            onSelectPaper({
+                              ...related,
+                              abstract: null,
+                            });
+                          }
+                        }}
+                        className="w-full text-left p-3 bg-zinc-800/30 rounded-xl border border-zinc-700/50 hover:border-cyan-500/30 hover:bg-zinc-800/50 transition-all group"
+                      >
+                        <h4 className="text-sm font-medium text-white group-hover:text-cyan-400 transition-colors line-clamp-2">
+                          {related.title}
+                        </h4>
+                        <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-zinc-500">
+                          <span>{related.authors.slice(0, 2).join(", ")}{related.authors.length > 2 && " et al."}</span>
+                          <span>•</span>
+                          <span>{new Date(related.publicationDate).getFullYear()}</span>
+                          {related.citedByCount > 0 && (
+                            <>
+                              <span>•</span>
+                              <span>{related.citedByCount} citations</span>
+                            </>
+                          )}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </motion.div>
         </>
@@ -430,6 +568,15 @@ function EmailIcon({ className }: { className?: string }) {
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <rect width="20" height="16" x="2" y="4" rx="2" />
       <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+    </svg>
+  );
+}
+
+function LinkIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
     </svg>
   );
 }

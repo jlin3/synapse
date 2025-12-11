@@ -1,18 +1,20 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Search } from "lucide-react";
+import { Search, Upload } from "lucide-react";
 
 interface HeaderProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
   onSearch: () => void;
+  onImportClick?: () => void;
 }
 
 export default function Header({
   searchQuery,
   onSearchChange,
   onSearch,
+  onImportClick,
 }: HeaderProps) {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
@@ -56,6 +58,15 @@ export default function Header({
         </div>
 
         <div className="flex items-center gap-3">
+          {onImportClick && (
+            <button
+              onClick={onImportClick}
+              className="px-4 py-2 bg-zinc-800 text-zinc-300 text-sm font-medium rounded-lg hover:bg-zinc-700 transition-colors border border-zinc-700 flex items-center gap-2"
+            >
+              <Upload className="w-4 h-4" />
+              Import
+            </button>
+          )}
           <a
             href="https://synapsesocial.com"
             target="_blank"

@@ -178,6 +178,7 @@ export default function PaperList({
         onClose={handleCloseModal}
         isBookmarked={selectedPaper ? isBookmarked(selectedPaper.id) : false}
         onToggleBookmark={selectedPaper ? () => toggleBookmark(selectedPaper) : undefined}
+        onSelectPaper={(paper) => setSelectedPaper(paper)}
       />
     </>
   );

@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import Header from "@/components/cardiology/Header";
 import PaperList from "@/components/cardiology/PaperList";
 import SocialFeed from "@/components/cardiology/SocialFeed";
+import ImportModal from "@/components/cardiology/ImportModal";
 
 interface Paper {
   id: string;
@@ -28,6 +29,13 @@ interface SocialPost {
   retweets?: number;
 }
 
+interface ImportedTopic {
+  name: string;
+  query: string;
+  source: "pubmed";
+  importedAt: string;
+}
+
 export default function CardiologyPage() {
   const [searchQuery, setSearchQuery] = useState("cardiology");
   const [papers, setPapers] = useState<Paper[]>([]);
@@ -35,6 +43,7 @@ export default function CardiologyPage() {
   const [loadingPapers, setLoadingPapers] = useState(true);
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [sortBy, setSortBy] = useState<"recent" | "top">("recent");
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   const fetchPapers = useCallback(async (query: string, sort: "recent" | "top") => {
     setLoadingPapers(true);
@@ -87,6 +96,14 @@ export default function CardiologyPage() {
     fetchPapers(searchQuery, newSort);
   };
 
+  const handleImportSuccess = (topic: ImportedTopic) => {
+    // Update the search query with the imported topic
+    setSearchQuery(topic.query);
+    // Fetch papers and posts for the new topic
+    fetchPapers(topic.query, sortBy);
+    fetchPosts(topic.query);
+  };
+
   return (
     <div className="min-h-screen bg-[#0a0a0a] relative">
       {/* Top gradient glow effect */}
@@ -96,6 +113,7 @@ export default function CardiologyPage() {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         onSearch={handleSearch}
+        onImportClick={() => setIsImportModalOpen(true)}
       />
 
       <main className="max-w-7xl mx-auto px-6 py-8 relative z-10">
@@ -142,6 +160,13 @@ export default function CardiologyPage() {
       <footer className="py-6 text-center text-sm text-zinc-600 relative z-10">
         <p>Powered by OpenAlex & xAI Grok</p>
       </footer>
+
+      {/* Import Modal */}
+      <ImportModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onImportSuccess={handleImportSuccess}
+      />
     </div>
   );
 }
