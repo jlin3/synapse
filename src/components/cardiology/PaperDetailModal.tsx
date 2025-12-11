@@ -157,20 +157,8 @@ export default function PaperDetailModal({ paper, isOpen, onClose }: PaperDetail
 
             {/* Content */}
             <div className="flex-1 overflow-y-auto p-6">
-              {/* Abstract */}
-              {paper.abstract && (
-                <div className="mb-6">
-                  <h3 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-3">
-                    Abstract
-                  </h3>
-                  <p className="text-zinc-300 leading-relaxed text-sm">
-                    {paper.abstract}
-                  </p>
-                </div>
-              )}
-
               {/* AI Insights */}
-              <div className="border-t border-zinc-800 pt-6">
+              <div className="mb-6">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="p-1.5 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-lg">
                     <Sparkles className="w-4 h-4 text-purple-400" />
@@ -263,6 +251,18 @@ export default function PaperDetailModal({ paper, isOpen, onClose }: PaperDetail
                   )}
                 </div>
               </div>
+
+              {/* Abstract */}
+              {paper.abstract && (
+                <div className="border-t border-zinc-800 pt-6">
+                  <h3 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-3">
+                    Abstract
+                  </h3>
+                  <p className="text-zinc-300 leading-relaxed text-sm">
+                    {paper.abstract}
+                  </p>
+                </div>
+              )}
             </div>
           </motion.div>
         </>
