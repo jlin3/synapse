@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import PaperCard from "./PaperCard";
 import PaperDetailModal from "./PaperDetailModal";
 import { Loader2, Bookmark } from "lucide-react";
 import { useBookmarks } from "@/hooks/useBookmarks";
+import { useVotes } from "@/hooks/useVotes";
+import { usePaperMetadata } from "@/hooks/usePaperMetadata";
 
 interface Paper {
   id: string;
@@ -38,6 +40,22 @@ export default function PaperList({
   const [view, setView] = useState<ViewType>("all");
   
   const { bookmarks, isBookmarked, toggleBookmark, isLoaded } = useBookmarks();
+  
+  // Get all paper IDs for vote fetching
+  const paperIds = useMemo(() => {
+    const allPapers = view === "saved" ? bookmarks : papers;
+    return allPapers.map((p) => p.id);
+  }, [papers, bookmarks, view]);
+  
+  const { getVote, toggleUpvote, toggleDownvote } = useVotes(paperIds);
+  
+  // Get paper metadata for badges
+  const papersForMetadata = useMemo(() => {
+    const allPapers = view === "saved" ? bookmarks : papers;
+    return allPapers.map((p) => ({ id: p.id, title: p.title, abstract: p.abstract }));
+  }, [papers, bookmarks, view]);
+  
+  const { getBadges, getRigorLevel } = usePaperMetadata(papersForMetadata);
 
   const handlePaperClick = (paper: Paper) => {
     setSelectedPaper(paper);
@@ -152,22 +170,31 @@ export default function PaperList({
           </div>
         ) : (
           <div className="flex-1 overflow-y-auto space-y-3 pr-2 -mr-2">
-            {displayedPapers.map((paper, index) => (
-              <PaperCard
-                key={paper.id}
-                title={paper.title}
-                authors={paper.authors}
-                publicationDate={paper.publicationDate}
-                abstract={paper.abstract}
-                citedByCount={paper.citedByCount}
-                journal={paper.journal}
-                doi={paper.doi}
-                index={index}
-                onClick={() => handlePaperClick(paper)}
-                isBookmarked={isBookmarked(paper.id)}
-                onToggleBookmark={() => toggleBookmark(paper)}
-              />
-            ))}
+            {displayedPapers.map((paper, index) => {
+              const vote = getVote(paper.id);
+              return (
+                <PaperCard
+                  key={paper.id}
+                  title={paper.title}
+                  authors={paper.authors}
+                  publicationDate={paper.publicationDate}
+                  abstract={paper.abstract}
+                  citedByCount={paper.citedByCount}
+                  journal={paper.journal}
+                  doi={paper.doi}
+                  index={index}
+                  onClick={() => handlePaperClick(paper)}
+                  isBookmarked={isBookmarked(paper.id)}
+                  onToggleBookmark={() => toggleBookmark(paper)}
+                  voteScore={vote.score}
+                  userVote={vote.userVote}
+                  onUpvote={() => toggleUpvote(paper.id)}
+                  onDownvote={() => toggleDownvote(paper.id)}
+                  badges={getBadges(paper.id)}
+                  rigorLevel={getRigorLevel(paper.id)}
+                />
+              );
+            })}
           </div>
         )}
       </div>

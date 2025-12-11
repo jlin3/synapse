@@ -1,13 +1,13 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Upload, Loader2, Check, AlertCircle, Rss } from "lucide-react";
+import { X, Upload, Loader2, Check, AlertCircle, Rss, GraduationCap, BookOpen } from "lucide-react";
 import { useState } from "react";
 
 interface ImportedTopic {
   name: string;
   query: string;
-  source: "pubmed";
+  source: "pubmed" | "google_scholar";
   importedAt: string;
 }
 
@@ -17,7 +17,10 @@ interface ImportModalProps {
   onImportSuccess: (topic: ImportedTopic) => void;
 }
 
+type ImportSource = "pubmed" | "google_scholar";
+
 export default function ImportModal({ isOpen, onClose, onImportSuccess }: ImportModalProps) {
+  const [activeSource, setActiveSource] = useState<ImportSource>("pubmed");
   const [rssUrl, setRssUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,7 +28,7 @@ export default function ImportModal({ isOpen, onClose, onImportSuccess }: Import
 
   const handleImport = async () => {
     if (!rssUrl.trim()) {
-      setError("Please enter a PubMed RSS feed URL");
+      setError(`Please enter a ${activeSource === "pubmed" ? "PubMed" : "Google Scholar"} RSS feed URL`);
       return;
     }
 
@@ -34,7 +37,7 @@ export default function ImportModal({ isOpen, onClose, onImportSuccess }: Import
     setSuccess(null);
 
     try {
-      const response = await fetch("/api/import-pubmed", {
+      const response = await fetch("/api/import-feeds", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -51,7 +54,6 @@ export default function ImportModal({ isOpen, onClose, onImportSuccess }: Import
       setSuccess(data.message);
       onImportSuccess(data.topic);
       
-      // Clear and close after success
       setTimeout(() => {
         setRssUrl("");
         setSuccess(null);
@@ -69,6 +71,13 @@ export default function ImportModal({ isOpen, onClose, onImportSuccess }: Import
     setError(null);
     setSuccess(null);
     onClose();
+  };
+
+  const handleSourceChange = (source: ImportSource) => {
+    setActiveSource(source);
+    setRssUrl("");
+    setError(null);
+    setSuccess(null);
   };
 
   return (
@@ -99,7 +108,7 @@ export default function ImportModal({ isOpen, onClose, onImportSuccess }: Import
                     <Upload className="w-5 h-5 text-purple-400" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-semibold text-white">Import from PubMed</h2>
+                    <h2 className="text-lg font-semibold text-white">Import Alerts</h2>
                     <p className="text-sm text-zinc-500">Import your saved searches via RSS</p>
                   </div>
                 </div>
@@ -114,32 +123,79 @@ export default function ImportModal({ isOpen, onClose, onImportSuccess }: Import
 
             {/* Content */}
             <div className="p-6">
-              {/* Instructions */}
-              <div className="mb-6 p-4 bg-zinc-800/50 rounded-xl border border-zinc-700/50">
-                <h3 className="text-sm font-medium text-white mb-2 flex items-center gap-2">
-                  <Rss className="w-4 h-4 text-orange-400" />
-                  How to get your PubMed RSS feed URL:
-                </h3>
-                <ol className="text-sm text-zinc-400 space-y-1.5 list-decimal list-inside">
-                  <li>Go to <a href="https://pubmed.ncbi.nlm.nih.gov" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:underline">pubmed.ncbi.nlm.nih.gov</a></li>
-                  <li>Search for your topic of interest</li>
-                  <li>Click &quot;Create RSS&quot; below the search box</li>
-                  <li>Copy the RSS feed URL and paste it below</li>
-                </ol>
+              {/* Source Tabs */}
+              <div className="flex gap-2 p-1 bg-zinc-800/50 rounded-xl mb-6">
+                <button
+                  onClick={() => handleSourceChange("pubmed")}
+                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg transition-all ${
+                    activeSource === "pubmed"
+                      ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+                      : "text-zinc-400 hover:text-white hover:bg-zinc-700/50"
+                  }`}
+                >
+                  <BookOpen className="w-4 h-4" />
+                  PubMed
+                </button>
+                <button
+                  onClick={() => handleSourceChange("google_scholar")}
+                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg transition-all ${
+                    activeSource === "google_scholar"
+                      ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+                      : "text-zinc-400 hover:text-white hover:bg-zinc-700/50"
+                  }`}
+                >
+                  <GraduationCap className="w-4 h-4" />
+                  Google Scholar
+                </button>
               </div>
+
+              {/* Instructions */}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeSource}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                  className="mb-6 p-4 bg-zinc-800/50 rounded-xl border border-zinc-700/50"
+                >
+                  <h3 className="text-sm font-medium text-white mb-2 flex items-center gap-2">
+                    <Rss className="w-4 h-4 text-orange-400" />
+                    {activeSource === "pubmed" ? "How to get your PubMed RSS feed:" : "How to get your Google Scholar alerts:"}
+                  </h3>
+                  {activeSource === "pubmed" ? (
+                    <ol className="text-sm text-zinc-400 space-y-1.5 list-decimal list-inside">
+                      <li>Go to <a href="https://pubmed.ncbi.nlm.nih.gov" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:underline">pubmed.ncbi.nlm.nih.gov</a></li>
+                      <li>Search for your topic of interest</li>
+                      <li>Click &quot;Create RSS&quot; below the search box</li>
+                      <li>Copy the RSS feed URL and paste it below</li>
+                    </ol>
+                  ) : (
+                    <ol className="text-sm text-zinc-400 space-y-1.5 list-decimal list-inside">
+                      <li>Go to <a href="https://scholar.google.com" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:underline">scholar.google.com</a></li>
+                      <li>Search for your topic of interest</li>
+                      <li>Click &quot;Create alert&quot; in the left sidebar</li>
+                      <li>In your email, find the RSS link or copy the alert URL</li>
+                    </ol>
+                  )}
+                </motion.div>
+              </AnimatePresence>
 
               {/* Input */}
               <div className="space-y-4">
                 <div>
                   <label htmlFor="rss-url" className="block text-sm font-medium text-zinc-400 mb-2">
-                    PubMed RSS Feed URL
+                    {activeSource === "pubmed" ? "PubMed RSS Feed URL" : "Google Scholar Alert URL"}
                   </label>
                   <input
                     id="rss-url"
                     type="url"
                     value={rssUrl}
                     onChange={(e) => setRssUrl(e.target.value)}
-                    placeholder="https://pubmed.ncbi.nlm.nih.gov/rss/search/..."
+                    placeholder={activeSource === "pubmed" 
+                      ? "https://pubmed.ncbi.nlm.nih.gov/rss/search/..." 
+                      : "https://scholar.google.com/scholar?q=..."
+                    }
                     className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/30 transition-all text-sm"
                     disabled={loading}
                   />

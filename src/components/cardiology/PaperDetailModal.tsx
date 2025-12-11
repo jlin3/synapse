@@ -1,9 +1,11 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ExternalLink, Loader2, Sparkles, Baby, ListChecks, Bookmark, Share2, Link2, Check, Quote, FileText } from "lucide-react";
+import { X, ExternalLink, Loader2, Sparkles, Baby, ListChecks, Bookmark, Share2, Link2, Check, Quote, FileText, MessageSquare, Send, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { generateBibTeX, generateAPA, copyToClipboard } from "@/lib/citations";
+import { useComments } from "@/hooks/useComments";
+import { useUser } from "@/hooks/useUser";
 
 interface Paper {
   id: string;
@@ -60,11 +62,18 @@ export default function PaperDetailModal({
   const [copiedCitation, setCopiedCitation] = useState<"bibtex" | "apa" | null>(null);
   const [relatedPapers, setRelatedPapers] = useState<RelatedPaper[]>([]);
   const [loadingRelated, setLoadingRelated] = useState(false);
+  const [newComment, setNewComment] = useState("");
+  const [displayNameInput, setDisplayNameInput] = useState("");
+  
+  // Comments
+  const { comments, count: commentCount, isLoading: loadingComments, isSubmitting, addComment, deleteComment, isOwnComment } = useComments(paper?.id || null);
+  const { displayName, setDisplayName } = useUser();
 
   useEffect(() => {
     if (paper && isOpen) {
       fetchInsights();
       fetchRelatedPapers();
+      setNewComment("");
     }
   }, [paper?.id, isOpen]);
 
@@ -205,6 +214,36 @@ export default function PaperDetailModal({
       setCopiedCitation("apa");
       setTimeout(() => setCopiedCitation(null), 2000);
     }
+  };
+
+  const handleSubmitComment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newComment.trim()) return;
+    
+    // Save display name if provided
+    if (displayNameInput.trim() && displayNameInput !== displayName) {
+      setDisplayName(displayNameInput.trim());
+    }
+    
+    const success = await addComment(newComment, displayNameInput.trim() || displayName || undefined);
+    if (success) {
+      setNewComment("");
+    }
+  };
+
+  const formatCommentDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    
+    if (diffMins < 1) return "just now";
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString();
   };
 
   return (
@@ -534,6 +573,103 @@ export default function PaperDetailModal({
                           )}
                         </div>
                       </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Comments Section */}
+              <div className="border-t border-zinc-800 pt-6 mt-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="p-1.5 bg-amber-500/20 rounded-lg">
+                    <MessageSquare className="w-4 h-4 text-amber-400" />
+                  </div>
+                  <h3 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider">
+                    Discussion
+                  </h3>
+                  {commentCount > 0 && (
+                    <span className="text-xs text-zinc-500">({commentCount})</span>
+                  )}
+                </div>
+
+                {/* Comment Form */}
+                <form onSubmit={handleSubmitComment} className="mb-6">
+                  {!displayName && (
+                    <input
+                      type="text"
+                      value={displayNameInput}
+                      onChange={(e) => setDisplayNameInput(e.target.value)}
+                      placeholder="Your name (optional)"
+                      className="w-full px-3 py-2 mb-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500/50 text-sm"
+                    />
+                  )}
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                      placeholder="Add a comment..."
+                      className="flex-1 px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500/50 text-sm"
+                      disabled={isSubmitting}
+                    />
+                    <button
+                      type="submit"
+                      disabled={isSubmitting || !newComment.trim()}
+                      className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isSubmitting ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Send className="w-4 h-4" />
+                      )}
+                    </button>
+                  </div>
+                </form>
+
+                {/* Comments List */}
+                {loadingComments ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="w-6 h-6 text-amber-500 animate-spin" />
+                  </div>
+                ) : comments.length === 0 ? (
+                  <p className="text-sm text-zinc-500 text-center py-4">
+                    No comments yet. Be the first to share your thoughts!
+                  </p>
+                ) : (
+                  <div className="space-y-4">
+                    {comments.map((comment) => (
+                      <div
+                        key={comment.id}
+                        className="p-3 bg-zinc-800/30 rounded-xl border border-zinc-700/50"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-white text-xs font-bold">
+                              {comment.displayName.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                              <span className="text-sm font-medium text-white">
+                                {comment.displayName}
+                              </span>
+                              <span className="text-xs text-zinc-500 ml-2">
+                                {formatCommentDate(comment.createdAt)}
+                              </span>
+                            </div>
+                          </div>
+                          {isOwnComment(comment) && (
+                            <button
+                              onClick={() => deleteComment(comment.id)}
+                              className="p-1 text-zinc-500 hover:text-red-400 transition-colors"
+                              aria-label="Delete comment"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
+                        <p className="mt-2 text-sm text-zinc-300 leading-relaxed">
+                          {comment.content}
+                        </p>
+                      </div>
                     ))}
                   </div>
                 )}

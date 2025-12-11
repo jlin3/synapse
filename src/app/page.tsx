@@ -32,7 +32,7 @@ interface SocialPost {
 interface ImportedTopic {
   name: string;
   query: string;
-  source: "pubmed";
+  source: "pubmed" | "google_scholar";
   importedAt: string;
 }
 
