@@ -124,10 +124,10 @@ export default function CardiologyPage() {
           className="mb-6 text-center"
         >
           <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
-            <span className="gradient-text">Cardiology</span> Research
+            <span className="gradient-text">Follow Any</span> Research
           </h1>
           <p className="text-zinc-400 text-base max-w-2xl mx-auto">
-            Discover the latest papers and social discussions in cardiovascular medicine
+            Type it. Synapse builds your daily feed of papers with AI summaries & social discussions.
           </p>
         </motion.div>
 

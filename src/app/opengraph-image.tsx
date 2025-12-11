@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "Synapster - AI-Powered Cardiology Research Discovery";
+export const alt = "Synapse - Follow Any Research";
 export const size = {
   width: 1200,
   height: 630,
@@ -29,10 +29,10 @@ export default async function Image() {
             display: "flex",
             alignItems: "center",
             gap: "20px",
-            marginBottom: "32px",
+            marginBottom: "40px",
           }}
         >
-          {/* Simple circle logo representation */}
+          {/* Synapse logo - neural network style */}
           <div
             style={{
               width: "80px",
@@ -53,43 +53,42 @@ export default async function Image() {
               }}
             />
           </div>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <span
-              style={{
-                fontSize: "64px",
-                fontWeight: 700,
-                color: "white",
-                letterSpacing: "-0.03em",
-              }}
-            >
-              Synapster
-            </span>
-          </div>
+          <span
+            style={{
+              fontSize: "72px",
+              fontWeight: 700,
+              color: "white",
+              letterSpacing: "-0.03em",
+            }}
+          >
+            Synapse
+          </span>
         </div>
 
         {/* Tagline */}
         <div
           style={{
             display: "flex",
-            fontSize: "32px",
+            fontSize: "40px",
             fontWeight: 600,
             marginBottom: "24px",
+            color: "white",
           }}
         >
-          <span style={{ color: "#a855f7" }}>AI-Powered</span>
-          <span style={{ color: "white", marginLeft: "12px" }}>Cardiology Research</span>
+          Follow Any Research
         </div>
 
         {/* Description */}
         <div
           style={{
             fontSize: "24px",
-            color: "#71717a",
+            color: "#a1a1aa",
             textAlign: "center",
             maxWidth: "800px",
+            marginBottom: "48px",
           }}
         >
-          Discover papers with AI summaries, ELI5 mode & social discussions
+          Type it. Synapse builds your daily feed of papers.
         </div>
 
         {/* Feature pills */}
@@ -97,10 +96,9 @@ export default async function Image() {
           style={{
             display: "flex",
             gap: "16px",
-            marginTop: "48px",
           }}
         >
-          {["AI Insights", "ELI5 Mode", "Social Feed"].map((feature) => (
+          {["AI Summaries", "ELI5 Mode", "Social Feed"].map((feature) => (
             <div
               key={feature}
               style={{
@@ -137,7 +135,7 @@ export default async function Image() {
             color: "#52525b",
           }}
         >
-          synapster.vercel.app
+          synapsesocial.com
         </div>
       </div>
     ),

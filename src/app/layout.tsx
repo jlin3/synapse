@@ -4,9 +4,9 @@ import "./globals.css";
 const siteUrl = "https://synapster.vercel.app";
 
 export const metadata: Metadata = {
-  title: "Synapster — AI-Powered Cardiology Research Discovery",
-  description: "Discover the latest cardiology research papers with AI-generated summaries, ELI5 explanations, and key highlights. Stay updated with real-time social discussions from X/Twitter.",
-  keywords: ["cardiology", "research papers", "AI", "medical research", "heart disease", "cardiovascular", "science", "academic papers"],
+  title: "Synapse — Follow Any Research",
+  description: "Type it. Synapse builds your daily feed of papers. Discover research with AI summaries, ELI5 explanations, and real-time social discussions.",
+  keywords: ["research papers", "AI", "medical research", "cardiology", "science", "academic papers", "paper discovery"],
   authors: [{ name: "Synapse" }],
   creator: "Synapse",
   publisher: "Synapse",
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   // Apple-specific
   appleWebApp: {
     capable: true,
-    title: "Synapster",
+    title: "Synapse",
     statusBarStyle: "black-translucent",
   },
   
@@ -23,15 +23,15 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: siteUrl,
-    siteName: "Synapster",
-    title: "Synapster — AI-Powered Cardiology Research Discovery",
-    description: "Discover cardiology research papers with AI summaries, ELI5 explanations & key highlights. Plus real-time social discussions.",
+    siteName: "Synapse",
+    title: "Synapse — Follow Any Research",
+    description: "Type it. Synapse builds your daily feed of papers with AI summaries & social discussions.",
     images: [
       {
         url: `${siteUrl}/opengraph-image`,
         width: 1200,
         height: 630,
-        alt: "Synapster - AI-Powered Cardiology Research Discovery",
+        alt: "Synapse - Follow Any Research",
         type: "image/png",
       },
     ],
@@ -39,16 +39,15 @@ export const metadata: Metadata = {
   
   twitter: {
     card: "summary_large_image",
-    title: "Synapster — AI-Powered Cardiology Research",
-    description: "Discover cardiology papers with AI summaries, ELI5 explanations & key highlights.",
-    creator: "@synapse",
+    title: "Synapse — Follow Any Research",
+    description: "Type it. Synapse builds your daily feed of papers with AI summaries & social discussions.",
+    creator: "@synaboratory",
     images: [`${siteUrl}/opengraph-image`],
   },
   
   other: {
-    // Additional meta for iMessage/Apple
     "apple-mobile-web-app-capable": "yes",
-    "apple-mobile-web-app-title": "Synapster",
+    "apple-mobile-web-app-title": "Synapse",
   },
   
   robots: {
@@ -65,14 +64,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Explicit OG image for better iMessage support */}
         <meta property="og:image" content={`${siteUrl}/opengraph-image`} />
         <meta property="og:image:secure_url" content={`${siteUrl}/opengraph-image`} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:image:type" content="image/png" />
-        
-        {/* Preload the OG image */}
         <link rel="preload" href={`${siteUrl}/opengraph-image`} as="image" type="image/png" />
       </head>
       <body className="antialiased">
