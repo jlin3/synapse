@@ -2,6 +2,12 @@ import { NextResponse } from "next/server";
 
 const XAI_API_KEY = process.env.XAI_API_KEY;
 
+// Cache duration: 1 hour (in milliseconds)
+const CACHE_DURATION = 60 * 60 * 1000;
+
+// In-memory cache for social feed results
+const cache = new Map<string, { posts: SocialPost[]; timestamp: number }>();
+
 export interface SocialPost {
   id: string;
   content: string;
@@ -97,9 +103,38 @@ const MOCK_POSTS: SocialPost[] = [
   },
 ];
 
+// Get cached posts if available and not expired
+function getCachedPosts(query: string): SocialPost[] | null {
+  const cached = cache.get(query);
+  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+    console.log(`[Social Feed] Cache hit for query: "${query}"`);
+    return cached.posts;
+  }
+  return null;
+}
+
+// Cache posts for a query
+function setCachedPosts(query: string, posts: SocialPost[]) {
+  cache.set(query, { posts, timestamp: Date.now() });
+  console.log(`[Social Feed] Cached ${posts.length} posts for query: "${query}"`);
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const query = searchParams.get("query") || "cardiology research";
+
+  // Check cache first
+  const cachedPosts = getCachedPosts(query);
+  if (cachedPosts) {
+    return NextResponse.json({ 
+      posts: cachedPosts,
+      cached: true,
+    }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=7200',
+      }
+    });
+  }
 
   if (!XAI_API_KEY) {
     // Return mock data with a note
@@ -226,7 +261,17 @@ Requirements:
       });
     }
 
-    return NextResponse.json({ posts });
+    // Cache the successful response
+    setCachedPosts(query, posts);
+
+    return NextResponse.json({ 
+      posts,
+      cached: false,
+    }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=7200',
+      }
+    });
   } catch (error) {
     console.error("Error fetching social feed:", error);
     // Return mock data on any error
