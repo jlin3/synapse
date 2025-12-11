@@ -12,6 +12,7 @@ interface PaperCardProps {
   journal: string | null;
   doi: string | null;
   index: number;
+  onClick?: () => void;
 }
 
 export default function PaperCard({
@@ -23,6 +24,7 @@ export default function PaperCard({
   journal,
   doi,
   index,
+  onClick,
 }: PaperCardProps) {
   const formattedDate = new Date(publicationDate).toLocaleDateString("en-US", {
     year: "numeric",
@@ -36,12 +38,17 @@ export default function PaperCard({
       : abstract
     : null;
 
+  const handleExternalLinkClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
   return (
     <motion.article
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.05 }}
-      className="group p-5 bg-zinc-900/50 rounded-xl border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900 transition-all duration-300"
+      onClick={onClick}
+      className="group p-5 bg-zinc-900/50 rounded-xl border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900 transition-all duration-300 cursor-pointer"
     >
       <div className="flex items-start justify-between gap-4">
         <h3 className="text-base font-semibold text-white leading-snug group-hover:text-purple-400 transition-colors">
@@ -52,6 +59,7 @@ export default function PaperCard({
             href={`https://doi.org/${doi.replace("https://doi.org/", "")}`}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={handleExternalLinkClick}
             className="shrink-0 p-2 rounded-lg hover:bg-zinc-800 transition-colors"
             aria-label="Open paper"
           >
