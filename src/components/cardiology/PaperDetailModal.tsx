@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ExternalLink, Loader2, Sparkles, Baby, ListChecks } from "lucide-react";
+import { X, ExternalLink, Loader2, Sparkles, Baby, ListChecks, Bookmark, Share2, Link2, Check } from "lucide-react";
 import { useState, useEffect } from "react";
 
 interface Paper {
@@ -25,21 +25,40 @@ interface PaperDetailModalProps {
   paper: Paper | null;
   isOpen: boolean;
   onClose: () => void;
+  isBookmarked?: boolean;
+  onToggleBookmark?: () => void;
 }
 
 type TabType = "synthesis" | "eli5" | "highlights";
 
-export default function PaperDetailModal({ paper, isOpen, onClose }: PaperDetailModalProps) {
+export default function PaperDetailModal({ 
+  paper, 
+  isOpen, 
+  onClose,
+  isBookmarked,
+  onToggleBookmark,
+}: PaperDetailModalProps) {
   const [activeTab, setActiveTab] = useState<TabType>("synthesis");
   const [insights, setInsights] = useState<PaperInsights | null>(null);
   const [loadingInsights, setLoadingInsights] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showShareMenu, setShowShareMenu] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (paper && isOpen) {
       fetchInsights();
     }
   }, [paper?.id, isOpen]);
+
+  // Close share menu when clicking outside
+  useEffect(() => {
+    if (showShareMenu) {
+      const handleClick = () => setShowShareMenu(false);
+      document.addEventListener("click", handleClick);
+      return () => document.removeEventListener("click", handleClick);
+    }
+  }, [showShareMenu]);
 
   const fetchInsights = async () => {
     if (!paper) return;
@@ -86,6 +105,48 @@ export default function PaperDetailModal({ paper, isOpen, onClose }: PaperDetail
     { id: "eli5", label: "ELI5", icon: <Baby className="w-4 h-4" /> },
     { id: "highlights", label: "Highlights", icon: <ListChecks className="w-4 h-4" /> },
   ];
+
+  const getShareUrl = () => {
+    if (!paper?.doi) return window.location.href;
+    return `https://doi.org/${paper.doi.replace("https://doi.org/", "")}`;
+  };
+
+  const handleCopyLink = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(getShareUrl());
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
+  };
+
+  const handleShareX = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const text = `Check out this research paper: "${paper?.title}"`;
+    const url = getShareUrl();
+    window.open(
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
+      "_blank"
+    );
+  };
+
+  const handleShareLinkedIn = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const url = getShareUrl();
+    window.open(
+      `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
+      "_blank"
+    );
+  };
+
+  const handleShareEmail = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const subject = `Research Paper: ${paper?.title}`;
+    const body = `I thought you might find this research paper interesting:\n\n${paper?.title}\n\n${getShareUrl()}`;
+    window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  };
 
   return (
     <AnimatePresence>
@@ -134,12 +195,88 @@ export default function PaperDetailModal({ paper, isOpen, onClose }: PaperDetail
                     </div>
                   )}
                 </div>
-                <button
-                  onClick={onClose}
-                  className="p-2 rounded-lg hover:bg-zinc-800 transition-colors"
-                >
-                  <X className="w-5 h-5 text-zinc-400" />
-                </button>
+                <div className="flex items-center gap-1">
+                  {/* Bookmark Button */}
+                  {onToggleBookmark && (
+                    <button
+                      onClick={onToggleBookmark}
+                      className={`p-2 rounded-lg hover:bg-zinc-800 transition-colors ${
+                        isBookmarked ? "text-purple-400" : "text-zinc-400 hover:text-purple-400"
+                      }`}
+                      aria-label={isBookmarked ? "Remove bookmark" : "Add bookmark"}
+                    >
+                      <Bookmark className={`w-5 h-5 ${isBookmarked ? "fill-current" : ""}`} />
+                    </button>
+                  )}
+                  
+                  {/* Share Button */}
+                  <div className="relative">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowShareMenu(!showShareMenu);
+                      }}
+                      className="p-2 rounded-lg hover:bg-zinc-800 transition-colors text-zinc-400 hover:text-purple-400"
+                      aria-label="Share paper"
+                    >
+                      <Share2 className="w-5 h-5" />
+                    </button>
+                    
+                    {/* Share Menu */}
+                    <AnimatePresence>
+                      {showShareMenu && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                          className="absolute right-0 top-full mt-2 w-48 bg-zinc-800 border border-zinc-700 rounded-xl shadow-xl overflow-hidden z-10"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <button
+                            onClick={handleCopyLink}
+                            className="w-full px-4 py-3 flex items-center gap-3 text-sm text-zinc-300 hover:bg-zinc-700 transition-colors"
+                          >
+                            {copied ? (
+                              <Check className="w-4 h-4 text-green-400" />
+                            ) : (
+                              <Link2 className="w-4 h-4" />
+                            )}
+                            {copied ? "Copied!" : "Copy link"}
+                          </button>
+                          <button
+                            onClick={handleShareX}
+                            className="w-full px-4 py-3 flex items-center gap-3 text-sm text-zinc-300 hover:bg-zinc-700 transition-colors"
+                          >
+                            <XLogo className="w-4 h-4" />
+                            Share on X
+                          </button>
+                          <button
+                            onClick={handleShareLinkedIn}
+                            className="w-full px-4 py-3 flex items-center gap-3 text-sm text-zinc-300 hover:bg-zinc-700 transition-colors"
+                          >
+                            <LinkedInLogo className="w-4 h-4" />
+                            Share on LinkedIn
+                          </button>
+                          <button
+                            onClick={handleShareEmail}
+                            className="w-full px-4 py-3 flex items-center gap-3 text-sm text-zinc-300 hover:bg-zinc-700 transition-colors"
+                          >
+                            <EmailIcon className="w-4 h-4" />
+                            Share via Email
+                          </button>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                  
+                  {/* Close Button */}
+                  <button
+                    onClick={onClose}
+                    className="p-2 rounded-lg hover:bg-zinc-800 transition-colors text-zinc-400 hover:text-white"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
 
               {paper.doi && (
@@ -268,5 +405,31 @@ export default function PaperDetailModal({ paper, isOpen, onClose }: PaperDetail
         </>
       )}
     </AnimatePresence>
+  );
+}
+
+// Icon Components
+function XLogo({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  );
+}
+
+function LinkedInLogo({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+    </svg>
+  );
+}
+
+function EmailIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect width="20" height="16" x="2" y="4" rx="2" />
+      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+    </svg>
   );
 }

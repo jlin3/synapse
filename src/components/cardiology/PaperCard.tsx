@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Calendar, Quote, Users, ExternalLink } from "lucide-react";
+import { Calendar, Quote, Users, ExternalLink, Bookmark } from "lucide-react";
 
 interface PaperCardProps {
   title: string;
@@ -13,6 +13,8 @@ interface PaperCardProps {
   doi: string | null;
   index: number;
   onClick?: () => void;
+  isBookmarked?: boolean;
+  onToggleBookmark?: () => void;
 }
 
 export default function PaperCard({
@@ -25,6 +27,8 @@ export default function PaperCard({
   doi,
   index,
   onClick,
+  isBookmarked,
+  onToggleBookmark,
 }: PaperCardProps) {
   const formattedDate = new Date(publicationDate).toLocaleDateString("en-US", {
     year: "numeric",
@@ -42,6 +46,11 @@ export default function PaperCard({
     e.stopPropagation();
   };
 
+  const handleBookmarkClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onToggleBookmark?.();
+  };
+
   return (
     <motion.article
       initial={{ opacity: 0, y: 20 }}
@@ -54,18 +63,33 @@ export default function PaperCard({
         <h3 className="text-base font-semibold text-white leading-snug group-hover:text-purple-400 transition-colors">
           {title}
         </h3>
-        {doi && (
-          <a
-            href={`https://doi.org/${doi.replace("https://doi.org/", "")}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={handleExternalLinkClick}
-            className="shrink-0 p-2 rounded-lg hover:bg-zinc-800 transition-colors"
-            aria-label="Open paper"
-          >
-            <ExternalLink className="w-4 h-4 text-zinc-500 group-hover:text-purple-400" />
-          </a>
-        )}
+        <div className="flex items-center gap-1 shrink-0">
+          {onToggleBookmark && (
+            <button
+              onClick={handleBookmarkClick}
+              className={`p-2 rounded-lg hover:bg-zinc-800 transition-colors ${
+                isBookmarked ? "text-purple-400" : "text-zinc-500 hover:text-purple-400"
+              }`}
+              aria-label={isBookmarked ? "Remove bookmark" : "Add bookmark"}
+            >
+              <Bookmark
+                className={`w-4 h-4 ${isBookmarked ? "fill-current" : ""}`}
+              />
+            </button>
+          )}
+          {doi && (
+            <a
+              href={`https://doi.org/${doi.replace("https://doi.org/", "")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={handleExternalLinkClick}
+              className="p-2 rounded-lg hover:bg-zinc-800 transition-colors text-zinc-500 hover:text-purple-400"
+              aria-label="Open paper"
+            >
+              <ExternalLink className="w-4 h-4" />
+            </a>
+          )}
+        </div>
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-zinc-500">
