@@ -1,0 +1,104 @@
+"use client";
+
+import { motion } from "framer-motion";
+import { Heart, Repeat2, ExternalLink } from "lucide-react";
+
+interface PostCardProps {
+  content: string;
+  author: string;
+  handle: string;
+  timestamp: string;
+  url: string | null;
+  likes?: number;
+  retweets?: number;
+  index: number;
+}
+
+export default function PostCard({
+  content,
+  author,
+  handle,
+  timestamp,
+  url,
+  likes,
+  retweets,
+  index,
+}: PostCardProps) {
+  const handleClick = () => {
+    if (url) {
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+  };
+
+  return (
+    <motion.article
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.4, delay: index * 0.05 }}
+      onClick={handleClick}
+      className={`p-4 bg-zinc-900/50 rounded-xl border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900 transition-all duration-300 ${
+        url ? "cursor-pointer" : ""
+      }`}
+    >
+      <div className="flex items-start gap-3">
+        <div className="shrink-0 w-10 h-10 bg-gradient-to-br from-purple-500 via-pink-500 to-cyan-500 rounded-full flex items-center justify-center">
+          <span className="text-white font-semibold text-sm">
+            {author.charAt(0).toUpperCase()}
+          </span>
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-semibold text-white truncate">
+              {author}
+            </span>
+            <span className="text-zinc-500 text-sm truncate">{handle}</span>
+            <span className="text-zinc-600">·</span>
+            <span className="text-zinc-500 text-sm shrink-0">{timestamp}</span>
+            {url && (
+              <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="ml-auto shrink-0 p-1 rounded hover:bg-zinc-800 transition-colors"
+                aria-label="Open on X"
+              >
+                <ExternalLink className="w-4 h-4 text-zinc-500 hover:text-purple-400" />
+              </a>
+            )}
+          </div>
+
+          <p className="mt-2 text-zinc-300 text-sm leading-relaxed whitespace-pre-wrap">
+            {content}
+          </p>
+
+          <div className="mt-3 flex items-center gap-4 text-zinc-500">
+            {likes !== undefined && likes > 0 && (
+              <div className="flex items-center gap-1.5 text-sm hover:text-pink-500 transition-colors">
+                <Heart className="w-4 h-4" />
+                <span>{formatNumber(likes)}</span>
+              </div>
+            )}
+            {retweets !== undefined && retweets > 0 && (
+              <div className="flex items-center gap-1.5 text-sm hover:text-cyan-500 transition-colors">
+                <Repeat2 className="w-4 h-4" />
+                <span>{formatNumber(retweets)}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </motion.article>
+  );
+}
+
+function formatNumber(num: number): string {
+  if (num >= 1000000) {
+    return (num / 1000000).toFixed(1) + "M";
+  }
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1) + "K";
+  }
+  return num.toString();
+}
