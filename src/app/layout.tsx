@@ -12,6 +12,13 @@ export const metadata: Metadata = {
   publisher: "Synapse",
   metadataBase: new URL(siteUrl),
   
+  // Apple-specific
+  appleWebApp: {
+    capable: true,
+    title: "Synapster",
+    statusBarStyle: "black-translucent",
+  },
+  
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -19,6 +26,15 @@ export const metadata: Metadata = {
     siteName: "Synapster",
     title: "Synapster — AI-Powered Cardiology Research Discovery",
     description: "Discover cardiology research papers with AI summaries, ELI5 explanations & key highlights. Plus real-time social discussions.",
+    images: [
+      {
+        url: `${siteUrl}/opengraph-image`,
+        width: 1200,
+        height: 630,
+        alt: "Synapster - AI-Powered Cardiology Research Discovery",
+        type: "image/png",
+      },
+    ],
   },
   
   twitter: {
@@ -26,6 +42,13 @@ export const metadata: Metadata = {
     title: "Synapster — AI-Powered Cardiology Research",
     description: "Discover cardiology papers with AI summaries, ELI5 explanations & key highlights.",
     creator: "@synapse",
+    images: [`${siteUrl}/opengraph-image`],
+  },
+  
+  other: {
+    // Additional meta for iMessage/Apple
+    "apple-mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-title": "Synapster",
   },
   
   robots: {
@@ -41,6 +64,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        {/* Explicit OG image for better iMessage support */}
+        <meta property="og:image" content={`${siteUrl}/opengraph-image`} />
+        <meta property="og:image:secure_url" content={`${siteUrl}/opengraph-image`} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:type" content="image/png" />
+        
+        {/* Preload the OG image */}
+        <link rel="preload" href={`${siteUrl}/opengraph-image`} as="image" type="image/png" />
+      </head>
       <body className="antialiased">
         {children}
       </body>

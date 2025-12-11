@@ -1,7 +1,6 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-
 export const alt = "Synapster - AI-Powered Cardiology Research Discovery";
 export const size = {
   width: 1200,
@@ -20,177 +19,125 @@ export default async function Image() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          background: "linear-gradient(135deg, #0a0a0a 0%, #18181b 50%, #0a0a0a 100%)",
-          position: "relative",
+          backgroundColor: "#0a0a0a",
+          backgroundImage: "radial-gradient(circle at 25% 25%, rgba(168, 85, 247, 0.15) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(236, 72, 153, 0.15) 0%, transparent 50%)",
         }}
       >
-        {/* Gradient orbs */}
-        <div
-          style={{
-            position: "absolute",
-            top: "-100px",
-            left: "-100px",
-            width: "400px",
-            height: "400px",
-            borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(168, 85, 247, 0.3) 0%, transparent 70%)",
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            bottom: "-150px",
-            right: "-100px",
-            width: "500px",
-            height: "500px",
-            borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(236, 72, 153, 0.25) 0%, transparent 70%)",
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            top: "100px",
-            right: "200px",
-            width: "300px",
-            height: "300px",
-            borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(6, 182, 212, 0.2) 0%, transparent 70%)",
-          }}
-        />
-
-        {/* Content */}
+        {/* Logo and brand */}
         <div
           style={{
             display: "flex",
-            flexDirection: "column",
             alignItems: "center",
-            justifyContent: "center",
-            zIndex: 10,
+            gap: "20px",
+            marginBottom: "32px",
           }}
         >
-          {/* Logo */}
+          {/* Simple circle logo representation */}
           <div
             style={{
+              width: "80px",
+              height: "80px",
+              borderRadius: "50%",
+              background: "linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #06b6d4 100%)",
               display: "flex",
               alignItems: "center",
-              gap: "16px",
-              marginBottom: "24px",
+              justifyContent: "center",
             }}
           >
-            <svg
-              width="64"
-              height="64"
-              viewBox="0 0 32 32"
-              fill="none"
-            >
-              <defs>
-                <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#a855f7" />
-                  <stop offset="50%" stopColor="#ec4899" />
-                  <stop offset="100%" stopColor="#06b6d4" />
-                </linearGradient>
-              </defs>
-              <circle cx="16" cy="16" r="3" fill="url(#grad1)" />
-              <circle cx="16" cy="4" r="2.5" fill="url(#grad1)" />
-              <circle cx="16" cy="28" r="2.5" fill="url(#grad1)" />
-              <circle cx="4" cy="16" r="2.5" fill="url(#grad1)" />
-              <circle cx="28" cy="16" r="2.5" fill="url(#grad1)" />
-              <circle cx="7" cy="7" r="2" fill="url(#grad1)" />
-              <circle cx="25" cy="7" r="2" fill="url(#grad1)" />
-              <circle cx="7" cy="25" r="2" fill="url(#grad1)" />
-              <circle cx="25" cy="25" r="2" fill="url(#grad1)" />
-              <line x1="16" y1="13" x2="16" y2="6.5" stroke="url(#grad1)" strokeWidth="1.5" />
-              <line x1="16" y1="19" x2="16" y2="25.5" stroke="url(#grad1)" strokeWidth="1.5" />
-              <line x1="13" y1="16" x2="6.5" y2="16" stroke="url(#grad1)" strokeWidth="1.5" />
-              <line x1="19" y1="16" x2="25.5" y2="16" stroke="url(#grad1)" strokeWidth="1.5" />
-            </svg>
+            <div
+              style={{
+                width: "40px",
+                height: "40px",
+                borderRadius: "50%",
+                backgroundColor: "#0a0a0a",
+              }}
+            />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column" }}>
             <span
               style={{
-                fontSize: "48px",
+                fontSize: "64px",
                 fontWeight: 700,
                 color: "white",
-                letterSpacing: "-0.02em",
+                letterSpacing: "-0.03em",
               }}
             >
               Synapster
             </span>
-            <span
+          </div>
+        </div>
+
+        {/* Tagline */}
+        <div
+          style={{
+            display: "flex",
+            fontSize: "32px",
+            fontWeight: 600,
+            marginBottom: "24px",
+          }}
+        >
+          <span style={{ color: "#a855f7" }}>AI-Powered</span>
+          <span style={{ color: "white", marginLeft: "12px" }}>Cardiology Research</span>
+        </div>
+
+        {/* Description */}
+        <div
+          style={{
+            fontSize: "24px",
+            color: "#71717a",
+            textAlign: "center",
+            maxWidth: "800px",
+          }}
+        >
+          Discover papers with AI summaries, ELI5 mode & social discussions
+        </div>
+
+        {/* Feature pills */}
+        <div
+          style={{
+            display: "flex",
+            gap: "16px",
+            marginTop: "48px",
+          }}
+        >
+          {["AI Insights", "ELI5 Mode", "Social Feed"].map((feature) => (
+            <div
+              key={feature}
               style={{
-                fontSize: "14px",
-                fontWeight: 600,
-                color: "white",
-                background: "linear-gradient(135deg, #a855f7 0%, #ec4899 100%)",
-                padding: "4px 12px",
-                borderRadius: "20px",
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                backgroundColor: "rgba(168, 85, 247, 0.1)",
+                border: "1px solid rgba(168, 85, 247, 0.3)",
+                borderRadius: "24px",
+                padding: "12px 24px",
               }}
             >
-              Beta
-            </span>
-          </div>
-
-          {/* Tagline */}
-          <div
-            style={{
-              fontSize: "28px",
-              fontWeight: 600,
-              textAlign: "center",
-              marginBottom: "16px",
-              display: "flex",
-            }}
-          >
-            <span style={{ color: "#a855f7" }}>AI-Powered</span>
-            <span style={{ color: "white", marginLeft: "12px" }}>Cardiology Research Discovery</span>
-          </div>
-
-          {/* Description */}
-          <div
-            style={{
-              fontSize: "20px",
-              color: "#a1a1aa",
-              textAlign: "center",
-              maxWidth: "800px",
-              lineHeight: 1.5,
-            }}
-          >
-            Research papers with AI summaries, ELI5 explanations & real-time social discussions
-          </div>
-
-          {/* Features */}
-          <div
-            style={{
-              display: "flex",
-              gap: "32px",
-              marginTop: "40px",
-            }}
-          >
-            {["AI Insights", "ELI5 Mode", "Social Feed", "Bookmarks"].map((feature) => (
               <div
-                key={feature}
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  background: "rgba(255, 255, 255, 0.05)",
-                  border: "1px solid rgba(255, 255, 255, 0.1)",
-                  borderRadius: "8px",
-                  padding: "8px 16px",
+                  width: "10px",
+                  height: "10px",
+                  borderRadius: "50%",
+                  background: "linear-gradient(135deg, #a855f7, #ec4899)",
                 }}
-              >
-                <div
-                  style={{
-                    width: "8px",
-                    height: "8px",
-                    borderRadius: "50%",
-                    background: "linear-gradient(135deg, #a855f7 0%, #ec4899 100%)",
-                  }}
-                />
-                <span style={{ color: "#e4e4e7", fontSize: "16px" }}>{feature}</span>
-              </div>
-            ))}
-          </div>
+              />
+              <span style={{ color: "#e4e4e7", fontSize: "18px", fontWeight: 500 }}>
+                {feature}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* URL at bottom */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: "32px",
+            fontSize: "18px",
+            color: "#52525b",
+          }}
+        >
+          synapster.vercel.app
         </div>
       </div>
     ),
