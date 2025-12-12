@@ -4,10 +4,17 @@ import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import PaperCard from "./PaperCard";
 import PaperDetailModal from "./PaperDetailModal";
+import FilterPanel, { SortOption } from "./FilterPanel";
 import { Loader2, Bookmark } from "lucide-react";
-import { useBookmarks } from "@/hooks/useBookmarks";
+import { useCollections } from "@/hooks/useCollections";
 import { useVotes } from "@/hooks/useVotes";
 import { usePaperMetadata } from "@/hooks/usePaperMetadata";
+
+interface Concept {
+  id: string;
+  name: string;
+  score: number;
+}
 
 interface Paper {
   id: string;
@@ -18,13 +25,26 @@ interface Paper {
   abstract: string | null;
   citedByCount: number;
   journal: string | null;
+  concepts?: Concept[];
+  pdfUrl?: string | null;
+  githubUrl?: string | null;
+  arxivId?: string | null;
+  isOpenAccess?: boolean;
+  trendScore?: number;
+}
+
+interface FilterState {
+  sortBy: SortOption;
+  minCitations: number | null;
+  dateRange: string | null;
+  studyType: string | null;
 }
 
 interface PaperListProps {
   papers: Paper[];
   loading: boolean;
-  sortBy: "recent" | "top";
-  onSortChange: (sort: "recent" | "top") => void;
+  onFilterChange?: (filters: FilterState) => void;
+  onTagClick?: (tag: string) => void;
 }
 
 type ViewType = "all" | "saved";
@@ -32,29 +52,44 @@ type ViewType = "all" | "saved";
 export default function PaperList({
   papers,
   loading,
-  sortBy,
-  onSortChange,
+  onFilterChange,
+  onTagClick,
 }: PaperListProps) {
   const [selectedPaper, setSelectedPaper] = useState<Paper | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [view, setView] = useState<ViewType>("all");
+  const [filters, setFilters] = useState<FilterState>({
+    sortBy: "hot",
+    minCitations: null,
+    dateRange: null,
+    studyType: null,
+  });
   
-  const { bookmarks, isBookmarked, toggleBookmark, isLoaded } = useBookmarks();
+  const { 
+    collections, 
+    isLoaded, 
+    getAllBookmarkedPapers,
+    addToCollection,
+    removeFromCollection,
+    isInCollection,
+    createCollection,
+    getCollectionsForPaper,
+  } = useCollections();
   
   // Get all paper IDs for vote fetching
   const paperIds = useMemo(() => {
-    const allPapers = view === "saved" ? bookmarks : papers;
+    const allPapers = view === "saved" ? getAllBookmarkedPapers() : papers;
     return allPapers.map((p) => p.id);
-  }, [papers, bookmarks, view]);
+  }, [papers, view, getAllBookmarkedPapers]);
   
   const { getVote, toggleUpvote, toggleDownvote } = useVotes(paperIds);
-  
-  // Get paper metadata for badges
+
+  // Get papers for metadata fetching
   const papersForMetadata = useMemo(() => {
-    const allPapers = view === "saved" ? bookmarks : papers;
+    const allPapers = view === "saved" ? getAllBookmarkedPapers() : papers;
     return allPapers.map((p) => ({ id: p.id, title: p.title, abstract: p.abstract }));
-  }, [papers, bookmarks, view]);
-  
+  }, [papers, view, getAllBookmarkedPapers]);
+
   const { getBadges, getRigorLevel } = usePaperMetadata(papersForMetadata);
 
   const handlePaperClick = (paper: Paper) => {
@@ -64,26 +99,36 @@ export default function PaperList({
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    // Delay clearing the paper to allow exit animation
     setTimeout(() => setSelectedPaper(null), 300);
   };
 
-  const displayedPapers = view === "saved" ? bookmarks : papers;
+  const handleFilterChange = (newFilters: FilterState) => {
+    setFilters(newFilters);
+    onFilterChange?.(newFilters);
+  };
+
+  const handleSaveToCollection = (paperId: string, collectionId: string) => {
+    const paper = papers.find((p) => p.id === paperId) || getAllBookmarkedPapers().find((p) => p.id === paperId);
+    if (!paper) return;
+    
+    if (isInCollection(collectionId, paperId)) {
+      removeFromCollection(collectionId, paperId);
+    } else {
+      addToCollection(collectionId, paper);
+    }
+  };
+
+  const handleCreateCollection = (name: string) => {
+    createCollection(name);
+  };
+
+  const displayedPapers = view === "saved" ? getAllBookmarkedPapers() : papers;
+  const savedCount = getAllBookmarkedPapers().length;
 
   return (
     <>
       <div className="flex flex-col h-full">
-        <div className="flex items-center justify-between mb-6 gap-4">
-          <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold text-white">
-              Research Papers
-            </h2>
-            {isLoaded && bookmarks.length > 0 && (
-              <span className="text-xs text-zinc-500">
-                ({bookmarks.length} saved)
-              </span>
-            )}
-          </div>
+        <div className="flex items-center justify-between mb-4 gap-4 flex-wrap">
           <div className="flex items-center gap-3">
             {/* View Toggle */}
             <div className="flex rounded-lg bg-zinc-800/50 p-1 border border-zinc-700/50">
@@ -107,38 +152,21 @@ export default function PaperList({
               >
                 <Bookmark className={`w-3.5 h-3.5 ${view === "saved" ? "fill-current" : ""}`} />
                 Saved
+                {savedCount > 0 && (
+                  <span className="ml-1 px-1.5 py-0.5 text-xs bg-zinc-900 rounded-full">
+                    {savedCount}
+                  </span>
+                )}
               </button>
             </div>
-
-            {/* Sort Toggle - only show for "all" view */}
-            {view === "all" && (
-              <>
-                <span className="text-sm text-zinc-500">Sort:</span>
-                <div className="flex rounded-lg bg-zinc-800/50 p-1 border border-zinc-700/50">
-                  <button
-                    onClick={() => onSortChange("recent")}
-                    className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
-                      sortBy === "recent"
-                        ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
-                        : "text-zinc-400 hover:text-white"
-                    }`}
-                  >
-                    Recent
-                  </button>
-                  <button
-                    onClick={() => onSortChange("top")}
-                    className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
-                      sortBy === "top"
-                        ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
-                        : "text-zinc-400 hover:text-white"
-                    }`}
-                  >
-                    Top
-                  </button>
-                </div>
-              </>
-            )}
           </div>
+
+          {/* Filters - only show for "all" view */}
+          {view === "all" && (
+            <div className="relative">
+              <FilterPanel filters={filters} onFilterChange={handleFilterChange} />
+            </div>
+          )}
         </div>
 
         {loading ? (
@@ -160,7 +188,7 @@ export default function PaperList({
                   <Bookmark className="w-12 h-12 text-zinc-700 mx-auto mb-3" />
                   <p className="text-zinc-500">No saved papers yet</p>
                   <p className="text-sm text-zinc-600 mt-1">
-                    Click the bookmark icon on any paper to save it
+                    Click the bookmark button on any paper to save it
                   </p>
                 </>
               ) : (
@@ -169,12 +197,15 @@ export default function PaperList({
             </div>
           </div>
         ) : (
-          <div className="flex-1 overflow-y-auto space-y-3 pr-2 -mr-2">
+          <div className="flex-1 overflow-y-auto space-y-4 pr-2 -mr-2">
             {displayedPapers.map((paper, index) => {
               const vote = getVote(paper.id);
+              const savedCollections = getCollectionsForPaper(paper.id).map((c) => c.id);
+              
               return (
                 <PaperCard
                   key={paper.id}
+                  id={paper.id}
                   title={paper.title}
                   authors={paper.authors}
                   publicationDate={paper.publicationDate}
@@ -184,12 +215,23 @@ export default function PaperList({
                   doi={paper.doi}
                   index={index}
                   onClick={() => handlePaperClick(paper)}
-                  isBookmarked={isBookmarked(paper.id)}
-                  onToggleBookmark={() => toggleBookmark(paper)}
-                  voteScore={vote.score}
-                  userVote={vote.userVote}
-                  onUpvote={() => toggleUpvote(paper.id)}
-                  onDownvote={() => toggleDownvote(paper.id)}
+                  concepts={paper.concepts}
+                  pdfUrl={paper.pdfUrl}
+                  githubUrl={paper.githubUrl}
+                  arxivId={paper.arxivId}
+                  isOpenAccess={paper.isOpenAccess}
+                  trendScore={paper.trendScore}
+                  likeCount={vote.upvotes}
+                  isLiked={vote.userVote === "up"}
+                  onLike={() => toggleUpvote(paper.id)}
+                  dislikeCount={vote.downvotes}
+                  isDisliked={vote.userVote === "down"}
+                  onDislike={() => toggleDownvote(paper.id)}
+                  collections={collections}
+                  savedCollections={savedCollections}
+                  onSaveToCollection={(collectionId) => handleSaveToCollection(paper.id, collectionId)}
+                  onCreateCollection={handleCreateCollection}
+                  onTagClick={onTagClick}
                   badges={getBadges(paper.id)}
                   rigorLevel={getRigorLevel(paper.id)}
                 />
@@ -203,8 +245,18 @@ export default function PaperList({
         paper={selectedPaper}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        isBookmarked={selectedPaper ? isBookmarked(selectedPaper.id) : false}
-        onToggleBookmark={selectedPaper ? () => toggleBookmark(selectedPaper) : undefined}
+        isBookmarked={selectedPaper ? getCollectionsForPaper(selectedPaper.id).length > 0 : false}
+        onToggleBookmark={selectedPaper ? () => {
+          if (getCollectionsForPaper(selectedPaper.id).length > 0) {
+            // Remove from all collections
+            getCollectionsForPaper(selectedPaper.id).forEach((c) => {
+              removeFromCollection(c.id, selectedPaper.id);
+            });
+          } else {
+            // Add to default collection
+            addToCollection("default", selectedPaper);
+          }
+        } : undefined}
         onSelectPaper={(paper) => setSelectedPaper(paper)}
       />
     </>

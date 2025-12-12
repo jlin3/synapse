@@ -1,11 +1,17 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ExternalLink, Loader2, Sparkles, Baby, ListChecks, Bookmark, Share2, Link2, Check, Quote, FileText, MessageSquare, Send, Trash2 } from "lucide-react";
+import { X, ExternalLink, Loader2, Sparkles, Baby, ListChecks, Bookmark, Share2, Link2, Check, Quote, FileText, MessageSquare, Send, Trash2, Github, ArrowUp, BookOpen, Users2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { generateBibTeX, generateAPA, copyToClipboard } from "@/lib/citations";
 import { useComments } from "@/hooks/useComments";
 import { useUser } from "@/hooks/useUser";
+
+interface Concept {
+  id: string;
+  name: string;
+  score: number;
+}
 
 interface Paper {
   id: string;
@@ -16,6 +22,12 @@ interface Paper {
   abstract: string | null;
   citedByCount: number;
   journal: string | null;
+  concepts?: Concept[];
+  pdfUrl?: string | null;
+  githubUrl?: string | null;
+  arxivId?: string | null;
+  isOpenAccess?: boolean;
+  trendScore?: number;
 }
 
 interface PaperInsights {
@@ -64,10 +76,46 @@ export default function PaperDetailModal({
   const [loadingRelated, setLoadingRelated] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [displayNameInput, setDisplayNameInput] = useState("");
+  const [aiQuestion, setAiQuestion] = useState("");
+  const [aiResponse, setAiResponse] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
   
   // Comments
   const { comments, count: commentCount, isLoading: loadingComments, isSubmitting, addComment, deleteComment, isOwnComment } = useComments(paper?.id || null);
   const { displayName, setDisplayName } = useUser();
+
+  // Handle AI question submission
+  const handleAskQuestion = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!aiQuestion.trim() || !paper) return;
+
+    setAiLoading(true);
+    setAiResponse(null);
+
+    try {
+      const response = await fetch("/api/paper-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          question: aiQuestion,
+          title: paper.title,
+          abstract: paper.abstract,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAiResponse(data.answer);
+      } else {
+        setAiResponse("Sorry, I couldn't answer that question. Please try again.");
+      }
+    } catch (error) {
+      console.error("AI chat error:", error);
+      setAiResponse("An error occurred. Please try again.");
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (paper && isOpen) {
@@ -414,6 +462,19 @@ export default function PaperDetailModal({
                   )}
                   {copiedCitation === "apa" ? "Copied!" : "APA"}
                 </button>
+                
+                {/* GitHub Link */}
+                {paper.githubUrl && (
+                  <a
+                    href={paper.githubUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-3 py-2 bg-zinc-800 text-zinc-300 text-sm font-medium rounded-lg hover:bg-zinc-700 transition-colors border border-zinc-700"
+                  >
+                    <Github className="w-4 h-4" />
+                    Code
+                  </a>
+                )}
               </div>
             </div>
 
@@ -674,6 +735,45 @@ export default function PaperDetailModal({
                   </div>
                 )}
               </div>
+            </div>
+
+            {/* AI Chat - Fixed Bottom */}
+            <div className="border-t border-zinc-800 bg-zinc-900/95 backdrop-blur-sm p-4">
+              {/* AI Response */}
+              {aiResponse && (
+                <div className="mb-3 p-3 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-xl border border-purple-500/20">
+                  <div className="flex items-start gap-2">
+                    <Sparkles className="w-4 h-4 text-purple-400 mt-0.5 shrink-0" />
+                    <p className="text-sm text-zinc-300 leading-relaxed">{aiResponse}</p>
+                  </div>
+                </div>
+              )}
+              
+              {/* Question Input */}
+              <form onSubmit={handleAskQuestion} className="relative">
+                <input
+                  type="text"
+                  value={aiQuestion}
+                  onChange={(e) => setAiQuestion(e.target.value)}
+                  placeholder="Ask anything about this paper..."
+                  className="w-full px-4 py-3 pr-12 bg-zinc-800 border border-zinc-700 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500/50 text-sm"
+                  disabled={aiLoading}
+                />
+                <button
+                  type="submit"
+                  disabled={aiLoading || !aiQuestion.trim()}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+                >
+                  {aiLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <ArrowUp className="w-4 h-4" />
+                  )}
+                </button>
+              </form>
+              <p className="mt-2 text-[10px] text-zinc-600 text-center">
+                AI responses are generated based on the paper&apos;s title and abstract
+              </p>
             </div>
           </motion.div>
         </>

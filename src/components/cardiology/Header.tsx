@@ -1,13 +1,16 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Search, Upload } from "lucide-react";
+import { Search, Upload, History, Sparkles, ArrowUp, Paperclip } from "lucide-react";
+import { useState } from "react";
 
 interface HeaderProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
   onSearch: () => void;
   onImportClick?: () => void;
+  onHistoryClick?: () => void;
+  isAiSearching?: boolean;
 }
 
 export default function Header({
@@ -15,9 +18,16 @@ export default function Header({
   onSearchChange,
   onSearch,
   onImportClick,
+  onHistoryClick,
+  isAiSearching,
 }: HeaderProps) {
+  const [isFocused, setIsFocused] = useState(false);
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      onSearch();
+    } else if (e.key === "Enter") {
       onSearch();
     }
   };
@@ -29,52 +39,101 @@ export default function Header({
       transition={{ duration: 0.6 }}
       className="sticky top-0 z-50 px-6 py-4 backdrop-blur-xl bg-[#0a0a0a]/80 border-b border-zinc-800/50"
     >
-      <nav className="max-w-7xl mx-auto flex items-center justify-between gap-8">
-        <div className="flex items-center gap-3">
-          <SynapseLogo />
-          <span className="text-xl font-semibold tracking-tight text-white">
-            Synapse
-          </span>
-          <span className="text-[10px] bg-gradient-to-r from-purple-500 to-pink-500 text-white px-2 py-0.5 rounded-full font-medium uppercase tracking-wider">
-            Beta
-          </span>
+      <nav className="max-w-7xl mx-auto">
+        {/* Top row - Logo and actions */}
+        <div className="flex items-center justify-between gap-8 mb-4">
+          <div className="flex items-center gap-3">
+            <SynapseLogo />
+            <span className="text-xl font-semibold tracking-tight text-white">
+              Synapse
+            </span>
+            <span className="text-[10px] bg-gradient-to-r from-purple-500 to-pink-500 text-white px-2 py-0.5 rounded-full font-medium uppercase tracking-wider">
+              Beta
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {onImportClick && (
+              <button
+                onClick={onImportClick}
+                className="px-4 py-2 bg-zinc-800 text-zinc-300 text-sm font-medium rounded-lg hover:bg-zinc-700 transition-colors border border-zinc-700 flex items-center gap-2"
+              >
+                <Upload className="w-4 h-4" />
+                Import
+              </button>
+            )}
+            <a
+              href="https://synapsesocial.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
+            >
+              Join Waitlist
+            </a>
+          </div>
         </div>
 
-        <div className="flex-1 max-w-xl">
-          <div className="relative group">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500 rounded-xl opacity-0 group-hover:opacity-30 blur transition-opacity duration-300" />
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" />
+        {/* AI Search Box - Full width */}
+        <div className="relative group">
+          <div className={`absolute -inset-0.5 bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500 rounded-2xl transition-opacity duration-300 blur ${isFocused ? 'opacity-40' : 'opacity-0 group-hover:opacity-20'}`} />
+          <div className="relative bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden">
+            <div className="flex items-center">
+              {/* Sparkles icon */}
+              <div className="pl-4 pr-2">
+                <Sparkles className={`w-5 h-5 ${isAiSearching ? 'text-purple-400 animate-pulse' : 'text-zinc-500'}`} />
+              </div>
+              
+              {/* Input */}
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => onSearchChange(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Search cardiology papers..."
-                className="w-full pl-12 pr-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/30 transition-all font-mono text-sm"
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
+                placeholder="Ask anything about research... (⌘↵ to search)"
+                className="flex-1 py-4 bg-transparent text-white placeholder-zinc-500 focus:outline-none text-base"
               />
+
+              {/* Action buttons */}
+              <div className="flex items-center gap-1 pr-2">
+                {/* Paperclip (visual only) */}
+                <button
+                  type="button"
+                  className="p-2 text-zinc-500 hover:text-zinc-300 transition-colors rounded-lg hover:bg-zinc-800"
+                  title="Attach file (coming soon)"
+                >
+                  <Paperclip className="w-5 h-5" />
+                </button>
+
+                {/* History */}
+                {onHistoryClick && (
+                  <button
+                    type="button"
+                    onClick={onHistoryClick}
+                    className="p-2 text-zinc-500 hover:text-zinc-300 transition-colors rounded-lg hover:bg-zinc-800"
+                    title="Search history"
+                  >
+                    <History className="w-5 h-5" />
+                  </button>
+                )}
+
+                {/* Search button */}
+                <button
+                  type="button"
+                  onClick={onSearch}
+                  disabled={isAiSearching}
+                  className="p-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50"
+                >
+                  {isAiSearching ? (
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <ArrowUp className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          {onImportClick && (
-            <button
-              onClick={onImportClick}
-              className="px-4 py-2 bg-zinc-800 text-zinc-300 text-sm font-medium rounded-lg hover:bg-zinc-700 transition-colors border border-zinc-700 flex items-center gap-2"
-            >
-              <Upload className="w-4 h-4" />
-              Import
-            </button>
-          )}
-          <a
-            href="https://synapsesocial.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-medium rounded-lg hover:opacity-90 transition-opacity"
-          >
-            Join Waitlist
-          </a>
         </div>
       </nav>
     </motion.header>
