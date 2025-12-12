@@ -28,7 +28,9 @@ export default function ImportModal({ isOpen, onClose, onImportSuccess }: Import
 
   const handleImport = async () => {
     if (!rssUrl.trim()) {
-      setError(`Please enter a ${activeSource === "pubmed" ? "PubMed" : "Google Scholar"} RSS feed URL`);
+      setError(
+        `Please enter a ${activeSource === "pubmed" ? "PubMed" : "Google Scholar"} RSS feed URL`
+      );
       return;
     }
 
@@ -53,7 +55,7 @@ export default function ImportModal({ isOpen, onClose, onImportSuccess }: Import
 
       setSuccess(data.message);
       onImportSuccess(data.topic);
-      
+
       setTimeout(() => {
         setRssUrl("");
         setSuccess(null);
@@ -161,18 +163,40 @@ export default function ImportModal({ isOpen, onClose, onImportSuccess }: Import
                 >
                   <h3 className="text-sm font-medium text-white mb-2 flex items-center gap-2">
                     <Rss className="w-4 h-4 text-orange-400" />
-                    {activeSource === "pubmed" ? "How to get your PubMed RSS feed:" : "How to get your Google Scholar alerts:"}
+                    {activeSource === "pubmed"
+                      ? "How to get your PubMed RSS feed:"
+                      : "How to get your Google Scholar alerts:"}
                   </h3>
                   {activeSource === "pubmed" ? (
                     <ol className="text-sm text-zinc-400 space-y-1.5 list-decimal list-inside">
-                      <li>Go to <a href="https://pubmed.ncbi.nlm.nih.gov" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:underline">pubmed.ncbi.nlm.nih.gov</a></li>
+                      <li>
+                        Go to{" "}
+                        <a
+                          href="https://pubmed.ncbi.nlm.nih.gov"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-purple-400 hover:underline"
+                        >
+                          pubmed.ncbi.nlm.nih.gov
+                        </a>
+                      </li>
                       <li>Search for your topic of interest</li>
                       <li>Click &quot;Create RSS&quot; below the search box</li>
                       <li>Copy the RSS feed URL and paste it below</li>
                     </ol>
                   ) : (
                     <ol className="text-sm text-zinc-400 space-y-1.5 list-decimal list-inside">
-                      <li>Go to <a href="https://scholar.google.com" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:underline">scholar.google.com</a></li>
+                      <li>
+                        Go to{" "}
+                        <a
+                          href="https://scholar.google.com"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-purple-400 hover:underline"
+                        >
+                          scholar.google.com
+                        </a>
+                      </li>
                       <li>Search for your topic of interest</li>
                       <li>Click &quot;Create alert&quot; in the left sidebar</li>
                       <li>In your email, find the RSS link or copy the alert URL</li>
@@ -192,9 +216,10 @@ export default function ImportModal({ isOpen, onClose, onImportSuccess }: Import
                     type="url"
                     value={rssUrl}
                     onChange={(e) => setRssUrl(e.target.value)}
-                    placeholder={activeSource === "pubmed" 
-                      ? "https://pubmed.ncbi.nlm.nih.gov/rss/search/..." 
-                      : "https://scholar.google.com/scholar?q=..."
+                    placeholder={
+                      activeSource === "pubmed"
+                        ? "https://pubmed.ncbi.nlm.nih.gov/rss/search/..."
+                        : "https://scholar.google.com/scholar?q=..."
                     }
                     className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/30 transition-all text-sm"
                     disabled={loading}

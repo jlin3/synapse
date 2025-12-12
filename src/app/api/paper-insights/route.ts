@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { PaperInsights } from "@/types";
 
 const XAI_API_KEY = process.env.XAI_API_KEY;
 
@@ -7,16 +8,10 @@ interface PaperInsightsRequest {
   abstract: string | null;
 }
 
-interface PaperInsights {
-  synthesis: string;
-  eli5: string;
-  highlights: string[];
-}
-
 // Fallback insights when API is unavailable
 function generateFallbackInsights(title: string, abstract: string | null): PaperInsights {
   return {
-    synthesis: abstract 
+    synthesis: abstract
       ? `This research paper "${title}" explores important findings in the field. The study presents methodological approaches and results that contribute to our understanding of the topic.`
       : `This paper titled "${title}" presents research findings that may be relevant to practitioners and researchers in the field.`,
     eli5: `Scientists did a study called "${title}". They wanted to learn something new and important. They looked at information carefully and found some interesting things that can help other scientists and maybe help people too!`,
@@ -35,10 +30,7 @@ export async function POST(request: Request) {
     const { title, abstract } = body;
 
     if (!title) {
-      return NextResponse.json(
-        { error: "Title is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Title is required" }, { status: 400 });
     }
 
     if (!XAI_API_KEY) {
@@ -102,7 +94,7 @@ Provide the synthesis, ELI5 explanation, and highlights in JSON format.`;
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         const insights: PaperInsights = JSON.parse(jsonMatch[0]);
-        
+
         // Validate the response structure
         if (
           typeof insights.synthesis === "string" &&
@@ -112,7 +104,7 @@ Provide the synthesis, ELI5 explanation, and highlights in JSON format.`;
           return NextResponse.json(insights);
         }
       }
-      
+
       // If parsing fails, return fallback
       console.error("Failed to parse Grok response:", content);
       return NextResponse.json(generateFallbackInsights(title, abstract));
@@ -122,9 +114,6 @@ Provide the synthesis, ELI5 explanation, and highlights in JSON format.`;
     }
   } catch (error) {
     console.error("Error generating paper insights:", error);
-    return NextResponse.json(
-      { error: "Failed to generate insights" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to generate insights" }, { status: 500 });
   }
 }

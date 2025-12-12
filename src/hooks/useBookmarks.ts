@@ -1,17 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-
-interface Paper {
-  id: string;
-  title: string;
-  authors: string[];
-  publicationDate: string;
-  doi: string | null;
-  abstract: string | null;
-  citedByCount: number;
-  journal: string | null;
-}
+import { Paper } from "@/types";
 
 const STORAGE_KEY = "synapse_bookmarks";
 

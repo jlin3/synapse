@@ -1,14 +1,5 @@
 import { NextResponse } from "next/server";
-
-interface RelatedPaper {
-  id: string;
-  title: string;
-  authors: string[];
-  publicationDate: string;
-  doi: string | null;
-  citedByCount: number;
-  journal: string | null;
-}
+import { RelatedPaper } from "@/types";
 
 interface OpenAlexWork {
   id: string;
@@ -33,10 +24,7 @@ export async function GET(request: Request) {
   const workId = searchParams.get("id");
 
   if (!workId) {
-    return NextResponse.json(
-      { error: "Work ID is required" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Work ID is required" }, { status: 400 });
   }
 
   try {
@@ -64,9 +52,7 @@ export async function GET(request: Request) {
     // Fetch the related works details
     // OpenAlex IDs are URLs like https://openalex.org/W1234567890
     // We need to extract just the ID part or use the filter
-    const idsFilter = relatedWorkIds
-      .map((id) => id.replace("https://openalex.org/", ""))
-      .join("|");
+    const idsFilter = relatedWorkIds.map((id) => id.replace("https://openalex.org/", "")).join("|");
 
     const relatedUrl = new URL("https://api.openalex.org/works");
     relatedUrl.searchParams.set("filter", `openalex_id:${idsFilter}`);
@@ -87,20 +73,16 @@ export async function GET(request: Request) {
     }
 
     const relatedData = await relatedResponse.json();
-    
-    const relatedPapers: RelatedPaper[] = relatedData.results.map(
-      (work: OpenAlexWork) => ({
-        id: work.id,
-        title: work.title,
-        authors: work.authorships
-          .map((a) => a.author.display_name)
-          .slice(0, 3),
-        publicationDate: work.publication_date,
-        doi: work.doi,
-        citedByCount: work.cited_by_count,
-        journal: work.primary_location?.source?.display_name || null,
-      })
-    );
+
+    const relatedPapers: RelatedPaper[] = relatedData.results.map((work: OpenAlexWork) => ({
+      id: work.id,
+      title: work.title,
+      authors: work.authorships.map((a) => a.author.display_name).slice(0, 3),
+      publicationDate: work.publication_date,
+      doi: work.doi,
+      citedByCount: work.cited_by_count,
+      journal: work.primary_location?.source?.display_name || null,
+    }));
 
     return NextResponse.json(
       { relatedPapers },
@@ -112,9 +94,6 @@ export async function GET(request: Request) {
     );
   } catch (error) {
     console.error("Error fetching related papers:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch related papers" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch related papers" }, { status: 500 });
   }
 }

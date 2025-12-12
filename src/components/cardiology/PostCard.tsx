@@ -42,16 +42,12 @@ export default function PostCard({
     >
       <div className="flex items-start gap-3">
         <div className="shrink-0 w-10 h-10 bg-gradient-to-br from-purple-500 via-pink-500 to-cyan-500 rounded-full flex items-center justify-center">
-          <span className="text-white font-semibold text-sm">
-            {author.charAt(0).toUpperCase()}
-          </span>
+          <span className="text-white font-semibold text-sm">{author.charAt(0).toUpperCase()}</span>
         </div>
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-semibold text-white truncate">
-              {author}
-            </span>
+            <span className="font-semibold text-white truncate">{author}</span>
             <span className="text-zinc-500 text-sm truncate">{handle}</span>
             <span className="text-zinc-600">·</span>
             <span className="text-zinc-500 text-sm shrink-0">{timestamp}</span>

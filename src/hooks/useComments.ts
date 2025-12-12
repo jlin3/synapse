@@ -43,63 +43,72 @@ export function useComments(paperId: string | null) {
   }, [fetchComments]);
 
   // Add a new comment
-  const addComment = useCallback(async (content: string, customDisplayName?: string): Promise<boolean> => {
-    if (!paperId || !userId || !content.trim()) return false;
+  const addComment = useCallback(
+    async (content: string, customDisplayName?: string): Promise<boolean> => {
+      if (!paperId || !userId || !content.trim()) return false;
 
-    setIsSubmitting(true);
-    try {
-      const response = await fetch("/api/comments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          paperId,
-          userId,
-          displayName: customDisplayName || displayName || "Anonymous",
-          content: content.trim(),
-        }),
-      });
+      setIsSubmitting(true);
+      try {
+        const response = await fetch("/api/comments", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            paperId,
+            userId,
+            displayName: customDisplayName || displayName || "Anonymous",
+            content: content.trim(),
+          }),
+        });
 
-      if (response.ok) {
-        const data = await response.json();
-        setComments((prev) => [data.comment, ...prev]);
-        setCount((prev) => prev + 1);
-        return true;
+        if (response.ok) {
+          const data = await response.json();
+          setComments((prev) => [data.comment, ...prev]);
+          setCount((prev) => prev + 1);
+          return true;
+        }
+        return false;
+      } catch (error) {
+        console.error("Error adding comment:", error);
+        return false;
+      } finally {
+        setIsSubmitting(false);
       }
-      return false;
-    } catch (error) {
-      console.error("Error adding comment:", error);
-      return false;
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [paperId, userId, displayName]);
+    },
+    [paperId, userId, displayName]
+  );
 
   // Delete a comment
-  const deleteComment = useCallback(async (commentId: string): Promise<boolean> => {
-    if (!userId) return false;
+  const deleteComment = useCallback(
+    async (commentId: string): Promise<boolean> => {
+      if (!userId) return false;
 
-    try {
-      const response = await fetch(
-        `/api/comments?commentId=${encodeURIComponent(commentId)}&userId=${encodeURIComponent(userId)}`,
-        { method: "DELETE" }
-      );
+      try {
+        const response = await fetch(
+          `/api/comments?commentId=${encodeURIComponent(commentId)}&userId=${encodeURIComponent(userId)}`,
+          { method: "DELETE" }
+        );
 
-      if (response.ok) {
-        setComments((prev) => prev.filter((c) => c.id !== commentId));
-        setCount((prev) => Math.max(0, prev - 1));
-        return true;
+        if (response.ok) {
+          setComments((prev) => prev.filter((c) => c.id !== commentId));
+          setCount((prev) => Math.max(0, prev - 1));
+          return true;
+        }
+        return false;
+      } catch (error) {
+        console.error("Error deleting comment:", error);
+        return false;
       }
-      return false;
-    } catch (error) {
-      console.error("Error deleting comment:", error);
-      return false;
-    }
-  }, [userId]);
+    },
+    [userId]
+  );
 
   // Check if the current user owns a comment
-  const isOwnComment = useCallback((comment: Comment): boolean => {
-    return comment.userId === userId;
-  }, [userId]);
+  const isOwnComment = useCallback(
+    (comment: Comment): boolean => {
+      return comment.userId === userId;
+    },
+    [userId]
+  );
 
   return {
     comments,

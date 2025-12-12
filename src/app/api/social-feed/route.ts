@@ -23,7 +23,8 @@ export interface SocialPost {
 const MOCK_POSTS: SocialPost[] = [
   {
     id: "1",
-    content: "Exciting new research on AI-assisted ECG analysis for early detection of atrial fibrillation. The future of cardiology diagnostics is here! 🫀 #Cardiology #AI #MedTwitter",
+    content:
+      "Exciting new research on AI-assisted ECG analysis for early detection of atrial fibrillation. The future of cardiology diagnostics is here! 🫀 #Cardiology #AI #MedTwitter",
     author: "Dr. Sarah Chen",
     handle: "@DrSarahChen_MD",
     timestamp: "2h",
@@ -32,8 +33,9 @@ const MOCK_POSTS: SocialPost[] = [
     retweets: 89,
   },
   {
-    id: "2", 
-    content: "New NEJM paper: SGLT2 inhibitors show remarkable heart failure benefits even in non-diabetic patients. This changes our treatment paradigm completely.\n\nThread 🧵👇",
+    id: "2",
+    content:
+      "New NEJM paper: SGLT2 inhibitors show remarkable heart failure benefits even in non-diabetic patients. This changes our treatment paradigm completely.\n\nThread 🧵👇",
     author: "Cardiology Updates",
     handle: "@CardiologyToday",
     timestamp: "4h",
@@ -43,7 +45,8 @@ const MOCK_POSTS: SocialPost[] = [
   },
   {
     id: "3",
-    content: "Just presented our team's research on machine learning for predicting sudden cardiac death risk at #AHA2024. Incredible response from the cardiology community! 📊",
+    content:
+      "Just presented our team's research on machine learning for predicting sudden cardiac death risk at #AHA2024. Incredible response from the cardiology community! 📊",
     author: "Dr. Michael Torres",
     handle: "@MTorres_Cardio",
     timestamp: "6h",
@@ -53,7 +56,8 @@ const MOCK_POSTS: SocialPost[] = [
   },
   {
     id: "4",
-    content: "The latest meta-analysis on GLP-1 agonists and cardiovascular outcomes is remarkable. Consistent mortality benefits across all major trials. A new era in cardiometabolic medicine.",
+    content:
+      "The latest meta-analysis on GLP-1 agonists and cardiovascular outcomes is remarkable. Consistent mortality benefits across all major trials. A new era in cardiometabolic medicine.",
     author: "Heart Research Network",
     handle: "@HeartResearchNet",
     timestamp: "8h",
@@ -63,7 +67,8 @@ const MOCK_POSTS: SocialPost[] = [
   },
   {
     id: "5",
-    content: "Fascinating case: 45yo with unexplained syncope. Holter showed intermittent complete heart block. Genetic testing revealed SCN5A mutation. Always think beyond the obvious! #CardioTwitter",
+    content:
+      "Fascinating case: 45yo with unexplained syncope. Holter showed intermittent complete heart block. Genetic testing revealed SCN5A mutation. Always think beyond the obvious! #CardioTwitter",
     author: "EP Fellowship",
     handle: "@EPFellowship",
     timestamp: "12h",
@@ -73,7 +78,8 @@ const MOCK_POSTS: SocialPost[] = [
   },
   {
     id: "6",
-    content: "New ESC guidelines on acute coronary syndromes are out! Key changes:\n\n✅ Earlier invasive strategy\n✅ Updated antithrombotic regimens\n✅ Focus on complete revascularization\n\nFull summary thread below 👇",
+    content:
+      "New ESC guidelines on acute coronary syndromes are out! Key changes:\n\n✅ Earlier invasive strategy\n✅ Updated antithrombotic regimens\n✅ Focus on complete revascularization\n\nFull summary thread below 👇",
     author: "ESC Press",
     handle: "@escabordo",
     timestamp: "1d",
@@ -83,7 +89,8 @@ const MOCK_POSTS: SocialPost[] = [
   },
   {
     id: "7",
-    content: "Our lab just published in Circulation: novel biomarker panel for early myocardial infarction detection with 98% sensitivity. Years of work finally paying off! 🎉",
+    content:
+      "Our lab just published in Circulation: novel biomarker panel for early myocardial infarction detection with 98% sensitivity. Years of work finally paying off! 🎉",
     author: "Dr. Emily Watson",
     handle: "@EWatson_Research",
     timestamp: "1d",
@@ -93,7 +100,8 @@ const MOCK_POSTS: SocialPost[] = [
   },
   {
     id: "8",
-    content: "Reminder: The connection between sleep apnea and cardiovascular disease is stronger than most realize. Screen your heart failure patients! 💤🫀 #PreventiveCardiology",
+    content:
+      "Reminder: The connection between sleep apnea and cardiovascular disease is stronger than most realize. Screen your heart failure patients! 💤🫀 #PreventiveCardiology",
     author: "Preventive Cardiology",
     handle: "@PreventCardio",
     timestamp: "2d",
@@ -126,21 +134,24 @@ export async function GET(request: Request) {
   // Check cache first
   const cachedPosts = getCachedPosts(query);
   if (cachedPosts) {
-    return NextResponse.json({ 
-      posts: cachedPosts,
-      cached: true,
-    }, {
-      headers: {
-        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=7200',
+    return NextResponse.json(
+      {
+        posts: cachedPosts,
+        cached: true,
+      },
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=7200",
+        },
       }
-    });
+    );
   }
 
   if (!XAI_API_KEY) {
     // Return mock data with a note
-    return NextResponse.json({ 
+    return NextResponse.json({
       posts: MOCK_POSTS,
-      note: "Using sample data - XAI API key not configured"
+      note: "Using sample data - XAI API key not configured",
     });
   }
 
@@ -202,11 +213,11 @@ Requirements:
     if (!response.ok) {
       const errorText = await response.text();
       console.error("Grok API error:", errorText);
-      
+
       // If API fails (no credits, etc), return mock data
-      return NextResponse.json({ 
+      return NextResponse.json({
         posts: MOCK_POSTS,
-        note: "Using sample data - API temporarily unavailable"
+        note: "Using sample data - API temporarily unavailable",
       });
     }
 
@@ -234,9 +245,7 @@ Requirements:
             id: post.id || `post-${index}`,
             content: post.content,
             author: post.author,
-            handle: post.handle.startsWith("@")
-              ? post.handle
-              : `@${post.handle}`,
+            handle: post.handle.startsWith("@") ? post.handle : `@${post.handle}`,
             timestamp: post.timestamp || "recently",
             url: post.url,
             likes: post.likes || 0,
@@ -247,37 +256,40 @@ Requirements:
       console.error("Error parsing Grok response:", parseError);
       console.error("Raw content:", content);
       // Return mock data on parse error
-      return NextResponse.json({ 
+      return NextResponse.json({
         posts: MOCK_POSTS,
-        note: "Using sample data - parse error"
+        note: "Using sample data - parse error",
       });
     }
 
     // If no posts found, return mock data
     if (posts.length === 0) {
-      return NextResponse.json({ 
+      return NextResponse.json({
         posts: MOCK_POSTS,
-        note: "Using sample data - no results"
+        note: "Using sample data - no results",
       });
     }
 
     // Cache the successful response
     setCachedPosts(query, posts);
 
-    return NextResponse.json({ 
-      posts,
-      cached: false,
-    }, {
-      headers: {
-        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=7200',
+    return NextResponse.json(
+      {
+        posts,
+        cached: false,
+      },
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=7200",
+        },
       }
-    });
+    );
   } catch (error) {
     console.error("Error fetching social feed:", error);
     // Return mock data on any error
-    return NextResponse.json({ 
+    return NextResponse.json({
       posts: MOCK_POSTS,
-      note: "Using sample data - error occurred"
+      note: "Using sample data - error occurred",
     });
   }
 }

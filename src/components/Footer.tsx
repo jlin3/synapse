@@ -16,12 +16,10 @@ export default function Footer() {
         >
           {/* CTA */}
           <div className="glass rounded-3xl p-8 md:p-12 mb-12">
-            <h3 className="text-2xl md:text-3xl font-bold mb-4">
-              Ready to Build?
-            </h3>
+            <h3 className="text-2xl md:text-3xl font-bold mb-4">Ready to Build?</h3>
             <p className="text-gray-600 mb-6 max-w-xl mx-auto">
-              Now that you understand RAG, put it into practice. 
-              Start with your documents, choose your stack, and iterate.
+              Now that you understand RAG, put it into practice. Start with your documents, choose
+              your stack, and iterate.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Link
@@ -31,7 +29,12 @@ export default function Footer() {
               >
                 Visit Synapse
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 8l4 4m0 0l-4 4m4-4H3"
+                  />
                 </svg>
               </Link>
               <a
@@ -41,7 +44,11 @@ export default function Footer() {
                 className="inline-flex items-center gap-2 px-6 py-3 bg-white text-gray-800 rounded-full font-medium border border-gray-200 hover:border-gray-300 transition-colors"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0012 2z" />
+                  <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0012 2z"
+                  />
                 </svg>
                 Explore Examples
               </a>
@@ -54,10 +61,8 @@ export default function Footer() {
               <SynapseLogo />
               <span className="text-xl font-semibold tracking-tight">Synapse</span>
             </Link>
-            
-            <p className="text-gray-500 text-sm">
-              Follow any research. Built with curiosity.
-            </p>
+
+            <p className="text-gray-500 text-sm">Follow any research. Built with curiosity.</p>
 
             <div className="flex items-center gap-4 text-gray-400">
               <a
@@ -77,7 +82,11 @@ export default function Footer() {
                 className="hover:text-gray-600 transition-colors"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0012 2z" />
+                  <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0012 2z"
+                  />
                 </svg>
               </a>
               <a
@@ -105,24 +114,23 @@ export default function Footer() {
 function SynapseLogo() {
   return (
     <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="16" cy="16" r="3" fill="currentColor"/>
-      <circle cx="16" cy="4" r="2.5" fill="currentColor"/>
-      <circle cx="16" cy="28" r="2.5" fill="currentColor"/>
-      <circle cx="4" cy="16" r="2.5" fill="currentColor"/>
-      <circle cx="28" cy="16" r="2.5" fill="currentColor"/>
-      <circle cx="7" cy="7" r="2" fill="currentColor"/>
-      <circle cx="25" cy="7" r="2" fill="currentColor"/>
-      <circle cx="7" cy="25" r="2" fill="currentColor"/>
-      <circle cx="25" cy="25" r="2" fill="currentColor"/>
-      <line x1="16" y1="13" x2="16" y2="6.5" stroke="currentColor" strokeWidth="1.5"/>
-      <line x1="16" y1="19" x2="16" y2="25.5" stroke="currentColor" strokeWidth="1.5"/>
-      <line x1="13" y1="16" x2="6.5" y2="16" stroke="currentColor" strokeWidth="1.5"/>
-      <line x1="19" y1="16" x2="25.5" y2="16" stroke="currentColor" strokeWidth="1.5"/>
-      <line x1="14" y1="14" x2="9" y2="9" stroke="currentColor" strokeWidth="1.2"/>
-      <line x1="18" y1="14" x2="23" y2="9" stroke="currentColor" strokeWidth="1.2"/>
-      <line x1="14" y1="18" x2="9" y2="23" stroke="currentColor" strokeWidth="1.2"/>
-      <line x1="18" y1="18" x2="23" y2="23" stroke="currentColor" strokeWidth="1.2"/>
+      <circle cx="16" cy="16" r="3" fill="currentColor" />
+      <circle cx="16" cy="4" r="2.5" fill="currentColor" />
+      <circle cx="16" cy="28" r="2.5" fill="currentColor" />
+      <circle cx="4" cy="16" r="2.5" fill="currentColor" />
+      <circle cx="28" cy="16" r="2.5" fill="currentColor" />
+      <circle cx="7" cy="7" r="2" fill="currentColor" />
+      <circle cx="25" cy="7" r="2" fill="currentColor" />
+      <circle cx="7" cy="25" r="2" fill="currentColor" />
+      <circle cx="25" cy="25" r="2" fill="currentColor" />
+      <line x1="16" y1="13" x2="16" y2="6.5" stroke="currentColor" strokeWidth="1.5" />
+      <line x1="16" y1="19" x2="16" y2="25.5" stroke="currentColor" strokeWidth="1.5" />
+      <line x1="13" y1="16" x2="6.5" y2="16" stroke="currentColor" strokeWidth="1.5" />
+      <line x1="19" y1="16" x2="25.5" y2="16" stroke="currentColor" strokeWidth="1.5" />
+      <line x1="14" y1="14" x2="9" y2="9" stroke="currentColor" strokeWidth="1.2" />
+      <line x1="18" y1="14" x2="23" y2="9" stroke="currentColor" strokeWidth="1.2" />
+      <line x1="14" y1="18" x2="9" y2="23" stroke="currentColor" strokeWidth="1.2" />
+      <line x1="18" y1="18" x2="23" y2="23" stroke="currentColor" strokeWidth="1.2" />
     </svg>
   );
 }
-

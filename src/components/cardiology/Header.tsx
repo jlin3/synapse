@@ -44,9 +44,7 @@ export default function Header({
         <div className="flex items-center justify-between gap-8 mb-4">
           <div className="flex items-center gap-3">
             <SynapseLogo />
-            <span className="text-xl font-semibold tracking-tight text-white">
-              Synapse
-            </span>
+            <span className="text-xl font-semibold tracking-tight text-white">Synapse</span>
             <span className="text-[10px] bg-gradient-to-r from-purple-500 to-pink-500 text-white px-2 py-0.5 rounded-full font-medium uppercase tracking-wider">
               Beta
             </span>
@@ -75,14 +73,18 @@ export default function Header({
 
         {/* AI Search Box - Full width */}
         <div className="relative group">
-          <div className={`absolute -inset-0.5 bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500 rounded-2xl transition-opacity duration-300 blur ${isFocused ? 'opacity-40' : 'opacity-0 group-hover:opacity-20'}`} />
+          <div
+            className={`absolute -inset-0.5 bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500 rounded-2xl transition-opacity duration-300 blur ${isFocused ? "opacity-40" : "opacity-0 group-hover:opacity-20"}`}
+          />
           <div className="relative bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden">
             <div className="flex items-center">
               {/* Sparkles icon */}
               <div className="pl-4 pr-2">
-                <Sparkles className={`w-5 h-5 ${isAiSearching ? 'text-purple-400 animate-pulse' : 'text-zinc-500'}`} />
+                <Sparkles
+                  className={`w-5 h-5 ${isAiSearching ? "text-purple-400 animate-pulse" : "text-zinc-500"}`}
+                />
               </div>
-              
+
               {/* Input */}
               <input
                 type="text"
@@ -142,13 +144,7 @@ export default function Header({
 
 function SynapseLogo() {
   return (
-    <svg
-      width="32"
-      height="32"
-      viewBox="0 0 32 32"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
       <circle cx="16" cy="16" r="3" fill="url(#grad1)" />
       <circle cx="16" cy="4" r="2.5" fill="url(#grad1)" />
       <circle cx="16" cy="28" r="2.5" fill="url(#grad1)" />

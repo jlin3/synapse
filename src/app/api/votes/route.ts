@@ -66,10 +66,7 @@ export async function POST(request: Request) {
     const { paperId, userId, voteType } = await request.json();
 
     if (!paperId || !userId) {
-      return NextResponse.json(
-        { error: "paperId and userId are required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "paperId and userId are required" }, { status: 400 });
     }
 
     if (voteType && voteType !== "up" && voteType !== "down") {
@@ -105,9 +102,6 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("Error processing vote:", error);
-    return NextResponse.json(
-      { error: "Failed to process vote" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to process vote" }, { status: 500 });
   }
 }

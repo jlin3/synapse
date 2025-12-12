@@ -1,13 +1,7 @@
 import { NextResponse } from "next/server";
+import { PaperMetadata } from "@/types";
 
 const XAI_API_KEY = process.env.XAI_API_KEY;
-
-interface PaperMetadata {
-  studyType: string;
-  rigorLevel: "high" | "medium" | "low";
-  claimType: "novel" | "replication" | "review" | "meta-analysis" | "unknown";
-  badges: string[];
-}
 
 // In-memory cache for metadata
 const metadataCache = new Map<string, { data: PaperMetadata; timestamp: number }>();
@@ -29,13 +23,13 @@ function generateFallbackMetadata(title: string, abstract: string | null): Paper
   const titleLower = title.toLowerCase();
   const abstractLower = (abstract || "").toLowerCase();
   const combined = titleLower + " " + abstractLower;
-  
+
   // Basic heuristic classification
   let studyType = "Original Research";
   let rigorLevel: "high" | "medium" | "low" = "medium";
   let claimType: PaperMetadata["claimType"] = "unknown";
   const badges: string[] = [];
-  
+
   // Detect study type from keywords
   if (combined.includes("meta-analysis") || combined.includes("meta analysis")) {
     studyType = "Meta-Analysis";
@@ -47,7 +41,11 @@ function generateFallbackMetadata(title: string, abstract: string | null): Paper
     rigorLevel = "high";
     claimType = "review";
     badges.push("Systematic Review");
-  } else if (combined.includes("randomized") || combined.includes("randomised") || combined.includes("rct")) {
+  } else if (
+    combined.includes("randomized") ||
+    combined.includes("randomised") ||
+    combined.includes("rct")
+  ) {
     studyType = "Randomized Controlled Trial";
     rigorLevel = "high";
     claimType = "novel";
@@ -65,7 +63,12 @@ function generateFallbackMetadata(title: string, abstract: string | null): Paper
     rigorLevel = "low";
     claimType = "review";
     badges.push("Review");
-  } else if (combined.includes("clinical trial") || combined.includes("phase i") || combined.includes("phase ii") || combined.includes("phase iii")) {
+  } else if (
+    combined.includes("clinical trial") ||
+    combined.includes("phase i") ||
+    combined.includes("phase ii") ||
+    combined.includes("phase iii")
+  ) {
     studyType = "Clinical Trial";
     rigorLevel = "high";
     badges.push("Clinical Trial");
@@ -74,21 +77,35 @@ function generateFallbackMetadata(title: string, abstract: string | null): Paper
     rigorLevel = "medium";
     badges.push("Observational");
   }
-  
+
   // Detect novelty indicators
-  if (combined.includes("first") || combined.includes("novel") || combined.includes("new approach") || combined.includes("breakthrough")) {
+  if (
+    combined.includes("first") ||
+    combined.includes("novel") ||
+    combined.includes("new approach") ||
+    combined.includes("breakthrough")
+  ) {
     if (claimType === "unknown") claimType = "novel";
     if (!badges.includes("Novel Finding")) badges.push("Novel Finding");
   }
-  
+
   // Detect human vs animal
-  if (combined.includes("in vivo") || combined.includes("animal model") || combined.includes("mouse") || combined.includes("rat ")) {
+  if (
+    combined.includes("in vivo") ||
+    combined.includes("animal model") ||
+    combined.includes("mouse") ||
+    combined.includes("rat ")
+  ) {
     badges.push("Animal Study");
     if (rigorLevel === "high") rigorLevel = "medium";
-  } else if (combined.includes("patient") || combined.includes("participants") || combined.includes("human subjects")) {
+  } else if (
+    combined.includes("patient") ||
+    combined.includes("participants") ||
+    combined.includes("human subjects")
+  ) {
     badges.push("Human Study");
   }
-  
+
   return { studyType, rigorLevel, claimType, badges };
 }
 
@@ -97,10 +114,7 @@ export async function POST(request: Request) {
     const { paperId, title, abstract } = await request.json();
 
     if (!title) {
-      return NextResponse.json(
-        { error: "title is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "title is required" }, { status: 400 });
     }
 
     // Check cache first
@@ -157,7 +171,7 @@ Return only valid JSON, no other text.`;
 
       const data = await response.json();
       const content = data.choices?.[0]?.message?.content || "";
-      
+
       // Parse the JSON response
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
@@ -175,9 +189,6 @@ Return only valid JSON, no other text.`;
     return NextResponse.json({ metadata: fallback, cached: false });
   } catch (error) {
     console.error("Error generating paper metadata:", error);
-    return NextResponse.json(
-      { error: "Failed to generate metadata" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to generate metadata" }, { status: 500 });
   }
 }

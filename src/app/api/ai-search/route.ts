@@ -17,10 +17,7 @@ export async function POST(request: Request) {
     const { query } = await request.json();
 
     if (!query) {
-      return NextResponse.json(
-        { error: "Query is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Query is required" }, { status: 400 });
     }
 
     // If no API key, do simple keyword extraction
@@ -91,9 +88,6 @@ Return ONLY valid JSON in this format:
     });
   } catch (error) {
     console.error("AI search error:", error);
-    return NextResponse.json(
-      { error: "Failed to process search query" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to process search query" }, { status: 500 });
   }
 }

@@ -50,10 +50,7 @@ const pipelineSteps = [
     step: "05",
     title: "Serving",
     color: "from-rose-400 to-pink-400",
-    items: [
-      "APIs for feeds, related-papers, lab pages",
-      "Observability + A/B hooks",
-    ],
+    items: ["APIs for feeds, related-papers, lab pages", "Observability + A/B hooks"],
   },
 ];
 
@@ -61,7 +58,7 @@ export default function BaselineArchitecture() {
   return (
     <section className="py-24 px-6 relative">
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-violet-950/10 to-transparent" />
-      
+
       <div className="max-w-6xl mx-auto relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -77,14 +74,15 @@ export default function BaselineArchitecture() {
             Baseline Architecture
           </h2>
           <p className="text-xl text-slate-400 max-w-3xl mx-auto">
-            RAG + Recommender pipeline powering personalized feeds — options differ in &quot;who runs which piece&quot;
+            RAG + Recommender pipeline powering personalized feeds — options differ in &quot;who
+            runs which piece&quot;
           </p>
         </motion.div>
 
         <div className="relative">
           {/* Connecting line */}
           <div className="absolute left-[27px] md:left-1/2 md:-translate-x-px top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-500/50 via-emerald-500/50 to-rose-500/50 hidden md:block" />
-          
+
           <div className="space-y-8">
             {pipelineSteps.map((step, index) => (
               <motion.div
@@ -99,7 +97,9 @@ export default function BaselineArchitecture() {
               >
                 {/* Timeline node - desktop */}
                 <div className="hidden md:flex w-1/2 items-center justify-center">
-                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${step.color} flex items-center justify-center shadow-lg relative z-10`}>
+                  <div
+                    className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${step.color} flex items-center justify-center shadow-lg relative z-10`}
+                  >
                     <step.icon className="w-7 h-7 text-white" />
                   </div>
                 </div>
@@ -109,7 +109,9 @@ export default function BaselineArchitecture() {
                   <div className="rounded-2xl p-6 bg-white/[0.02] border border-white/[0.06] hover:border-white/10 transition-colors">
                     <div className="flex items-center gap-3 mb-4">
                       {/* Timeline node - mobile */}
-                      <div className={`md:hidden w-10 h-10 rounded-xl bg-gradient-to-br ${step.color} flex items-center justify-center shadow-lg`}>
+                      <div
+                        className={`md:hidden w-10 h-10 rounded-xl bg-gradient-to-br ${step.color} flex items-center justify-center shadow-lg`}
+                      >
                         <step.icon className="w-5 h-5 text-white" />
                       </div>
                       <div>
@@ -135,4 +137,3 @@ export default function BaselineArchitecture() {
     </section>
   );
 }
-

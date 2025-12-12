@@ -1,15 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { PaperMetadata } from "@/types";
 
-interface PaperMetadata {
-  studyType: string;
-  rigorLevel: "high" | "medium" | "low";
-  claimType: "novel" | "replication" | "review" | "meta-analysis" | "unknown";
-  badges: string[];
-}
-
-interface Paper {
+interface PaperInput {
   id: string;
   title: string;
   abstract: string | null;
@@ -18,7 +12,7 @@ interface Paper {
 // Local cache to avoid refetching during the session
 const sessionCache = new Map<string, PaperMetadata>();
 
-export function usePaperMetadata(papers: Paper[]) {
+export function usePaperMetadata(papers: PaperInput[]) {
   const [metadata, setMetadata] = useState<Record<string, PaperMetadata>>({});
   const [isLoading, setIsLoading] = useState(false);
 
@@ -26,9 +20,7 @@ export function usePaperMetadata(papers: Paper[]) {
     if (papers.length === 0) return;
 
     // Filter papers that we don't have metadata for
-    const papersToFetch = papers.filter(
-      (p) => !sessionCache.has(p.id) && !metadata[p.id]
-    );
+    const papersToFetch = papers.filter((p) => !sessionCache.has(p.id) && !metadata[p.id]);
 
     if (papersToFetch.length === 0) {
       // Use cached data
@@ -49,7 +41,7 @@ export function usePaperMetadata(papers: Paper[]) {
     const batchSize = 3;
     for (let i = 0; i < papersToFetch.length; i += batchSize) {
       const batch = papersToFetch.slice(i, i + batchSize);
-      
+
       await Promise.all(
         batch.map(async (paper) => {
           try {
@@ -83,19 +75,28 @@ export function usePaperMetadata(papers: Paper[]) {
     fetchMetadata();
   }, [fetchMetadata]);
 
-  const getMetadata = useCallback((paperId: string): PaperMetadata | null => {
-    return metadata[paperId] || sessionCache.get(paperId) || null;
-  }, [metadata]);
+  const getMetadata = useCallback(
+    (paperId: string): PaperMetadata | null => {
+      return metadata[paperId] || sessionCache.get(paperId) || null;
+    },
+    [metadata]
+  );
 
-  const getBadges = useCallback((paperId: string): string[] => {
-    const data = getMetadata(paperId);
-    return data?.badges || [];
-  }, [getMetadata]);
+  const getBadges = useCallback(
+    (paperId: string): string[] => {
+      const data = getMetadata(paperId);
+      return data?.badges || [];
+    },
+    [getMetadata]
+  );
 
-  const getRigorLevel = useCallback((paperId: string): "high" | "medium" | "low" | null => {
-    const data = getMetadata(paperId);
-    return data?.rigorLevel || null;
-  }, [getMetadata]);
+  const getRigorLevel = useCallback(
+    (paperId: string): "high" | "medium" | "low" | null => {
+      const data = getMetadata(paperId);
+      return data?.rigorLevel || null;
+    },
+    [getMetadata]
+  );
 
   return {
     metadata,

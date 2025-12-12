@@ -16,12 +16,8 @@ export default function MathSection() {
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 text-slate-700 text-sm font-medium mb-4">
             Under the Hood
           </span>
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-            The Core Equation
-          </h2>
-          <p className="text-xl text-gray-600">
-            The math that powers semantic retrieval
-          </p>
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">The Core Equation</h2>
+          <p className="text-xl text-gray-600">The math that powers semantic retrieval</p>
         </motion.div>
 
         <motion.div
@@ -54,13 +50,12 @@ export default function MathSection() {
             <div className="grid md:grid-cols-2 gap-4">
               <div className="bg-slate-900 rounded-xl p-4 font-mono text-white">
                 <span className="text-purple-400">v</span>
-                <sub className="text-gray-400">q</sub> ={" "}
-                <span className="text-blue-400">E</span>(query)
+                <sub className="text-gray-400">q</sub> = <span className="text-blue-400">E</span>
+                (query)
               </div>
               <div className="bg-slate-900 rounded-xl p-4 font-mono text-white">
                 <span className="text-purple-400">v</span>
-                <sub className="text-gray-400">i</sub> ={" "}
-                <span className="text-blue-400">E</span>(d
+                <sub className="text-gray-400">i</sub> = <span className="text-blue-400">E</span>(d
                 <sub className="text-gray-400">i</sub>)
               </div>
             </div>
@@ -102,9 +97,8 @@ export default function MathSection() {
             <div className="bg-slate-900 rounded-xl p-6 font-mono text-white">
               <span className="text-green-400">top_k</span> ={" "}
               <span className="text-yellow-400">argmax</span>
-              <sub className="text-gray-400">k</sub>{" "}
-              <span className="text-yellow-400">sim</span>(q, d
-              <sub className="text-gray-400">i</sub>)
+              <sub className="text-gray-400">k</sub> <span className="text-yellow-400">sim</span>(q,
+              d<sub className="text-gray-400">i</sub>)
             </div>
             <p className="mt-3 text-sm text-gray-600">
               Pick the k documents with highest similarity → pass their text to the LLM
@@ -123,18 +117,16 @@ export default function MathSection() {
           <div className="glass rounded-2xl p-6">
             <h4 className="font-semibold text-gray-500 mb-3">Traditional ML Approach</h4>
             <code className="text-sm block bg-gray-100 rounded-lg p-3 text-gray-800">
-              features = [cosine_sim(q, doc_i)]<br/>
-              → GBDT → label
+              features = [cosine_sim(q, doc_i)]
+              <br />→ GBDT → label
             </code>
-            <p className="mt-3 text-xs text-gray-500">
-              Similarity as feature for classification
-            </p>
+            <p className="mt-3 text-xs text-gray-500">Similarity as feature for classification</p>
           </div>
           <div className="glass rounded-2xl p-6 border-2 border-blue-200">
             <h4 className="font-semibold text-blue-600 mb-3">RAG Pattern</h4>
             <code className="text-sm block bg-blue-50 rounded-lg p-3 text-gray-800">
-              neighbors = top_k(cosine_sim(q, doc_i))<br/>
-              → LLM(q, neighbors_text)
+              neighbors = top_k(cosine_sim(q, doc_i))
+              <br />→ LLM(q, neighbors_text)
             </code>
             <p className="mt-3 text-xs text-gray-500">
               Similarity for retrieval, LLM for generation

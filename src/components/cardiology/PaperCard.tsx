@@ -1,10 +1,10 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Users, 
-  ExternalLink, 
-  Bookmark, 
+import {
+  Users,
+  ExternalLink,
+  Bookmark,
   ThumbsUp,
   ThumbsDown,
   TrendingUp,
@@ -17,7 +17,7 @@ import {
   FolderPlus,
   Shield,
   Beaker,
-  MessageSquare
+  MessageSquare,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -200,17 +200,25 @@ export default function PaperCard({
           {/* Citation count with trend */}
           <div className="flex items-center gap-1 px-2 py-0.5 bg-zinc-800 rounded-full">
             <BarChart3 className="w-3 h-3 text-zinc-400" />
-            <span className="text-[10px] font-medium text-zinc-300">{citedByCount.toLocaleString()}</span>
+            <span className="text-[10px] font-medium text-zinc-300">
+              {citedByCount.toLocaleString()}
+            </span>
             {trendScore !== 0 && (
-              <span className={trendScore > 0 ? 'text-green-400' : 'text-red-400'}>
-                {trendScore > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+              <span className={trendScore > 0 ? "text-green-400" : "text-red-400"}>
+                {trendScore > 0 ? (
+                  <TrendingUp className="w-3 h-3" />
+                ) : (
+                  <TrendingDown className="w-3 h-3" />
+                )}
               </span>
             )}
           </div>
 
           {/* Rigor badge */}
           {rigor && (
-            <div className={`flex items-center gap-1 px-2 py-0.5 ${rigor.bg} rounded-full border ${rigor.border}`}>
+            <div
+              className={`flex items-center gap-1 px-2 py-0.5 ${rigor.bg} rounded-full border ${rigor.border}`}
+            >
               <RigorIcon className={`w-3 h-3 ${rigor.color}`} />
               <span className={`text-[10px] font-medium ${rigor.color}`}>{rigor.label}</span>
             </div>
@@ -222,7 +230,7 @@ export default function PaperCard({
               Open Access
             </span>
           )}
-          
+
           {/* Methodology badges (RCT, Meta-Analysis, etc.) */}
           {badges.slice(0, 3).map((badge) => (
             <span

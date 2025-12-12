@@ -1,50 +1,32 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ExternalLink, Loader2, Sparkles, Baby, ListChecks, Bookmark, Share2, Link2, Check, Quote, FileText, MessageSquare, Send, Trash2, Github, ArrowUp, BookOpen, Users2 } from "lucide-react";
+import {
+  X,
+  ExternalLink,
+  Loader2,
+  Sparkles,
+  Baby,
+  ListChecks,
+  Bookmark,
+  Share2,
+  Link2,
+  Check,
+  Quote,
+  FileText,
+  MessageSquare,
+  Send,
+  Trash2,
+  Github,
+  ArrowUp,
+  BookOpen,
+  Users2,
+} from "lucide-react";
 import { useState, useEffect } from "react";
 import { generateBibTeX, generateAPA, copyToClipboard } from "@/lib/citations";
 import { useComments } from "@/hooks/useComments";
 import { useUser } from "@/hooks/useUser";
-
-interface Concept {
-  id: string;
-  name: string;
-  score: number;
-}
-
-interface Paper {
-  id: string;
-  title: string;
-  authors: string[];
-  publicationDate: string;
-  doi: string | null;
-  abstract: string | null;
-  citedByCount: number;
-  journal: string | null;
-  concepts?: Concept[];
-  pdfUrl?: string | null;
-  githubUrl?: string | null;
-  arxivId?: string | null;
-  isOpenAccess?: boolean;
-  trendScore?: number;
-}
-
-interface PaperInsights {
-  synthesis: string;
-  eli5: string;
-  highlights: string[];
-}
-
-interface RelatedPaper {
-  id: string;
-  title: string;
-  authors: string[];
-  publicationDate: string;
-  doi: string | null;
-  citedByCount: number;
-  journal: string | null;
-}
+import { Paper, PaperInsights, RelatedPaper } from "@/types";
 
 interface PaperDetailModalProps {
   paper: Paper | null;
@@ -57,9 +39,9 @@ interface PaperDetailModalProps {
 
 type TabType = "synthesis" | "eli5" | "highlights";
 
-export default function PaperDetailModal({ 
-  paper, 
-  isOpen, 
+export default function PaperDetailModal({
+  paper,
+  isOpen,
   onClose,
   isBookmarked,
   onToggleBookmark,
@@ -79,9 +61,17 @@ export default function PaperDetailModal({
   const [aiQuestion, setAiQuestion] = useState("");
   const [aiResponse, setAiResponse] = useState<string | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
-  
+
   // Comments
-  const { comments, count: commentCount, isLoading: loadingComments, isSubmitting, addComment, deleteComment, isOwnComment } = useComments(paper?.id || null);
+  const {
+    comments,
+    count: commentCount,
+    isLoading: loadingComments,
+    isSubmitting,
+    addComment,
+    deleteComment,
+    isOwnComment,
+  } = useComments(paper?.id || null);
   const { displayName, setDisplayName } = useUser();
 
   // Handle AI question submission
@@ -136,10 +126,10 @@ export default function PaperDetailModal({
 
   const fetchInsights = async () => {
     if (!paper) return;
-    
+
     setLoadingInsights(true);
     setError(null);
-    
+
     try {
       const response = await fetch("/api/paper-insights", {
         method: "POST",
@@ -151,11 +141,11 @@ export default function PaperDetailModal({
           abstract: paper.abstract,
         }),
       });
-      
+
       if (!response.ok) {
         throw new Error("Failed to generate insights");
       }
-      
+
       const data = await response.json();
       setInsights(data);
     } catch (err) {
@@ -168,17 +158,17 @@ export default function PaperDetailModal({
 
   const fetchRelatedPapers = async () => {
     if (!paper) return;
-    
+
     setLoadingRelated(true);
     setRelatedPapers([]);
-    
+
     try {
       const response = await fetch(`/api/related-papers?id=${encodeURIComponent(paper.id)}`);
-      
+
       if (!response.ok) {
         throw new Error("Failed to fetch related papers");
       }
-      
+
       const data = await response.json();
       setRelatedPapers(data.relatedPapers || []);
     } catch (err) {
@@ -267,13 +257,16 @@ export default function PaperDetailModal({
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newComment.trim()) return;
-    
+
     // Save display name if provided
     if (displayNameInput.trim() && displayNameInput !== displayName) {
       setDisplayName(displayNameInput.trim());
     }
-    
-    const success = await addComment(newComment, displayNameInput.trim() || displayName || undefined);
+
+    const success = await addComment(
+      newComment,
+      displayNameInput.trim() || displayName || undefined
+    );
     if (success) {
       setNewComment("");
     }
@@ -286,7 +279,7 @@ export default function PaperDetailModal({
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
-    
+
     if (diffMins < 1) return "just now";
     if (diffMins < 60) return `${diffMins}m ago`;
     if (diffHours < 24) return `${diffHours}h ago`;
@@ -319,11 +312,12 @@ export default function PaperDetailModal({
             <div className="p-6 border-b border-zinc-800">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
-                  <h2 className="text-xl font-bold text-white leading-tight">
-                    {paper.title}
-                  </h2>
+                  <h2 className="text-xl font-bold text-white leading-tight">{paper.title}</h2>
                   <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-zinc-400">
-                    <span>{paper.authors.slice(0, 3).join(", ")}{paper.authors.length > 3 && ` +${paper.authors.length - 3}`}</span>
+                    <span>
+                      {paper.authors.slice(0, 3).join(", ")}
+                      {paper.authors.length > 3 && ` +${paper.authors.length - 3}`}
+                    </span>
                     <span className="text-zinc-600">•</span>
                     <span>{formattedDate}</span>
                     {paper.citedByCount > 0 && (
@@ -354,7 +348,7 @@ export default function PaperDetailModal({
                       <Bookmark className={`w-5 h-5 ${isBookmarked ? "fill-current" : ""}`} />
                     </button>
                   )}
-                  
+
                   {/* Share Button */}
                   <div className="relative">
                     <button
@@ -367,7 +361,7 @@ export default function PaperDetailModal({
                     >
                       <Share2 className="w-5 h-5" />
                     </button>
-                    
+
                     {/* Share Menu */}
                     <AnimatePresence>
                       {showShareMenu && (
@@ -414,7 +408,7 @@ export default function PaperDetailModal({
                       )}
                     </AnimatePresence>
                   </div>
-                  
+
                   {/* Close Button */}
                   <button
                     onClick={onClose}
@@ -438,7 +432,7 @@ export default function PaperDetailModal({
                     Read Full Paper
                   </a>
                 )}
-                
+
                 {/* Citation Buttons */}
                 <button
                   onClick={handleCopyBibTeX}
@@ -462,7 +456,7 @@ export default function PaperDetailModal({
                   )}
                   {copiedCitation === "apa" ? "Copied!" : "APA"}
                 </button>
-                
+
                 {/* GitHub Link */}
                 {paper.githubUrl && (
                   <a
@@ -535,17 +529,13 @@ export default function PaperDetailModal({
                     >
                       {activeTab === "synthesis" && (
                         <div className="p-4 bg-zinc-800/30 rounded-xl border border-zinc-700/50">
-                          <p className="text-zinc-300 leading-relaxed">
-                            {insights.synthesis}
-                          </p>
+                          <p className="text-zinc-300 leading-relaxed">{insights.synthesis}</p>
                         </div>
                       )}
 
                       {activeTab === "eli5" && (
                         <div className="p-4 bg-zinc-800/30 rounded-xl border border-zinc-700/50">
-                          <p className="text-zinc-300 leading-relaxed">
-                            {insights.eli5}
-                          </p>
+                          <p className="text-zinc-300 leading-relaxed">{insights.eli5}</p>
                         </div>
                       )}
 
@@ -559,9 +549,7 @@ export default function PaperDetailModal({
                               <span className="flex-shrink-0 w-6 h-6 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
                                 {index + 1}
                               </span>
-                              <p className="text-zinc-300 leading-relaxed text-sm">
-                                {highlight}
-                              </p>
+                              <p className="text-zinc-300 leading-relaxed text-sm">{highlight}</p>
                             </li>
                           ))}
                         </ul>
@@ -581,9 +569,7 @@ export default function PaperDetailModal({
                   <h3 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-3">
                     Abstract
                   </h3>
-                  <p className="text-zinc-300 leading-relaxed text-sm">
-                    {paper.abstract}
-                  </p>
+                  <p className="text-zinc-300 leading-relaxed text-sm">{paper.abstract}</p>
                 </div>
               )}
 
@@ -623,7 +609,10 @@ export default function PaperDetailModal({
                           {related.title}
                         </h4>
                         <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-zinc-500">
-                          <span>{related.authors.slice(0, 2).join(", ")}{related.authors.length > 2 && " et al."}</span>
+                          <span>
+                            {related.authors.slice(0, 2).join(", ")}
+                            {related.authors.length > 2 && " et al."}
+                          </span>
                           <span>•</span>
                           <span>{new Date(related.publicationDate).getFullYear()}</span>
                           {related.citedByCount > 0 && (
@@ -748,7 +737,7 @@ export default function PaperDetailModal({
                   </div>
                 </div>
               )}
-              
+
               {/* Question Input */}
               <form onSubmit={handleAskQuestion} className="relative">
                 <input
@@ -801,7 +790,15 @@ function LinkedInLogo({ className }: { className?: string }) {
 
 function EmailIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <rect width="20" height="16" x="2" y="4" rx="2" />
       <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
     </svg>
@@ -810,7 +807,15 @@ function EmailIcon({ className }: { className?: string }) {
 
 function LinkIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
       <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
     </svg>

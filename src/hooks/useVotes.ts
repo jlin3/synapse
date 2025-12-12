@@ -45,80 +45,94 @@ export function useVotes(paperIds: string[]) {
   }, [fetchVotes]);
 
   // Cast a vote
-  const vote = useCallback(async (paperId: string, voteType: "up" | "down" | null) => {
-    if (!userId) return;
+  const vote = useCallback(
+    async (paperId: string, voteType: "up" | "down" | null) => {
+      if (!userId) return;
 
-    // Optimistic update
-    setVotes((prev) => {
-      const current = prev[paperId] || {
-        paperId,
-        upvotes: 0,
-        downvotes: 0,
-        score: 0,
-        userVote: null,
-      };
+      // Optimistic update
+      setVotes((prev) => {
+        const current = prev[paperId] || {
+          paperId,
+          upvotes: 0,
+          downvotes: 0,
+          score: 0,
+          userVote: null,
+        };
 
-      const newVote = { ...current };
-      
-      // Remove previous vote count
-      if (current.userVote === "up") {
-        newVote.upvotes--;
-      } else if (current.userVote === "down") {
-        newVote.downvotes--;
-      }
+        const newVote = { ...current };
 
-      // Add new vote count
-      if (voteType === "up") {
-        newVote.upvotes++;
-      } else if (voteType === "down") {
-        newVote.downvotes++;
-      }
+        // Remove previous vote count
+        if (current.userVote === "up") {
+          newVote.upvotes--;
+        } else if (current.userVote === "down") {
+          newVote.downvotes--;
+        }
 
-      newVote.score = newVote.upvotes - newVote.downvotes;
-      newVote.userVote = voteType;
+        // Add new vote count
+        if (voteType === "up") {
+          newVote.upvotes++;
+        } else if (voteType === "down") {
+          newVote.downvotes++;
+        }
 
-      return { ...prev, [paperId]: newVote };
-    });
+        newVote.score = newVote.upvotes - newVote.downvotes;
+        newVote.userVote = voteType;
 
-    try {
-      const response = await fetch("/api/votes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ paperId, userId, voteType }),
+        return { ...prev, [paperId]: newVote };
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        setVotes((prev) => ({ ...prev, [paperId]: data.vote }));
+      try {
+        const response = await fetch("/api/votes", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ paperId, userId, voteType }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setVotes((prev) => ({ ...prev, [paperId]: data.vote }));
+        }
+      } catch (error) {
+        console.error("Error casting vote:", error);
+        // Revert on error
+        fetchVotes();
       }
-    } catch (error) {
-      console.error("Error casting vote:", error);
-      // Revert on error
-      fetchVotes();
-    }
-  }, [userId, fetchVotes]);
+    },
+    [userId, fetchVotes]
+  );
 
-  const getVote = useCallback((paperId: string): VoteData => {
-    return votes[paperId] || {
-      paperId,
-      upvotes: 0,
-      downvotes: 0,
-      score: 0,
-      userVote: null,
-    };
-  }, [votes]);
+  const getVote = useCallback(
+    (paperId: string): VoteData => {
+      return (
+        votes[paperId] || {
+          paperId,
+          upvotes: 0,
+          downvotes: 0,
+          score: 0,
+          userVote: null,
+        }
+      );
+    },
+    [votes]
+  );
 
-  const toggleUpvote = useCallback((paperId: string) => {
-    const current = getVote(paperId);
-    const newVoteType = current.userVote === "up" ? null : "up";
-    vote(paperId, newVoteType);
-  }, [getVote, vote]);
+  const toggleUpvote = useCallback(
+    (paperId: string) => {
+      const current = getVote(paperId);
+      const newVoteType = current.userVote === "up" ? null : "up";
+      vote(paperId, newVoteType);
+    },
+    [getVote, vote]
+  );
 
-  const toggleDownvote = useCallback((paperId: string) => {
-    const current = getVote(paperId);
-    const newVoteType = current.userVote === "down" ? null : "down";
-    vote(paperId, newVoteType);
-  }, [getVote, vote]);
+  const toggleDownvote = useCallback(
+    (paperId: string) => {
+      const current = getVote(paperId);
+      const newVoteType = current.userVote === "down" ? null : "down";
+      vote(paperId, newVoteType);
+    },
+    [getVote, vote]
+  );
 
   return {
     votes,

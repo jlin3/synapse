@@ -27,9 +27,7 @@ export default function SocialFeed({ posts, loading }: SocialFeedProps) {
         <div className="p-2 bg-zinc-800 rounded-lg">
           <XLogo />
         </div>
-        <h2 className="text-xl font-bold text-white">
-          Social Feed
-        </h2>
+        <h2 className="text-xl font-bold text-white">Social Feed</h2>
       </div>
 
       {loading ? (
@@ -47,9 +45,7 @@ export default function SocialFeed({ posts, loading }: SocialFeedProps) {
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <p className="text-zinc-500">No posts found</p>
-            <p className="text-sm text-zinc-600 mt-1">
-              Try searching for a different topic
-            </p>
+            <p className="text-sm text-zinc-600 mt-1">Try searching for a different topic</p>
           </div>
         </div>
       ) : (
@@ -75,13 +71,7 @@ export default function SocialFeed({ posts, loading }: SocialFeedProps) {
 
 function XLogo() {
   return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"
         fill="white"

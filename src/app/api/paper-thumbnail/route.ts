@@ -14,7 +14,7 @@ export async function GET(request: Request) {
   if (arxivId) {
     // arXiv provides thumbnails at this URL pattern
     const thumbnailUrl = `https://arxiv.org/abs/${arxivId}`;
-    
+
     return NextResponse.json({
       thumbnailUrl: null, // arXiv doesn't provide direct thumbnails easily
       arxivUrl: thumbnailUrl,
@@ -25,7 +25,7 @@ export async function GET(request: Request) {
   // For DOIs, we could potentially use Unpaywall or similar
   if (doi) {
     const cleanDoi = doi.replace("https://doi.org/", "");
-    
+
     return NextResponse.json({
       thumbnailUrl: null,
       doiUrl: `https://doi.org/${cleanDoi}`,

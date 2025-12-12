@@ -26,7 +26,7 @@ const milestones = [
       "Stand up vector DB (Pinecone or Vertex Vector Search)",
       "Implement candidate generation: user/query → ANN search + filters",
       "v0 feed: simple scoring (recency + popularity)",
-      "\"Top in oncology this week\" feed",
+      '"Top in oncology this week" feed',
     ],
   },
   {
@@ -50,7 +50,7 @@ const milestones = [
     tasks: [
       "Add LLM reranking for top-K (Gemini 2.0 Flash)",
       "Fine-tune ranking with early lab feedback",
-      "Add \"lab pages\" and institution-level feeds",
+      'Add "lab pages" and institution-level feeds',
       "Performance optimization and hardening",
     ],
   },
@@ -95,17 +95,23 @@ export default function Timeline() {
                 }`}
               >
                 {/* Timeline node - centered on desktop */}
-                <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 w-14 h-14 rounded-2xl bg-gradient-to-br items-center justify-center shadow-lg z-10"
-                     style={{
-                       backgroundImage: `linear-gradient(to bottom right, var(--tw-gradient-stops))`,
-                     }}>
-                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${milestone.color} flex items-center justify-center shadow-lg`}>
+                <div
+                  className="hidden md:flex absolute left-1/2 -translate-x-1/2 w-14 h-14 rounded-2xl bg-gradient-to-br items-center justify-center shadow-lg z-10"
+                  style={{
+                    backgroundImage: `linear-gradient(to bottom right, var(--tw-gradient-stops))`,
+                  }}
+                >
+                  <div
+                    className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${milestone.color} flex items-center justify-center shadow-lg`}
+                  >
                     <milestone.icon className="w-7 h-7 text-white" />
                   </div>
                 </div>
 
                 {/* Mobile timeline node */}
-                <div className={`md:hidden absolute left-0 w-12 h-12 rounded-xl bg-gradient-to-br ${milestone.color} flex items-center justify-center shadow-lg z-10`}>
+                <div
+                  className={`md:hidden absolute left-0 w-12 h-12 rounded-xl bg-gradient-to-br ${milestone.color} flex items-center justify-center shadow-lg z-10`}
+                >
                   <milestone.icon className="w-6 h-6 text-white" />
                 </div>
 
@@ -113,10 +119,14 @@ export default function Timeline() {
                 <div className="hidden md:block w-1/2" />
 
                 {/* Content */}
-                <div className={`flex-1 md:w-1/2 pl-16 md:pl-0 ${index % 2 === 0 ? "md:pr-12" : "md:pl-12"}`}>
+                <div
+                  className={`flex-1 md:w-1/2 pl-16 md:pl-0 ${index % 2 === 0 ? "md:pr-12" : "md:pl-12"}`}
+                >
                   <div className="rounded-2xl p-6 bg-white/[0.02] border border-white/[0.06] hover:border-white/10 transition-colors">
                     <div className="flex items-center gap-3 mb-4">
-                      <span className={`px-3 py-1 rounded-lg bg-gradient-to-r ${milestone.color} text-white text-sm font-semibold`}>
+                      <span
+                        className={`px-3 py-1 rounded-lg bg-gradient-to-r ${milestone.color} text-white text-sm font-semibold`}
+                      >
                         {milestone.month}
                       </span>
                       {milestone.badge && (
@@ -144,4 +154,3 @@ export default function Timeline() {
     </section>
   );
 }
-

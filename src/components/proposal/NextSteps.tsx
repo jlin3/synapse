@@ -1,14 +1,23 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CheckSquare, ArrowRight, Target, BarChart3, Layers, FileText, Users, Calendar } from "lucide-react";
+import {
+  CheckSquare,
+  ArrowRight,
+  Target,
+  BarChart3,
+  Layers,
+  FileText,
+  Users,
+  Calendar,
+} from "lucide-react";
 
 const steps = [
   {
     number: "01",
     icon: CheckSquare,
     title: "Pick an Option",
-    description: "Propose Option B in meeting, with C as \"Phase 2\"",
+    description: 'Propose Option B in meeting, with C as "Phase 2"',
     color: "from-emerald-400 to-teal-500",
   },
   {
@@ -82,7 +91,9 @@ export default function NextSteps() {
               className="rounded-2xl p-6 bg-white/[0.02] border border-white/[0.06] hover:border-white/10 transition-all group cursor-default"
             >
               <div className="flex items-start gap-4">
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${step.color} flex items-center justify-center shadow-lg flex-shrink-0 group-hover:scale-110 transition-transform`}>
+                <div
+                  className={`w-12 h-12 rounded-xl bg-gradient-to-br ${step.color} flex items-center justify-center shadow-lg flex-shrink-0 group-hover:scale-110 transition-transform`}
+                >
                   <step.icon className="w-6 h-6 text-white" />
                 </div>
                 <div className="flex-1">
@@ -97,9 +108,7 @@ export default function NextSteps() {
             </motion.div>
           ))}
         </div>
-
       </div>
     </section>
   );
 }
-

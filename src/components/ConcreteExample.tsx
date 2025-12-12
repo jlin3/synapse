@@ -1,7 +1,17 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Building2, FileText, Scissors, Box, Database, Search, Filter, MessageSquare, Sparkles } from "lucide-react";
+import {
+  Building2,
+  FileText,
+  Scissors,
+  Box,
+  Database,
+  Search,
+  Filter,
+  MessageSquare,
+  Sparkles,
+} from "lucide-react";
 
 const exampleSteps = [
   {
@@ -170,13 +180,19 @@ export default function ConcreteExample() {
                   Based on the company handbook, parental leave in Germany includes:
                 </p>
                 <ul className="list-disc list-inside space-y-1 text-sm">
-                  <li><strong>Duration:</strong> Up to 3 years per child (can be split)</li>
-                  <li><strong>Pay:</strong> Elterngeld up to 67% of net income for 12-14 months</li>
-                  <li><strong>Application:</strong> Submit request 7 weeks before start date</li>
+                  <li>
+                    <strong>Duration:</strong> Up to 3 years per child (can be split)
+                  </li>
+                  <li>
+                    <strong>Pay:</strong> Elterngeld up to 67% of net income for 12-14 months
+                  </li>
+                  <li>
+                    <strong>Application:</strong> Submit request 7 weeks before start date
+                  </li>
                 </ul>
                 <p className="mt-3 text-xs text-gray-500">
-                  Source: <span className="text-blue-600 underline">HR Handbook §4.2</span>, 
-                  Last updated: Nov 2024
+                  Source: <span className="text-blue-600 underline">HR Handbook §4.2</span>, Last
+                  updated: Nov 2024
                 </p>
               </div>
             </div>
@@ -186,4 +202,3 @@ export default function ConcreteExample() {
     </section>
   );
 }
-

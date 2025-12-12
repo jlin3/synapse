@@ -12,7 +12,11 @@ interface User {
 
 function generateUserId(): string {
   // Generate a random ID
-  return "user_" + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  return (
+    "user_" +
+    Math.random().toString(36).substring(2, 15) +
+    Math.random().toString(36).substring(2, 15)
+  );
 }
 
 export function useUser() {

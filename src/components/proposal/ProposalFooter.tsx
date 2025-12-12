@@ -64,24 +64,23 @@ export default function ProposalFooter() {
 function SynapseLogo() {
   return (
     <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="16" cy="16" r="3" fill="#10b981"/>
-      <circle cx="16" cy="4" r="2.5" fill="#10b981"/>
-      <circle cx="16" cy="28" r="2.5" fill="#10b981"/>
-      <circle cx="4" cy="16" r="2.5" fill="#10b981"/>
-      <circle cx="28" cy="16" r="2.5" fill="#10b981"/>
-      <circle cx="7" cy="7" r="2" fill="#10b981"/>
-      <circle cx="25" cy="7" r="2" fill="#10b981"/>
-      <circle cx="7" cy="25" r="2" fill="#10b981"/>
-      <circle cx="25" cy="25" r="2" fill="#10b981"/>
-      <line x1="16" y1="13" x2="16" y2="6.5" stroke="#10b981" strokeWidth="1.5"/>
-      <line x1="16" y1="19" x2="16" y2="25.5" stroke="#10b981" strokeWidth="1.5"/>
-      <line x1="13" y1="16" x2="6.5" y2="16" stroke="#10b981" strokeWidth="1.5"/>
-      <line x1="19" y1="16" x2="25.5" y2="16" stroke="#10b981" strokeWidth="1.5"/>
-      <line x1="14" y1="14" x2="9" y2="9" stroke="#10b981" strokeWidth="1.2"/>
-      <line x1="18" y1="14" x2="23" y2="9" stroke="#10b981" strokeWidth="1.2"/>
-      <line x1="14" y1="18" x2="9" y2="23" stroke="#10b981" strokeWidth="1.2"/>
-      <line x1="18" y1="18" x2="23" y2="23" stroke="#10b981" strokeWidth="1.2"/>
+      <circle cx="16" cy="16" r="3" fill="#10b981" />
+      <circle cx="16" cy="4" r="2.5" fill="#10b981" />
+      <circle cx="16" cy="28" r="2.5" fill="#10b981" />
+      <circle cx="4" cy="16" r="2.5" fill="#10b981" />
+      <circle cx="28" cy="16" r="2.5" fill="#10b981" />
+      <circle cx="7" cy="7" r="2" fill="#10b981" />
+      <circle cx="25" cy="7" r="2" fill="#10b981" />
+      <circle cx="7" cy="25" r="2" fill="#10b981" />
+      <circle cx="25" cy="25" r="2" fill="#10b981" />
+      <line x1="16" y1="13" x2="16" y2="6.5" stroke="#10b981" strokeWidth="1.5" />
+      <line x1="16" y1="19" x2="16" y2="25.5" stroke="#10b981" strokeWidth="1.5" />
+      <line x1="13" y1="16" x2="6.5" y2="16" stroke="#10b981" strokeWidth="1.5" />
+      <line x1="19" y1="16" x2="25.5" y2="16" stroke="#10b981" strokeWidth="1.5" />
+      <line x1="14" y1="14" x2="9" y2="9" stroke="#10b981" strokeWidth="1.2" />
+      <line x1="18" y1="14" x2="23" y2="9" stroke="#10b981" strokeWidth="1.2" />
+      <line x1="14" y1="18" x2="9" y2="23" stroke="#10b981" strokeWidth="1.2" />
+      <line x1="18" y1="18" x2="23" y2="23" stroke="#10b981" strokeWidth="1.2" />
     </svg>
   );
 }
-

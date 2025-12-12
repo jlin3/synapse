@@ -7,29 +7,7 @@ import PaperList from "@/components/cardiology/PaperList";
 import SocialFeed from "@/components/cardiology/SocialFeed";
 import ImportModal from "@/components/cardiology/ImportModal";
 import { SortOption } from "@/components/cardiology/FilterPanel";
-
-interface Concept {
-  id: string;
-  name: string;
-  score: number;
-}
-
-interface Paper {
-  id: string;
-  title: string;
-  authors: string[];
-  publicationDate: string;
-  doi: string | null;
-  abstract: string | null;
-  citedByCount: number;
-  journal: string | null;
-  concepts?: Concept[];
-  pdfUrl?: string | null;
-  githubUrl?: string | null;
-  arxivId?: string | null;
-  isOpenAccess?: boolean;
-  trendScore?: number;
-}
+import { Paper } from "@/types";
 
 interface SocialPost {
   id: string;
@@ -65,46 +43,49 @@ export default function SynapsePage() {
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isAiSearching, setIsAiSearching] = useState(false);
 
-  const fetchPapers = useCallback(async (
-    query: string, 
-    sortBy: SortOption = "hot",
-    filters?: { minCitations?: number; fromDate?: string }
-  ) => {
-    setLoadingPapers(true);
-    try {
-      // Map sort options to OpenAlex sort params
-      let sortParam = "publication_date:desc";
-      if (sortBy === "hot" || sortBy === "top_all") {
-        sortParam = "cited_by_count:desc";
-      } else if (sortBy === "new") {
-        sortParam = "publication_date:desc";
-      } else if (sortBy === "top_week" || sortBy === "top_month") {
-        sortParam = "cited_by_count:desc";
-      }
+  const fetchPapers = useCallback(
+    async (
+      query: string,
+      sortBy: SortOption = "hot",
+      filters?: { minCitations?: number; fromDate?: string }
+    ) => {
+      setLoadingPapers(true);
+      try {
+        // Map sort options to OpenAlex sort params
+        let sortParam = "publication_date:desc";
+        if (sortBy === "hot" || sortBy === "top_all") {
+          sortParam = "cited_by_count:desc";
+        } else if (sortBy === "new") {
+          sortParam = "publication_date:desc";
+        } else if (sortBy === "top_week" || sortBy === "top_month") {
+          sortParam = "cited_by_count:desc";
+        }
 
-      const params = new URLSearchParams({
-        query,
-        sort: sortParam,
-      });
+        const params = new URLSearchParams({
+          query,
+          sort: sortParam,
+        });
 
-      if (filters?.minCitations) {
-        params.set("minCitations", filters.minCitations.toString());
-      }
-      if (filters?.fromDate) {
-        params.set("fromDate", filters.fromDate);
-      }
+        if (filters?.minCitations) {
+          params.set("minCitations", filters.minCitations.toString());
+        }
+        if (filters?.fromDate) {
+          params.set("fromDate", filters.fromDate);
+        }
 
-      const response = await fetch(`/api/papers?${params.toString()}`);
-      const data = await response.json();
-      if (data.papers) {
-        setPapers(data.papers);
+        const response = await fetch(`/api/papers?${params.toString()}`);
+        const data = await response.json();
+        if (data.papers) {
+          setPapers(data.papers);
+        }
+      } catch (error) {
+        console.error("Error fetching papers:", error);
+      } finally {
+        setLoadingPapers(false);
       }
-    } catch (error) {
-      console.error("Error fetching papers:", error);
-    } finally {
-      setLoadingPapers(false);
-    }
-  }, []);
+    },
+    []
+  );
 
   const fetchPosts = useCallback(async (query: string) => {
     setLoadingPosts(true);
@@ -137,11 +118,11 @@ export default function SynapsePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query: searchQuery }),
       });
-      
+
       if (aiResponse.ok) {
         const aiResult = await aiResponse.json();
         const searchTerms = aiResult.searchTerms?.join(" ") || searchQuery;
-        
+
         // Use the interpreted search terms
         fetchPapers(searchTerms, "hot", {
           minCitations: aiResult.filters?.minCitations || undefined,
@@ -186,7 +167,7 @@ export default function SynapsePage() {
     <div className="min-h-screen bg-[#0a0a0a] relative">
       {/* Top gradient glow effect */}
       <div className="top-gradient" />
-      
+
       <Header
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}

@@ -7,10 +7,10 @@ export default function ProposalHero() {
     <section className="min-h-[85vh] flex flex-col items-center justify-center px-6 pt-20 pb-12 relative overflow-hidden">
       {/* Animated background grid */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(16,185,129,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(16,185,129,0.03)_1px,transparent_1px)] bg-[size:60px_60px]" />
-      
+
       {/* Radial gradient overlay */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.1)_0%,transparent_70%)]" />
-      
+
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -67,7 +67,9 @@ export default function ProposalHero() {
               key={stat.label}
               className="px-6 py-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] backdrop-blur-sm"
             >
-              <div className="text-xs uppercase tracking-wider text-slate-500 mb-1">{stat.label}</div>
+              <div className="text-xs uppercase tracking-wider text-slate-500 mb-1">
+                {stat.label}
+              </div>
               <div className="text-xl font-bold text-white">{stat.value}</div>
               {stat.subtext && <div className="text-xs text-slate-500 mt-1">{stat.subtext}</div>}
             </div>
@@ -90,7 +92,12 @@ export default function ProposalHero() {
               stroke="currentColor"
               viewBox="0 0 24 24"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 14l-7 7m0 0l-7-7m7 7V3"
+              />
             </motion.svg>
           </div>
         </motion.div>
@@ -98,4 +105,3 @@ export default function ProposalHero() {
     </section>
   );
 }
-

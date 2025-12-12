@@ -5,7 +5,10 @@ import { Zap, Cpu, DollarSign, ThumbsUp, ThumbsDown, Star, CheckCircle } from "l
 
 const stackItems = [
   { label: "Cloud", value: "GCP" },
-  { label: "Parsing", value: "Unstructured Serverless API (Fast: $1/1k pages, Hi-Res: $10/1k pages)" },
+  {
+    label: "Parsing",
+    value: "Unstructured Serverless API (Fast: $1/1k pages, Hi-Res: $10/1k pages)",
+  },
   { label: "Vector DB", value: "Pinecone serverless (~$25/month starter, usage-based)" },
   { label: "Embeddings", value: "Gemini Embedding or text-embedding-004 (~$0.15/M tokens)" },
   { label: "LLMs", value: "Gemini 2.0 Flash (input $0.10/M, output $0.40/M)" },
@@ -37,7 +40,7 @@ export default function OptionB() {
   return (
     <section className="py-24 px-6 relative">
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-emerald-950/20 to-transparent" />
-      
+
       <div className="max-w-6xl mx-auto relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -60,7 +63,8 @@ export default function OptionB() {
           </h2>
           <p className="text-2xl text-emerald-400 font-semibold mb-4">Managed Hybrid</p>
           <p className="text-lg text-slate-400 max-w-2xl mx-auto">
-            The &quot;speed + quality sweet spot&quot; — leverage managed services where painful, keep enough control to avoid total lock-in
+            The &quot;speed + quality sweet spot&quot; — leverage managed services where painful,
+            keep enough control to avoid total lock-in
           </p>
         </motion.div>
 
@@ -75,7 +79,8 @@ export default function OptionB() {
             <span className="text-lg font-semibold text-white">This is the recommended option</span>
           </div>
           <p className="text-slate-300 leading-relaxed">
-            Best balance of speed, cost, and quality for the next 12 months. Ship fast with minimal infra pain, with a clear migration path into Option C once the product is hitting PMF.
+            Best balance of speed, cost, and quality for the next 12 months. Ship fast with minimal
+            infra pain, with a clear migration path into Option C once the product is hitting PMF.
           </p>
         </motion.div>
 
@@ -95,7 +100,9 @@ export default function OptionB() {
             <div className="space-y-4">
               {stackItems.map((item) => (
                 <div key={item.label} className="flex flex-col gap-1">
-                  <span className="text-xs uppercase tracking-wider text-emerald-400/70">{item.label}</span>
+                  <span className="text-xs uppercase tracking-wider text-emerald-400/70">
+                    {item.label}
+                  </span>
                   <span className="text-sm text-slate-300">{item.value}</span>
                 </div>
               ))}
@@ -122,17 +129,21 @@ export default function OptionB() {
                     index === costBreakdown.length - 1
                       ? "bg-emerald-500/10 border border-emerald-500/30"
                       : index === costBreakdown.length - 2
-                      ? "bg-teal-500/5 border border-teal-500/20"
-                      : "bg-white/[0.02]"
+                        ? "bg-teal-500/5 border border-teal-500/20"
+                        : "bg-white/[0.02]"
                   }`}
                 >
                   <div>
-                    <div className={`font-medium ${index >= costBreakdown.length - 2 ? "text-emerald-400" : "text-white"}`}>
+                    <div
+                      className={`font-medium ${index >= costBreakdown.length - 2 ? "text-emerald-400" : "text-white"}`}
+                    >
                       {item.category}
                     </div>
                     <div className="text-xs text-slate-500">{item.detail}</div>
                   </div>
-                  <div className={`font-mono font-bold ${index === costBreakdown.length - 1 ? "text-emerald-400" : "text-teal-400"}`}>
+                  <div
+                    className={`font-mono font-bold ${index === costBreakdown.length - 1 ? "text-emerald-400" : "text-teal-400"}`}
+                  >
                     {item.cost}
                   </div>
                 </div>
@@ -189,4 +200,3 @@ export default function OptionB() {
     </section>
   );
 }
-

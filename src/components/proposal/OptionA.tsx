@@ -7,7 +7,11 @@ const stackItems = [
   { label: "Cloud", value: "GCP (minimal managed AI)" },
   { label: "Parsing", value: "Self-hosted Unstructured OSS (Docker + Cloud Run / GKE)" },
   { label: "Vector Search", value: "pgvector on Cloud SQL or Qdrant/Weaviate OSS on a small VM" },
-  { label: "Embeddings", value: "Open-source SPECTER2 / PubMedBERT on GPU VM, or cheap Gemini embedding ($0.15/1M tokens)" },
+  {
+    label: "Embeddings",
+    value:
+      "Open-source SPECTER2 / PubMedBERT on GPU VM, or cheap Gemini embedding ($0.15/1M tokens)",
+  },
   { label: "Ranking", value: "LightGBM/XGBoost model, served via REST microservice" },
   { label: "Orchestration", value: "Self-hosted Airflow or cron + lightweight scripts" },
 ];
@@ -15,7 +19,11 @@ const stackItems = [
 const costBreakdown = [
   { category: "One-time Parsing", detail: "100k pages, mix of pipelines", cost: "$500–$1,500" },
   { category: "Embeddings", detail: "50M tokens × $0.15/1M (Gemini)", cost: "~$7.50" },
-  { category: "Infra (Monthly)", detail: "1 small DB + 1 small VM + storage", cost: "$200–$500/mo" },
+  {
+    category: "Infra (Monthly)",
+    detail: "1 small DB + 1 small VM + storage",
+    cost: "$200–$500/mo",
+  },
   { category: "Total MVP (3-4 mo)", detail: "One-off + 4 months run", cost: "$3k–$6k" },
 ];
 
@@ -27,7 +35,7 @@ const pros = [
 
 const cons = [
   "You own more infra (Airflow, vector DB, scaling)",
-  "Slower path to \"Google-grade\" search and RAG features",
+  'Slower path to "Google-grade" search and RAG features',
   "More yak-shaving; this eats into your 3–4 months",
 ];
 
@@ -75,7 +83,9 @@ export default function OptionA() {
             <div className="space-y-4">
               {stackItems.map((item) => (
                 <div key={item.label} className="flex flex-col gap-1">
-                  <span className="text-xs uppercase tracking-wider text-amber-400/70">{item.label}</span>
+                  <span className="text-xs uppercase tracking-wider text-amber-400/70">
+                    {item.label}
+                  </span>
                   <span className="text-sm text-slate-300">{item.value}</span>
                 </div>
               ))}
@@ -105,12 +115,16 @@ export default function OptionA() {
                   }`}
                 >
                   <div>
-                    <div className={`font-medium ${index === costBreakdown.length - 1 ? "text-amber-400" : "text-white"}`}>
+                    <div
+                      className={`font-medium ${index === costBreakdown.length - 1 ? "text-amber-400" : "text-white"}`}
+                    >
                       {item.category}
                     </div>
                     <div className="text-xs text-slate-500">{item.detail}</div>
                   </div>
-                  <div className={`font-mono font-bold ${index === costBreakdown.length - 1 ? "text-amber-400" : "text-emerald-400"}`}>
+                  <div
+                    className={`font-mono font-bold ${index === costBreakdown.length - 1 ? "text-amber-400" : "text-emerald-400"}`}
+                  >
                     {item.cost}
                   </div>
                 </div>
@@ -163,9 +177,7 @@ export default function OptionA() {
             </ul>
           </motion.div>
         </div>
-
       </div>
     </section>
   );
 }
-

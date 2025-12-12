@@ -1,31 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { Paper } from "@/types";
 
 const STORAGE_KEY = "synapse_collections";
-
-interface Concept {
-  id: string;
-  name: string;
-  score: number;
-}
-
-interface Paper {
-  id: string;
-  title: string;
-  authors: string[];
-  publicationDate: string;
-  doi: string | null;
-  abstract: string | null;
-  citedByCount: number;
-  journal: string | null;
-  concepts?: Concept[];
-  pdfUrl?: string | null;
-  githubUrl?: string | null;
-  arxivId?: string | null;
-  isOpenAccess?: boolean;
-  trendScore?: number;
-}
 
 interface Collection {
   id: string;

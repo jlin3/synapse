@@ -42,9 +42,10 @@ export default function Hero() {
           className="glass rounded-2xl p-8 max-w-3xl mx-auto"
         >
           <p className="text-lg md:text-xl leading-relaxed text-gray-700">
-            <span className="font-semibold text-gray-900">&quot;Search + LLM&quot;</span>
-            {" "}— Retrieve relevant chunks from your data, then feed them into the prompt so the LLM answers using{" "}
-            <span className="text-blue-600 font-medium">that info</span> instead of memorized knowledge.
+            <span className="font-semibold text-gray-900">&quot;Search + LLM&quot;</span> — Retrieve
+            relevant chunks from your data, then feed them into the prompt so the LLM answers using{" "}
+            <span className="text-blue-600 font-medium">that info</span> instead of memorized
+            knowledge.
           </p>
         </motion.div>
 
@@ -64,7 +65,12 @@ export default function Hero() {
               stroke="currentColor"
               viewBox="0 0 24 24"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 14l-7 7m0 0l-7-7m7 7V3"
+              />
             </motion.svg>
           </div>
         </motion.div>

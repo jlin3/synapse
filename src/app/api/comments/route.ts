@@ -26,13 +26,13 @@ export async function GET(request: Request) {
   }
 
   const comments = commentsStore.get(paperId) || [];
-  
+
   // Sort by newest first
   const sortedComments = [...comments].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
 
-  return NextResponse.json({ 
+  return NextResponse.json({
     comments: sortedComments,
     count: sortedComments.length,
   });
@@ -51,10 +51,7 @@ export async function POST(request: Request) {
     }
 
     if (content.trim().length === 0) {
-      return NextResponse.json(
-        { error: "Comment cannot be empty" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Comment cannot be empty" }, { status: 400 });
     }
 
     if (content.length > 2000) {
@@ -85,10 +82,7 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("Error adding comment:", error);
-    return NextResponse.json(
-      { error: "Failed to add comment" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to add comment" }, { status: 500 });
   }
 }
 
@@ -100,17 +94,12 @@ export async function DELETE(request: Request) {
     const userId = searchParams.get("userId");
 
     if (!commentId || !userId) {
-      return NextResponse.json(
-        { error: "commentId and userId are required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "commentId and userId are required" }, { status: 400 });
     }
 
     // Find and remove the comment
     for (const [paperId, comments] of commentsStore.entries()) {
-      const index = comments.findIndex(
-        (c) => c.id === commentId && c.userId === userId
-      );
+      const index = comments.findIndex((c) => c.id === commentId && c.userId === userId);
       if (index !== -1) {
         comments.splice(index, 1);
         return NextResponse.json({ success: true });
@@ -123,9 +112,6 @@ export async function DELETE(request: Request) {
     );
   } catch (error) {
     console.error("Error deleting comment:", error);
-    return NextResponse.json(
-      { error: "Failed to delete comment" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to delete comment" }, { status: 500 });
   }
 }

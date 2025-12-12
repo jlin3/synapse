@@ -19,16 +19,21 @@ function detectFeedSource(url: string): FeedSource {
   return "unknown";
 }
 
-async function parsePubMedFeed(xmlText: string, url: string): Promise<{ query: string; name: string } | null> {
+async function parsePubMedFeed(
+  xmlText: string,
+  url: string
+): Promise<{ query: string; name: string } | null> {
   const titleMatch = xmlText.match(/<title>(?:<!\[CDATA\[)?([^<\]]+)(?:\]\]>)?<\/title>/i);
-  const descriptionMatch = xmlText.match(/<description>(?:<!\[CDATA\[)?([^<\]]+)(?:\]\]>)?<\/description>/i);
+  const descriptionMatch = xmlText.match(
+    /<description>(?:<!\[CDATA\[)?([^<\]]+)(?:\]\]>)?<\/description>/i
+  );
 
   let searchQuery = "";
   let topicName = "";
 
   if (titleMatch && titleMatch[1]) {
     const title = titleMatch[1].trim();
-    
+
     if (title.includes(" - PubMed")) {
       searchQuery = title.replace(" - PubMed", "").trim();
     } else if (title.toLowerCase().startsWith("pubmed:")) {
@@ -38,7 +43,7 @@ async function parsePubMedFeed(xmlText: string, url: string): Promise<{ query: s
     } else {
       searchQuery = title;
     }
-    
+
     topicName = searchQuery;
   }
 
@@ -76,11 +81,14 @@ async function parsePubMedFeed(xmlText: string, url: string): Promise<{ query: s
   return { query: searchQuery, name: topicName };
 }
 
-async function parseGoogleScholarFeed(xmlText: string, url: string): Promise<{ query: string; name: string } | null> {
+async function parseGoogleScholarFeed(
+  xmlText: string,
+  url: string
+): Promise<{ query: string; name: string } | null> {
   // Google Scholar RSS feeds have the search in the title
   // Format: "Google Scholar Alert - cardiology"
   // Or from URL: scholar.google.com/scholar?q=cardiology
-  
+
   let searchQuery = "";
   let topicName = "";
 
@@ -88,7 +96,7 @@ async function parseGoogleScholarFeed(xmlText: string, url: string): Promise<{ q
   const titleMatch = xmlText.match(/<title>(?:<!\[CDATA\[)?([^<\]]+)(?:\]\]>)?<\/title>/i);
   if (titleMatch && titleMatch[1]) {
     const title = titleMatch[1].trim();
-    
+
     if (title.toLowerCase().includes("google scholar alert")) {
       searchQuery = title.replace(/google scholar alert\s*[-:]\s*/i, "").trim();
     } else if (title.toLowerCase().includes("google scholar")) {
@@ -96,7 +104,7 @@ async function parseGoogleScholarFeed(xmlText: string, url: string): Promise<{ q
     } else {
       searchQuery = title;
     }
-    
+
     topicName = searchQuery;
   }
 
@@ -142,14 +150,11 @@ export async function POST(request: Request) {
     const { rssUrl } = await request.json();
 
     if (!rssUrl) {
-      return NextResponse.json(
-        { error: "RSS URL is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "RSS URL is required" }, { status: 400 });
     }
 
     const feedSource = detectFeedSource(rssUrl);
-    
+
     if (feedSource === "unknown") {
       return NextResponse.json(
         { error: "Please provide a valid PubMed or Google Scholar feed URL" },
@@ -183,7 +188,9 @@ export async function POST(request: Request) {
 
     if (!result) {
       return NextResponse.json(
-        { error: "Could not extract search terms from this RSS feed. Please try a different feed." },
+        {
+          error: "Could not extract search terms from this RSS feed. Please try a different feed.",
+        },
         { status: 400 }
       );
     }

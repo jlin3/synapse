@@ -5,17 +5,27 @@ import { Cloud, Cpu, DollarSign, ThumbsUp, ThumbsDown } from "lucide-react";
 
 const stackItems = [
   { label: "Cloud", value: "GCP only" },
-  { label: "Parsing", value: "Unstructured Serverless API (cleaner scientific PDFs than Google parsing)" },
+  {
+    label: "Parsing",
+    value: "Unstructured Serverless API (cleaner scientific PDFs than Google parsing)",
+  },
   { label: "RAG + Vector", value: "Vertex AI RAG Engine with RAG-managed database (Spanner)" },
   { label: "Embeddings", value: "Gemini Embedding + Gemini 2.0 Flash / Flash-Lite" },
-  { label: "Ranking", value: "Custom ranker (GBDT/deep) + Vertex AI Ranking API as additional reranker" },
+  {
+    label: "Ranking",
+    value: "Custom ranker (GBDT/deep) + Vertex AI Ranking API as additional reranker",
+  },
   { label: "Orchestration", value: "Cloud Composer + Workflows" },
 ];
 
 const costBreakdown = [
   { category: "Parsing (one-time)", detail: "Same as Option B", cost: "~$550" },
   { category: "Vector Search", detail: "≤1-2GiB index, data × $3/GiB", cost: "~$10/rebuild" },
-  { category: "RAG Engine + Spanner", detail: "Spanner Enterprise (100 PUs)", cost: "$200–$600/mo" },
+  {
+    category: "RAG Engine + Spanner",
+    detail: "Spanner Enterprise (100 PUs)",
+    cost: "$200–$600/mo",
+  },
   { category: "Other (LLM, BigQuery)", detail: "Same as Option B", cost: "$500–$1.5k/mo" },
   { category: "Total Run Rate", detail: "MVP scale monthly", cost: "$1.5k–$4k/mo" },
   { category: "Total MVP Budget", detail: "3-4 months", cost: "$10k–$25k" },
@@ -23,9 +33,9 @@ const costBreakdown = [
 
 const pros = [
   "Deepest integration into Google's RAG/search stack",
-  "Future-proof for heavy enterprise deals (\"all Google infra\")",
+  'Future-proof for heavy enterprise deals ("all Google infra")',
   "RAG Engine reduces bespoke glue code",
-  "\"Google-grade\" vector search and ranking capabilities",
+  '"Google-grade" vector search and ranking capabilities',
 ];
 
 const cons = [
@@ -56,7 +66,9 @@ export default function OptionC() {
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-2 text-white">
             Option C
           </h2>
-          <p className="text-2xl text-blue-400 font-semibold mb-4">Google-Native SOTA (Vertex RAG Engine)</p>
+          <p className="text-2xl text-blue-400 font-semibold mb-4">
+            Google-Native SOTA (Vertex RAG Engine)
+          </p>
           <p className="text-lg text-slate-400 max-w-2xl mx-auto">
             Lean hard into Google — maximum quality, least undifferentiated heavy lifting
           </p>
@@ -78,7 +90,9 @@ export default function OptionC() {
             <div className="space-y-4">
               {stackItems.map((item) => (
                 <div key={item.label} className="flex flex-col gap-1">
-                  <span className="text-xs uppercase tracking-wider text-blue-400/70">{item.label}</span>
+                  <span className="text-xs uppercase tracking-wider text-blue-400/70">
+                    {item.label}
+                  </span>
                   <span className="text-sm text-slate-300">{item.value}</span>
                 </div>
               ))}
@@ -105,17 +119,21 @@ export default function OptionC() {
                     index === costBreakdown.length - 1
                       ? "bg-blue-500/10 border border-blue-500/30"
                       : index === costBreakdown.length - 2
-                      ? "bg-indigo-500/5 border border-indigo-500/20"
-                      : "bg-white/[0.02]"
+                        ? "bg-indigo-500/5 border border-indigo-500/20"
+                        : "bg-white/[0.02]"
                   }`}
                 >
                   <div>
-                    <div className={`font-medium ${index >= costBreakdown.length - 2 ? "text-blue-400" : "text-white"}`}>
+                    <div
+                      className={`font-medium ${index >= costBreakdown.length - 2 ? "text-blue-400" : "text-white"}`}
+                    >
                       {item.category}
                     </div>
                     <div className="text-xs text-slate-500">{item.detail}</div>
                   </div>
-                  <div className={`font-mono font-bold ${index === costBreakdown.length - 1 ? "text-blue-400" : "text-indigo-400"}`}>
+                  <div
+                    className={`font-mono font-bold ${index === costBreakdown.length - 1 ? "text-blue-400" : "text-indigo-400"}`}
+                  >
                     {item.cost}
                   </div>
                 </div>
@@ -168,9 +186,7 @@ export default function OptionC() {
             </ul>
           </motion.div>
         </div>
-
       </div>
     </section>
   );
 }
-

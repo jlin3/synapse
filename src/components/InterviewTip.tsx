@@ -7,15 +7,18 @@ import { useState } from "react";
 const keyDefinitions = [
   {
     context: "The Core Pattern",
-    quote: "RAG is a pattern where, before calling an LLM, we run a search over our own documents, pull the top-k relevant chunks, and stuff them into the prompt so the model answers grounded in that retrieved context.",
+    quote:
+      "RAG is a pattern where, before calling an LLM, we run a search over our own documents, pull the top-k relevant chunks, and stuff them into the prompt so the model answers grounded in that retrieved context.",
   },
   {
     context: "RAG vs Fine-tuning",
-    quote: "If the knowledge changes often or is large and structured, we use RAG. If we need the model to change its behavior or style, we reach for fine-tuning.",
+    quote:
+      "If the knowledge changes often or is large and structured, we use RAG. If we need the model to change its behavior or style, we reach for fine-tuning.",
   },
   {
     context: "RAG vs Semantic Search",
-    quote: "RAG is basically semantic search + an LLM that reads and synthesizes the retrieved documents for you.",
+    quote:
+      "RAG is basically semantic search + an LLM that reads and synthesizes the retrieved documents for you.",
   },
 ];
 
@@ -42,12 +45,8 @@ export default function InterviewTip() {
             <Bookmark className="w-4 h-4" />
             Quick Reference
           </span>
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-            Key Definitions
-          </h2>
-          <p className="text-xl text-gray-600">
-            How we talk about RAG across the team
-          </p>
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">Key Definitions</h2>
+          <p className="text-xl text-gray-600">How we talk about RAG across the team</p>
         </motion.div>
 
         <div className="space-y-6">
@@ -94,15 +93,14 @@ export default function InterviewTip() {
           <div className="absolute -top-6 -left-4 text-8xl text-blue-200/50 font-serif">&quot;</div>
           <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 md:p-12 text-white">
             <p className="text-xl md:text-2xl leading-relaxed mb-6">
-              We take all our internal docs, parse and chunk them, embed each chunk, and store those vectors in an index.
-              At query time we embed the user question, retrieve the most similar chunks, optionally rerank them, and
-              then pass both the question and those chunks into an LLM. The LLM&apos;s job is just to read that context
-              and synthesize an answer, not to guess from pretraining.
+              We take all our internal docs, parse and chunk them, embed each chunk, and store those
+              vectors in an index. At query time we embed the user question, retrieve the most
+              similar chunks, optionally rerank them, and then pass both the question and those
+              chunks into an LLM. The LLM&apos;s job is just to read that context and synthesize an
+              answer, not to guess from pretraining.
               <span className="text-blue-400 font-semibold"> That&apos;s RAG in a nutshell.</span>
             </p>
-            <p className="text-sm text-slate-400">
-              — The full picture in one paragraph
-            </p>
+            <p className="text-sm text-slate-400">— The full picture in one paragraph</p>
           </div>
         </motion.div>
       </div>

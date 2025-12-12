@@ -82,7 +82,7 @@ export default function PeoplePlan() {
   return (
     <section className="py-24 px-6 relative">
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-violet-950/10 to-transparent" />
-      
+
       <div className="max-w-6xl mx-auto relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -117,7 +117,9 @@ export default function PeoplePlan() {
               }`}
             >
               <div className="flex items-start gap-4">
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${role.color} flex items-center justify-center shadow-lg flex-shrink-0`}>
+                <div
+                  className={`w-12 h-12 rounded-xl bg-gradient-to-br ${role.color} flex items-center justify-center shadow-lg flex-shrink-0`}
+                >
                   <role.icon className="w-6 h-6 text-white" />
                 </div>
                 <div className="flex-1">
@@ -134,7 +136,7 @@ export default function PeoplePlan() {
                       </span>
                     )}
                   </div>
-                  
+
                   <div className="flex flex-wrap gap-4 mb-4 text-sm text-slate-400">
                     {role.timing && (
                       <span className="flex items-center gap-1">
@@ -151,12 +153,16 @@ export default function PeoplePlan() {
                     )}
                   </div>
 
-                  <ul className={`space-y-2 ${role.type === "core" ? "md:grid md:grid-cols-2 md:gap-x-6 md:space-y-0" : ""}`}>
+                  <ul
+                    className={`space-y-2 ${role.type === "core" ? "md:grid md:grid-cols-2 md:gap-x-6 md:space-y-0" : ""}`}
+                  >
                     {role.responsibilities.map((resp) => (
                       <li key={resp} className="flex items-start gap-2 md:mb-2">
-                        <span className={`w-1.5 h-1.5 rounded-full mt-2 flex-shrink-0 ${
-                          role.type === "core" ? "bg-emerald-500" : "bg-slate-500"
-                        }`} />
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full mt-2 flex-shrink-0 ${
+                            role.type === "core" ? "bg-emerald-500" : "bg-slate-500"
+                          }`}
+                        />
                         <span className="text-sm text-slate-400">{resp}</span>
                       </li>
                     ))}
@@ -166,9 +172,7 @@ export default function PeoplePlan() {
             </motion.div>
           ))}
         </div>
-
       </div>
     </section>
   );
 }
-

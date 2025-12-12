@@ -10,7 +10,8 @@ const strengths = [
   },
   {
     title: "Cheaper & Faster Iteration",
-    description: "Swap embedding models, adjust chunking, tweak retrieval without touching the base LLM.",
+    description:
+      "Swap embedding models, adjust chunking, tweak retrieval without touching the base LLM.",
   },
   {
     title: "Controllable & Debuggable",
@@ -18,14 +19,16 @@ const strengths = [
   },
   {
     title: "Data Isolation",
-    description: "Your proprietary documents stay in your index; model only sees them at inference time.",
+    description:
+      "Your proprietary documents stay in your index; model only sees them at inference time.",
   },
 ];
 
 const weaknesses = [
   {
     title: "Retrieval Miss = Model Blind",
-    description: "If the right chunk isn't retrieved, the LLM will hallucinate or say \"I don't know.\"",
+    description:
+      "If the right chunk isn't retrieved, the LLM will hallucinate or say \"I don't know.\"",
   },
   {
     title: "Latency Overhead",
@@ -52,11 +55,10 @@ export default function WhyRAG() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-            Why Use RAG?
-          </h2>
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">Why Use RAG?</h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Make the LLM <span className="font-semibold text-blue-600">know your private data</span> without retraining
+            Make the LLM <span className="font-semibold text-blue-600">know your private data</span>{" "}
+            without retraining
           </p>
         </motion.div>
 
@@ -74,7 +76,7 @@ export default function WhyRAG() {
               </div>
               <h3 className="text-2xl font-bold">Strengths</h3>
             </div>
-            
+
             <div className="space-y-4">
               {strengths.map((item, index) => (
                 <motion.div
@@ -105,7 +107,7 @@ export default function WhyRAG() {
               </div>
               <h3 className="text-2xl font-bold">Weaknesses</h3>
             </div>
-            
+
             <div className="space-y-4">
               {weaknesses.map((item, index) => (
                 <motion.div
@@ -134,8 +136,8 @@ export default function WhyRAG() {
         >
           <div className="inline-block glass rounded-2xl p-6 max-w-2xl">
             <p className="text-lg text-gray-700">
-              <span className="font-semibold">&quot;Garbage in → garbage out.&quot;</span>
-              {" "}If retrieval fails or chunking is bad, the LLM will still hallucinate confidently.
+              <span className="font-semibold">&quot;Garbage in → garbage out.&quot;</span> If
+              retrieval fails or chunking is bad, the LLM will still hallucinate confidently.
             </p>
           </div>
         </motion.div>
@@ -143,4 +145,3 @@ export default function WhyRAG() {
     </section>
   );
 }
-

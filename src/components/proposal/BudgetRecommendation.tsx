@@ -67,7 +67,7 @@ export default function BudgetRecommendation() {
   return (
     <section className="py-24 px-6 relative">
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-emerald-950/20 to-transparent" />
-      
+
       <div className="max-w-6xl mx-auto relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -114,8 +114,8 @@ export default function BudgetRecommendation() {
                     item.type === "total"
                       ? "bg-emerald-500/20 border border-emerald-500/40"
                       : item.type === "people"
-                      ? "bg-violet-500/10 border border-violet-500/20"
-                      : "bg-white/[0.03] border border-white/[0.06]"
+                        ? "bg-violet-500/10 border border-violet-500/20"
+                        : "bg-white/[0.03] border border-white/[0.06]"
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -123,15 +123,19 @@ export default function BudgetRecommendation() {
                     {item.type === "infra" && <Cpu className="w-4 h-4 text-cyan-400" />}
                     {item.type === "total" && <DollarSign className="w-4 h-4 text-emerald-400" />}
                     <div>
-                      <div className={`font-medium ${item.type === "total" ? "text-emerald-400" : "text-white"}`}>
+                      <div
+                        className={`font-medium ${item.type === "total" ? "text-emerald-400" : "text-white"}`}
+                      >
                         {item.category}
                       </div>
                       <div className="text-xs text-slate-500">{item.detail}</div>
                     </div>
                   </div>
-                  <div className={`font-mono font-bold ${
-                    item.type === "total" ? "text-emerald-400 text-lg" : "text-slate-300"
-                  }`}>
+                  <div
+                    className={`font-mono font-bold ${
+                      item.type === "total" ? "text-emerald-400 text-lg" : "text-slate-300"
+                    }`}
+                  >
                     {item.amount}
                   </div>
                 </div>
@@ -164,8 +168,8 @@ export default function BudgetRecommendation() {
                     item.type === "total"
                       ? "bg-cyan-500/20 border border-cyan-500/40"
                       : item.type === "people"
-                      ? "bg-violet-500/10 border border-violet-500/20"
-                      : "bg-white/[0.03] border border-white/[0.06]"
+                        ? "bg-violet-500/10 border border-violet-500/20"
+                        : "bg-white/[0.03] border border-white/[0.06]"
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -173,15 +177,19 @@ export default function BudgetRecommendation() {
                     {item.type === "infra" && <Cpu className="w-4 h-4 text-cyan-400" />}
                     {item.type === "total" && <DollarSign className="w-4 h-4 text-cyan-400" />}
                     <div>
-                      <div className={`font-medium ${item.type === "total" ? "text-cyan-400" : "text-white"}`}>
+                      <div
+                        className={`font-medium ${item.type === "total" ? "text-cyan-400" : "text-white"}`}
+                      >
                         {item.category}
                       </div>
                       <div className="text-xs text-slate-500">{item.detail}</div>
                     </div>
                   </div>
-                  <div className={`font-mono font-bold ${
-                    item.type === "total" ? "text-cyan-400 text-lg" : "text-slate-300"
-                  }`}>
+                  <div
+                    className={`font-mono font-bold ${
+                      item.type === "total" ? "text-cyan-400 text-lg" : "text-slate-300"
+                    }`}
+                  >
                     {item.amount}
                   </div>
                 </div>
@@ -204,7 +212,8 @@ export default function BudgetRecommendation() {
               <div>
                 <h4 className="font-semibold text-white mb-2">People Costs Dominate</h4>
                 <p className="text-sm text-slate-400">
-                  Personnel is ~95% of total cost. Infra/tooling (~$20k for 10 months) is relatively cheap compared to talent investment (~$480k for full build).
+                  Personnel is ~95% of total cost. Infra/tooling (~$20k for 10 months) is relatively
+                  cheap compared to talent investment (~$480k for full build).
                 </p>
               </div>
             </div>
@@ -216,7 +225,8 @@ export default function BudgetRecommendation() {
               <div>
                 <h4 className="font-semibold text-white mb-2">Phased Build Strategy</h4>
                 <p className="text-sm text-slate-400">
-                  Phase I (4 months, ~$93k) establishes core infrastructure. Phase II (6 months, ~$420k) scales team to 4 engineers + designer.
+                  Phase I (4 months, ~$93k) establishes core infrastructure. Phase II (6 months,
+                  ~$420k) scales team to 4 engineers + designer.
                 </p>
               </div>
             </div>
@@ -236,14 +246,18 @@ export default function BudgetRecommendation() {
             <span className="text-lg font-semibold text-white">The Ask</span>
           </div>
           <blockquote className="text-lg md:text-xl text-slate-300 leading-relaxed mb-6">
-            <span className="text-white font-semibold">Phase I (MVP):</span> ~$93k total (4 months) = $83k personnel + $10k tooling
+            <span className="text-white font-semibold">Phase I (MVP):</span> ~$93k total (4 months)
+            = $83k personnel + $10k tooling
           </blockquote>
           <blockquote className="text-lg md:text-xl text-slate-300 leading-relaxed">
-            <span className="text-white font-semibold">Phase II (Scale):</span> ~$420k (6 months) = $400k team + $10k–$15k infra
+            <span className="text-white font-semibold">Phase II (Scale):</span> ~$420k (6 months) =
+            $400k team + $10k–$15k infra
           </blockquote>
           <div className="mt-6 pt-6 border-t border-white/10">
             <p className="text-sm text-slate-400">
-              <span className="text-emerald-400 font-medium">Note:</span> Infra budget includes headroom for Google-native migration (Option C) to support enterprise customers at scale.
+              <span className="text-emerald-400 font-medium">Note:</span> Infra budget includes
+              headroom for Google-native migration (Option C) to support enterprise customers at
+              scale.
             </p>
           </div>
         </motion.div>
@@ -251,4 +265,3 @@ export default function BudgetRecommendation() {
     </section>
   );
 }
-

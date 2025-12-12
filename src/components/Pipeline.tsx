@@ -1,7 +1,16 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { FileText, Scissors, Box, Database, Search, Filter, MessageSquare, Sparkles } from "lucide-react";
+import {
+  FileText,
+  Scissors,
+  Box,
+  Database,
+  Search,
+  Filter,
+  MessageSquare,
+  Sparkles,
+} from "lucide-react";
 
 const pipelineSteps = [
   {
@@ -9,56 +18,58 @@ const pipelineSteps = [
     title: "Ingest",
     description: "PDFs, HTML, docs — clean & normalize",
     color: "from-blue-400 to-blue-500",
-    detail: "Tools like unstructured.io convert messy formats into clean text segments with metadata."
+    detail:
+      "Tools like unstructured.io convert messy formats into clean text segments with metadata.",
   },
   {
     icon: Scissors,
     title: "Chunk",
     description: "Split into 200-1000 token segments",
     color: "from-indigo-400 to-indigo-500",
-    detail: "Overlap 10-20% so concepts aren't cut awkwardly. Each chunk tracks its source document."
+    detail:
+      "Overlap 10-20% so concepts aren't cut awkwardly. Each chunk tracks its source document.",
   },
   {
     icon: Box,
     title: "Embed",
     description: "Text → dense vectors in ℝⁿ",
     color: "from-violet-400 to-violet-500",
-    detail: "Embedding models map text so semantically similar content is close in vector space."
+    detail: "Embedding models map text so semantically similar content is close in vector space.",
   },
   {
     icon: Database,
     title: "Index",
     description: "Store in vector database",
     color: "from-purple-400 to-purple-500",
-    detail: "FAISS, Pinecone, Weaviate — supports fast ANN (approximate nearest neighbor) queries."
+    detail: "FAISS, Pinecone, Weaviate — supports fast ANN (approximate nearest neighbor) queries.",
   },
   {
     icon: Search,
     title: "Retrieve",
     description: "Find top-k similar chunks",
     color: "from-fuchsia-400 to-fuchsia-500",
-    detail: "Embed the query, run similarity search with metadata filters, get relevant chunks."
+    detail: "Embed the query, run similarity search with metadata filters, get relevant chunks.",
   },
   {
     icon: Filter,
     title: "Rerank",
     description: "Cross-encoder fine-ranking",
     color: "from-pink-400 to-pink-500",
-    detail: "Optional: reorder chunks by relevance. Coarse retrieval → fine rerank for quality."
+    detail: "Optional: reorder chunks by relevance. Coarse retrieval → fine rerank for quality.",
   },
   {
     icon: MessageSquare,
     title: "Prompt",
     description: "Construct context + question",
     color: "from-rose-400 to-rose-500",
-    detail: "System instructions + concatenated chunks + user question = grounded prompt."
+    detail: "System instructions + concatenated chunks + user question = grounded prompt.",
   },
   {
     icon: Sparkles,
     title: "Generate",
     description: "LLM answers from context",
     color: "from-orange-400 to-orange-500",
-    detail: "Model reads retrieved documents, synthesizes answer, optionally cites sources."
+    detail: "Model reads retrieved documents, synthesizes answer, optionally cites sources.",
   },
 ];
 
@@ -73,9 +84,7 @@ export default function Pipeline() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-            The RAG Pipeline
-          </h2>
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">The RAG Pipeline</h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Eight steps from raw documents to grounded answers
           </p>
@@ -92,17 +101,19 @@ export default function Pipeline() {
               whileHover={{ y: -4, scale: 1.02 }}
               className="glass rounded-2xl p-6 group cursor-default"
             >
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${step.color} flex items-center justify-center mb-4 shadow-lg shadow-${step.color.split('-')[1]}-500/20`}>
+              <div
+                className={`w-12 h-12 rounded-xl bg-gradient-to-br ${step.color} flex items-center justify-center mb-4 shadow-lg shadow-${step.color.split("-")[1]}-500/20`}
+              >
                 <step.icon className="w-6 h-6 text-white" />
               </div>
-              
+
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-xs font-mono text-gray-400">0{index + 1}</span>
                 <h3 className="font-semibold text-lg">{step.title}</h3>
               </div>
-              
+
               <p className="text-gray-600 text-sm mb-3">{step.description}</p>
-              
+
               <p className="text-gray-500 text-xs leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 {step.detail}
               </p>
@@ -133,4 +144,3 @@ export default function Pipeline() {
     </section>
   );
 }
-

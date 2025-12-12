@@ -41,10 +41,10 @@ export function useHistory() {
       // Remove existing entry if present
       const filtered = prev.filter((item) => item.id !== id);
       // Add new entry at the beginning
-      const newHistory = [
-        { id, title, viewedAt: new Date().toISOString() },
-        ...filtered,
-      ].slice(0, MAX_HISTORY);
+      const newHistory = [{ id, title, viewedAt: new Date().toISOString() }, ...filtered].slice(
+        0,
+        MAX_HISTORY
+      );
       return newHistory;
     });
   }, []);

@@ -7,10 +7,7 @@ export async function POST(request: Request) {
     const { question, title, abstract } = await request.json();
 
     if (!question || !title) {
-      return NextResponse.json(
-        { error: "Question and paper title are required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Question and paper title are required" }, { status: 400 });
     }
 
     // If no API key, return a helpful message
@@ -49,28 +46,26 @@ Keep responses under 200 words unless more detail is specifically requested.`;
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       console.error("Grok API error:", errorData);
-      
+
       return NextResponse.json({
         answer: generateFallbackAnswer(question, title, abstract),
       });
     }
 
     const data = await response.json();
-    const answer = data.choices?.[0]?.message?.content || "I couldn't generate a response. Please try again.";
+    const answer =
+      data.choices?.[0]?.message?.content || "I couldn't generate a response. Please try again.";
 
     return NextResponse.json({ answer });
   } catch (error) {
     console.error("Paper chat error:", error);
-    return NextResponse.json(
-      { error: "Failed to process your question" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to process your question" }, { status: 500 });
   }
 }
 
 function generateFallbackAnswer(question: string, title: string, abstract: string | null): string {
   const questionLower = question.toLowerCase();
-  
+
   // Basic question handling based on keywords
   if (questionLower.includes("what is") || questionLower.includes("about")) {
     if (abstract) {
@@ -78,7 +73,7 @@ function generateFallbackAnswer(question: string, title: string, abstract: strin
     }
     return `This paper is titled "${title}". I'd need more context from the full paper to provide detailed information.`;
   }
-  
+
   if (questionLower.includes("method") || questionLower.includes("approach")) {
     if (abstract && abstract.toLowerCase().includes("method")) {
       const methodIdx = abstract.toLowerCase().indexOf("method");
@@ -86,8 +81,12 @@ function generateFallbackAnswer(question: string, title: string, abstract: strin
     }
     return "The methodology details would need to be extracted from the full paper text.";
   }
-  
-  if (questionLower.includes("result") || questionLower.includes("finding") || questionLower.includes("conclusion")) {
+
+  if (
+    questionLower.includes("result") ||
+    questionLower.includes("finding") ||
+    questionLower.includes("conclusion")
+  ) {
     if (abstract) {
       const keywords = ["result", "found", "show", "conclude", "demonstrate"];
       for (const kw of keywords) {
@@ -104,6 +103,6 @@ function generateFallbackAnswer(question: string, title: string, abstract: strin
   if (abstract) {
     return `Based on "${title}": ${abstract.slice(0, 250)}... For more specific details, please refer to the full paper.`;
   }
-  
+
   return `I can help answer questions about "${title}" but would need more context from the paper's content to provide specific details.`;
 }

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { Paper } from "@/types";
 
 export interface OpenAlexWork {
   id: string;
@@ -49,27 +50,9 @@ export interface OpenAlexWork {
   }>;
 }
 
-export interface Paper {
-  id: string;
-  title: string;
-  authors: string[];
-  publicationDate: string;
-  doi: string | null;
-  abstract: string | null;
-  citedByCount: number;
-  journal: string | null;
-  // New fields
-  concepts: Array<{ id: string; name: string; score: number }>;
-  pdfUrl: string | null;
-  githubUrl: string | null;
-  arxivId: string | null;
-  isOpenAccess: boolean;
-  trendScore: number; // Based on recent citations
-}
+// Paper type is imported from @/types
 
-function reconstructAbstract(
-  invertedIndex: Record<string, number[]> | null
-): string | null {
+function reconstructAbstract(invertedIndex: Record<string, number[]> | null): string | null {
   if (!invertedIndex) return null;
 
   const words: string[] = [];
@@ -79,7 +62,7 @@ function reconstructAbstract(
     }
   }
   const abstract = words.join(" ");
-  
+
   // Filter out bad abstracts (cookie notices, navigation text, etc.)
   const badPatterns = [
     /our website uses cookies/i,
@@ -92,19 +75,19 @@ function reconstructAbstract(
     /subscribe now/i,
     /javascript is disabled/i,
   ];
-  
+
   for (const pattern of badPatterns) {
     if (pattern.test(abstract)) {
       return null;
     }
   }
-  
+
   return abstract;
 }
 
 function extractGitHubUrl(locations: OpenAlexWork["locations"]): string | null {
   if (!locations) return null;
-  
+
   for (const loc of locations) {
     const url = loc.landing_page_url || loc.pdf_url || "";
     if (url.includes("github.com")) {
@@ -116,7 +99,7 @@ function extractGitHubUrl(locations: OpenAlexWork["locations"]): string | null {
 
 function extractArxivId(locations: OpenAlexWork["locations"], doi: string | null): string | null {
   if (!locations) return null;
-  
+
   for (const loc of locations) {
     const url = loc.landing_page_url || "";
     const arxivMatch = url.match(/arxiv\.org\/abs\/(\d+\.\d+)/);
@@ -124,26 +107,26 @@ function extractArxivId(locations: OpenAlexWork["locations"], doi: string | null
       return arxivMatch[1];
     }
   }
-  
+
   // Also check DOI for arXiv
   if (doi && doi.includes("arxiv")) {
     const match = doi.match(/(\d+\.\d+)/);
     if (match) return match[1];
   }
-  
+
   return null;
 }
 
 function calculateTrendScore(countsByYear: OpenAlexWork["counts_by_year"]): number {
   if (!countsByYear || countsByYear.length < 2) return 0;
-  
+
   // Sort by year descending
   const sorted = [...countsByYear].sort((a, b) => b.year - a.year);
   const thisYear = sorted[0]?.cited_by_count || 0;
   const lastYear = sorted[1]?.cited_by_count || 0;
-  
+
   if (lastYear === 0) return thisYear > 0 ? 100 : 0;
-  
+
   // Calculate percentage change
   return Math.round(((thisYear - lastYear) / lastYear) * 100);
 }
@@ -161,7 +144,8 @@ function transformWork(work: OpenAlexWork): Paper {
     }));
 
   // Find PDF URL
-  const pdfUrl = work.primary_location?.pdf_url ||
+  const pdfUrl =
+    work.primary_location?.pdf_url ||
     work.open_access?.oa_url ||
     work.locations?.find((l) => l.pdf_url)?.pdf_url ||
     null;
@@ -238,9 +222,6 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     console.error("Error fetching papers:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch papers" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch papers" }, { status: 500 });
   }
 }

@@ -12,10 +12,7 @@ export async function POST(request: Request) {
     const { rssUrl } = await request.json();
 
     if (!rssUrl) {
-      return NextResponse.json(
-        { error: "RSS URL is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "RSS URL is required" }, { status: 400 });
     }
 
     // Validate that it's a PubMed RSS URL
@@ -46,14 +43,16 @@ export async function POST(request: Request) {
     // PubMed RSS feeds have the search term in the <title> tag
     // Format: "pubmed: search term - PubMed"
     const titleMatch = xmlText.match(/<title>(?:<!\[CDATA\[)?([^<\]]+)(?:\]\]>)?<\/title>/i);
-    const descriptionMatch = xmlText.match(/<description>(?:<!\[CDATA\[)?([^<\]]+)(?:\]\]>)?<\/description>/i);
+    const descriptionMatch = xmlText.match(
+      /<description>(?:<!\[CDATA\[)?([^<\]]+)(?:\]\]>)?<\/description>/i
+    );
 
     let searchQuery = "";
     let topicName = "";
 
     if (titleMatch && titleMatch[1]) {
       const title = titleMatch[1].trim();
-      
+
       // Extract search term from PubMed title format
       // Common formats:
       // "cardiology - PubMed"
@@ -68,7 +67,7 @@ export async function POST(request: Request) {
       } else {
         searchQuery = title;
       }
-      
+
       topicName = searchQuery;
     }
 
@@ -97,7 +96,9 @@ export async function POST(request: Request) {
 
     if (!searchQuery) {
       return NextResponse.json(
-        { error: "Could not extract search terms from this RSS feed. Please try a different feed." },
+        {
+          error: "Could not extract search terms from this RSS feed. Please try a different feed.",
+        },
         { status: 400 }
       );
     }

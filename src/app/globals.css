@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
 
 @import "tailwindcss";
 
@@ -68,7 +68,12 @@ html {
 
 /* Gradient text utility */
 .gradient-text {
-  background: linear-gradient(135deg, var(--accent-gradient-start) 0%, var(--accent-gradient-mid) 50%, var(--accent-gradient-end) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--accent-gradient-start) 0%,
+    var(--accent-gradient-mid) 50%,
+    var(--accent-gradient-end) 100%
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -82,13 +87,20 @@ html {
 }
 
 .gradient-border::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   border-radius: 1rem;
   padding: 1px;
-  background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-mid), var(--accent-gradient-end));
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  background: linear-gradient(
+    135deg,
+    var(--accent-gradient-start),
+    var(--accent-gradient-mid),
+    var(--accent-gradient-end)
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
@@ -117,7 +129,8 @@ html {
 
 /* Animation for loading states */
 @keyframes pulse-subtle {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.5;
   }
   50% {
@@ -156,7 +169,7 @@ html {
 }
 
 .pipeline-connector::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 50%;
   right: -2rem;
@@ -167,7 +180,8 @@ html {
 
 /* Animation for the flow diagram - kept from original */
 @keyframes pulse-flow {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.4;
   }
   50% {
@@ -193,9 +207,10 @@ html {
   left: 0;
   right: 0;
   height: 400px;
-  background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(139, 92, 246, 0.15), transparent),
-              radial-gradient(ellipse 60% 40% at 70% -10%, rgba(236, 72, 153, 0.1), transparent),
-              radial-gradient(ellipse 50% 30% at 30% -5%, rgba(6, 182, 212, 0.1), transparent);
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(139, 92, 246, 0.15), transparent),
+    radial-gradient(ellipse 60% 40% at 70% -10%, rgba(236, 72, 153, 0.1), transparent),
+    radial-gradient(ellipse 50% 30% at 30% -5%, rgba(6, 182, 212, 0.1), transparent);
   pointer-events: none;
   z-index: 0;
 }

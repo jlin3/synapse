@@ -56,7 +56,7 @@ export default function SummaryTable() {
   return (
     <section className="py-24 px-6 relative">
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-emerald-950/10 to-transparent" />
-      
+
       <div className="max-w-7xl mx-auto relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -97,7 +97,9 @@ export default function SummaryTable() {
               )}
 
               <div className="flex items-center gap-4 mb-6 mt-2">
-                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${option.color} flex items-center justify-center shadow-lg`}>
+                <div
+                  className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${option.color} flex items-center justify-center shadow-lg`}
+                >
                   <option.icon className="w-7 h-7 text-white" />
                 </div>
                 <div>
@@ -117,23 +119,31 @@ export default function SummaryTable() {
 
               <div className="grid grid-cols-2 gap-3 mb-6">
                 <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-3">
-                  <div className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Build Time</div>
+                  <div className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">
+                    Build Time
+                  </div>
                   <div className="text-base font-semibold text-white">{option.buildTime}</div>
                 </div>
                 <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-3">
-                  <div className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">MVP Budget</div>
+                  <div className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">
+                    MVP Budget
+                  </div>
                   <div className="text-base font-semibold text-emerald-400">{option.mvpBudget}</div>
                 </div>
               </div>
 
               <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-3 mb-6">
-                <div className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Run Rate</div>
+                <div className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">
+                  Run Rate
+                </div>
                 <div className="text-base font-semibold text-white">{option.runRate}</div>
               </div>
 
               <div className="space-y-3">
                 <div>
-                  <div className="text-[10px] uppercase tracking-wider text-emerald-400 mb-2">Pros</div>
+                  <div className="text-[10px] uppercase tracking-wider text-emerald-400 mb-2">
+                    Pros
+                  </div>
                   <div className="flex flex-wrap gap-1.5">
                     {option.pros.map((pro) => (
                       <span
@@ -146,7 +156,9 @@ export default function SummaryTable() {
                   </div>
                 </div>
                 <div>
-                  <div className="text-[10px] uppercase tracking-wider text-rose-400 mb-2">Cons</div>
+                  <div className="text-[10px] uppercase tracking-wider text-rose-400 mb-2">
+                    Cons
+                  </div>
                   <div className="flex flex-wrap gap-1.5">
                     {option.cons.map((con) => (
                       <span
@@ -175,7 +187,9 @@ export default function SummaryTable() {
             <div>
               <h4 className="text-lg font-semibold text-white mb-2">Recommendation</h4>
               <p className="text-slate-400 leading-relaxed">
-                <span className="text-emerald-400 font-semibold">Option B</span> for the next 12 months — fastest to ship with minimal infra pain, with a clear migration path into Option C once the product is hitting PMF.
+                <span className="text-emerald-400 font-semibold">Option B</span> for the next 12
+                months — fastest to ship with minimal infra pain, with a clear migration path into
+                Option C once the product is hitting PMF.
               </p>
             </div>
           </div>
@@ -184,4 +198,3 @@ export default function SummaryTable() {
     </section>
   );
 }
-

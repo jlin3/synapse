@@ -1,22 +1,16 @@
-interface Paper {
-  title: string;
-  authors: string[];
-  publicationDate: string;
-  doi: string | null;
-  journal: string | null;
-}
+import { Paper } from "@/types";
 
 /**
  * Generate a BibTeX citation for a paper
  */
 export function generateBibTeX(paper: Paper): string {
   const year = new Date(paper.publicationDate).getFullYear();
-  
+
   // Create a citation key from first author's last name and year
   const firstAuthor = paper.authors[0] || "Unknown";
   const lastName = firstAuthor.split(" ").pop() || "Unknown";
   const citeKey = `${lastName}${year}`.replace(/[^a-zA-Z0-9]/g, "");
-  
+
   // Format authors for BibTeX (Last, First and Last, First)
   const bibtexAuthors = paper.authors
     .map((author) => {
@@ -94,12 +88,10 @@ function formatAPAAuthors(authors: string[]): string {
   const formatSingleAuthor = (author: string): string => {
     const parts = author.trim().split(" ");
     if (parts.length === 1) return parts[0];
-    
+
     const lastName = parts.pop() || "";
-    const initials = parts
-      .map((name) => name.charAt(0).toUpperCase() + ".")
-      .join(" ");
-    
+    const initials = parts.map((name) => name.charAt(0).toUpperCase() + ".").join(" ");
+
     return `${lastName}, ${initials}`;
   };
 
@@ -112,19 +104,13 @@ function formatAPAAuthors(authors: string[]): string {
   }
 
   if (authors.length <= 20) {
-    const allButLast = authors
-      .slice(0, -1)
-      .map(formatSingleAuthor)
-      .join(", ");
+    const allButLast = authors.slice(0, -1).map(formatSingleAuthor).join(", ");
     const last = formatSingleAuthor(authors[authors.length - 1]);
     return `${allButLast}, & ${last}`;
   }
 
   // More than 20 authors
-  const first19 = authors
-    .slice(0, 19)
-    .map(formatSingleAuthor)
-    .join(", ");
+  const first19 = authors.slice(0, 19).map(formatSingleAuthor).join(", ");
   const last = formatSingleAuthor(authors[authors.length - 1]);
   return `${first19}, ... ${last}`;
 }

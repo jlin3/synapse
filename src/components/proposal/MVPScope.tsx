@@ -6,7 +6,7 @@ import { Newspaper, Chrome, Users, Database, XCircle } from "lucide-react";
 const functionalScope = [
   {
     icon: Newspaper,
-    title: "Daily \"What's New\" Feed",
+    title: 'Daily "What\'s New" Feed',
     items: [
       "Per field (heme/onc, solid tumors)",
       "Per lab / institution",
@@ -124,4 +124,3 @@ export default function MVPScope() {
     </section>
   );
 }
-

@@ -25,9 +25,7 @@ export default function TabBar({ activeTab, onTabChange, historyCount }: TabBarP
           key={tab.id}
           onClick={() => onTabChange(tab.id)}
           className={`relative flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${
-            activeTab === tab.id
-              ? "text-white"
-              : "text-zinc-500 hover:text-zinc-300"
+            activeTab === tab.id ? "text-white" : "text-zinc-500 hover:text-zinc-300"
           }`}
         >
           {tab.icon}

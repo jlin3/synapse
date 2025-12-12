@@ -46,7 +46,8 @@ export default function FilterPanel({ filters, onFilterChange }: FilterPanelProp
     setShowDropdown(false);
   };
 
-  const hasActiveFilters = filters.minCitations !== null || filters.dateRange !== null || filters.studyType !== null;
+  const hasActiveFilters =
+    filters.minCitations !== null || filters.dateRange !== null || filters.studyType !== null;
 
   return (
     <div className="flex items-center gap-2">
@@ -57,16 +58,15 @@ export default function FilterPanel({ filters, onFilterChange }: FilterPanelProp
           className="flex items-center gap-2 px-3 py-2 bg-zinc-800/50 border border-zinc-700/50 rounded-lg text-sm text-zinc-300 hover:bg-zinc-800 transition-colors"
         >
           {currentSortLabel}
-          <ChevronDown className={`w-4 h-4 transition-transform ${showDropdown ? "rotate-180" : ""}`} />
+          <ChevronDown
+            className={`w-4 h-4 transition-transform ${showDropdown ? "rotate-180" : ""}`}
+          />
         </button>
 
         <AnimatePresence>
           {showDropdown && (
             <>
-              <div
-                className="fixed inset-0 z-10"
-                onClick={() => setShowDropdown(false)}
-              />
+              <div className="fixed inset-0 z-10" onClick={() => setShowDropdown(false)} />
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -103,9 +103,7 @@ export default function FilterPanel({ filters, onFilterChange }: FilterPanelProp
       >
         <Filter className="w-4 h-4" />
         Filters
-        {hasActiveFilters && (
-          <span className="w-2 h-2 bg-purple-500 rounded-full" />
-        )}
+        {hasActiveFilters && <span className="w-2 h-2 bg-purple-500 rounded-full" />}
       </button>
 
       {/* Advanced Filters Panel */}

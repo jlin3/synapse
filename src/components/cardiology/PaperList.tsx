@@ -9,29 +9,7 @@ import { Loader2, Bookmark } from "lucide-react";
 import { useCollections } from "@/hooks/useCollections";
 import { useVotes } from "@/hooks/useVotes";
 import { usePaperMetadata } from "@/hooks/usePaperMetadata";
-
-interface Concept {
-  id: string;
-  name: string;
-  score: number;
-}
-
-interface Paper {
-  id: string;
-  title: string;
-  authors: string[];
-  publicationDate: string;
-  doi: string | null;
-  abstract: string | null;
-  citedByCount: number;
-  journal: string | null;
-  concepts?: Concept[];
-  pdfUrl?: string | null;
-  githubUrl?: string | null;
-  arxivId?: string | null;
-  isOpenAccess?: boolean;
-  trendScore?: number;
-}
+import { Paper } from "@/types";
 
 interface FilterState {
   sortBy: SortOption;
@@ -49,12 +27,7 @@ interface PaperListProps {
 
 type ViewType = "all" | "saved";
 
-export default function PaperList({
-  papers,
-  loading,
-  onFilterChange,
-  onTagClick,
-}: PaperListProps) {
+export default function PaperList({ papers, loading, onFilterChange, onTagClick }: PaperListProps) {
   const [selectedPaper, setSelectedPaper] = useState<Paper | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [view, setView] = useState<ViewType>("all");
@@ -64,10 +37,10 @@ export default function PaperList({
     dateRange: null,
     studyType: null,
   });
-  
-  const { 
-    collections, 
-    isLoaded, 
+
+  const {
+    collections,
+    isLoaded,
     getAllBookmarkedPapers,
     addToCollection,
     removeFromCollection,
@@ -75,13 +48,13 @@ export default function PaperList({
     createCollection,
     getCollectionsForPaper,
   } = useCollections();
-  
+
   // Get all paper IDs for vote fetching
   const paperIds = useMemo(() => {
     const allPapers = view === "saved" ? getAllBookmarkedPapers() : papers;
     return allPapers.map((p) => p.id);
   }, [papers, view, getAllBookmarkedPapers]);
-  
+
   const { getVote, toggleUpvote, toggleDownvote } = useVotes(paperIds);
 
   // Get papers for metadata fetching
@@ -108,9 +81,11 @@ export default function PaperList({
   };
 
   const handleSaveToCollection = (paperId: string, collectionId: string) => {
-    const paper = papers.find((p) => p.id === paperId) || getAllBookmarkedPapers().find((p) => p.id === paperId);
+    const paper =
+      papers.find((p) => p.id === paperId) ||
+      getAllBookmarkedPapers().find((p) => p.id === paperId);
     if (!paper) return;
-    
+
     if (isInCollection(collectionId, paperId)) {
       removeFromCollection(collectionId, paperId);
     } else {
@@ -135,9 +110,7 @@ export default function PaperList({
               <button
                 onClick={() => setView("all")}
                 className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
-                  view === "all"
-                    ? "bg-zinc-700 text-white"
-                    : "text-zinc-400 hover:text-white"
+                  view === "all" ? "bg-zinc-700 text-white" : "text-zinc-400 hover:text-white"
                 }`}
               >
                 All
@@ -145,9 +118,7 @@ export default function PaperList({
               <button
                 onClick={() => setView("saved")}
                 className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all flex items-center gap-1.5 ${
-                  view === "saved"
-                    ? "bg-zinc-700 text-white"
-                    : "text-zinc-400 hover:text-white"
+                  view === "saved" ? "bg-zinc-700 text-white" : "text-zinc-400 hover:text-white"
                 }`}
               >
                 <Bookmark className={`w-3.5 h-3.5 ${view === "saved" ? "fill-current" : ""}`} />
@@ -201,7 +172,7 @@ export default function PaperList({
             {displayedPapers.map((paper, index) => {
               const vote = getVote(paper.id);
               const savedCollections = getCollectionsForPaper(paper.id).map((c) => c.id);
-              
+
               return (
                 <PaperCard
                   key={paper.id}
@@ -229,7 +200,9 @@ export default function PaperList({
                   onDislike={() => toggleDownvote(paper.id)}
                   collections={collections}
                   savedCollections={savedCollections}
-                  onSaveToCollection={(collectionId) => handleSaveToCollection(paper.id, collectionId)}
+                  onSaveToCollection={(collectionId) =>
+                    handleSaveToCollection(paper.id, collectionId)
+                  }
                   onCreateCollection={handleCreateCollection}
                   onTagClick={onTagClick}
                   badges={getBadges(paper.id)}
@@ -246,17 +219,21 @@ export default function PaperList({
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         isBookmarked={selectedPaper ? getCollectionsForPaper(selectedPaper.id).length > 0 : false}
-        onToggleBookmark={selectedPaper ? () => {
-          if (getCollectionsForPaper(selectedPaper.id).length > 0) {
-            // Remove from all collections
-            getCollectionsForPaper(selectedPaper.id).forEach((c) => {
-              removeFromCollection(c.id, selectedPaper.id);
-            });
-          } else {
-            // Add to default collection
-            addToCollection("default", selectedPaper);
-          }
-        } : undefined}
+        onToggleBookmark={
+          selectedPaper
+            ? () => {
+                if (getCollectionsForPaper(selectedPaper.id).length > 0) {
+                  // Remove from all collections
+                  getCollectionsForPaper(selectedPaper.id).forEach((c) => {
+                    removeFromCollection(c.id, selectedPaper.id);
+                  });
+                } else {
+                  // Add to default collection
+                  addToCollection("default", selectedPaper);
+                }
+              }
+            : undefined
+        }
         onSelectPaper={(paper) => setSelectedPaper(paper)}
       />
     </>
