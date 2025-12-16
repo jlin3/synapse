@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
 import { Paper } from "@/types";
+import { extractIdentifierTokens, isIdentifierLikeQuery, normalizeQueryForSearch } from "@/lib/search";
+
+// CDN cache: 6h fresh, 24h stale-while-revalidate
+const CACHE_CONTROL_HEADER_VALUE = "public, s-maxage=21600, stale-while-revalidate=86400";
 
 export interface OpenAlexWork {
   id: string;
@@ -170,17 +174,26 @@ function transformWork(work: OpenAlexWork): Paper {
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const query = searchParams.get("query") || "cardiology";
+  const rawQuery = searchParams.get("query") || "cardiology";
+  const query = normalizeQueryForSearch(rawQuery) || "cardiology";
   const sort = searchParams.get("sort") || "publication_date:desc";
+  const sortBy = searchParams.get("sortBy") || "";
   const page = searchParams.get("page") || "1";
   const minCitations = searchParams.get("minCitations");
   const fromDate = searchParams.get("fromDate");
 
   try {
+    const requestedPage = Math.max(1, parseInt(page || "1", 10) || 1);
+    const requestedPerPage = 20;
+    // For "hot", pull a broader candidate set once and then slice locally.
+    // This avoids extra upstream calls while improving local reranking.
+    const candidatePerPage = sortBy === "hot" ? 80 : requestedPerPage;
+    const upstreamPage = sortBy === "hot" ? "1" : String(requestedPage);
+
     const url = new URL("https://api.openalex.org/works");
     url.searchParams.set("search", query);
-    url.searchParams.set("per_page", "20");
-    url.searchParams.set("page", page);
+    url.searchParams.set("per_page", String(candidatePerPage));
+    url.searchParams.set("page", upstreamPage);
     url.searchParams.set("sort", sort);
     url.searchParams.set(
       "select",
@@ -195,6 +208,19 @@ export async function GET(request: Request) {
     if (fromDate) {
       filters.push(`from_publication_date:${fromDate}`);
     }
+
+    // Hybrid keyword behavior: if the query looks like an identifier (e.g., BPC-157),
+    // require the identifier token to appear in title OR abstract.
+    if (isIdentifierLikeQuery(query)) {
+      const tokens = extractIdentifierTokens(query);
+      const token = tokens[0];
+      if (token) {
+        // OpenAlex supports OR with '|' inside the filter parameter.
+        // See: https://docs.openalex.org/how-to-use-the-api/get-lists-of-entities/filter-entity-lists
+        filters.push(`title.search:${token}|abstract.search:${token}`);
+      }
+    }
+
     if (filters.length > 0) {
       url.searchParams.set("filter", filters.join(","));
     }
@@ -210,14 +236,61 @@ export async function GET(request: Request) {
     }
 
     const data = await response.json();
-    const papers: Paper[] = data.results.map(transformWork);
+    let papers: Paper[] = data.results.map(transformWork);
+
+    // Safety net: enforce exact-token presence for identifier-like queries even if
+    // OpenAlex ranking includes adjacent results.
+    if (isIdentifierLikeQuery(query)) {
+      const token = extractIdentifierTokens(query)[0];
+      if (token) {
+        const tokenLower = token.toLowerCase();
+        papers = papers.filter((p) => {
+          const title = (p.title || "").toLowerCase();
+          const abs = (p.abstract || "").toLowerCase();
+          return title.includes(tokenLower) || abs.includes(tokenLower);
+        });
+      }
+    }
+
+    // Improve "Hot" ranking without changing the backend (Option A).
+    // If the client requests sortBy=hot, we fetch high-citation candidates from OpenAlex
+    // and then locally re-rank using a blend of citations, recency, and trend.
+    if (sortBy === "hot") {
+      const now = Date.now();
+      const msPerDay = 24 * 60 * 60 * 1000;
+
+      const scoreHot = (p: Paper) => {
+        const cited = Math.max(0, p.citedByCount || 0);
+        const citations = Math.log10(1 + cited); // compress heavy tails
+
+        const pubMs = Date.parse(p.publicationDate || "");
+        const ageDays = Number.isFinite(pubMs) ? (now - pubMs) / msPerDay : 3650;
+        const recency = Math.max(0, 1 - ageDays / 365); // 0..1 over last year
+
+        const trend = Math.max(-100, Math.min(200, p.trendScore || 0)) / 100; // approx -1..2
+
+        // Weighting tuned for a "research feed" feel:
+        // citations dominate, but recency/trend can bubble up new papers.
+        return citations * 2.0 + recency * 1.0 + trend * 0.8;
+      };
+
+      papers = [...papers].sort((a, b) => scoreHot(b) - scoreHot(a));
+
+      // Slice locally for requested page. Note: we only have `candidatePerPage` candidates.
+      const offset = (requestedPage - 1) * requestedPerPage;
+      papers = papers.slice(offset, offset + requestedPerPage);
+    }
 
     return NextResponse.json({
       papers,
       meta: {
         count: data.meta.count,
-        page: data.meta.page,
-        perPage: data.meta.per_page,
+        page: requestedPage,
+        perPage: requestedPerPage,
+      },
+    }, {
+      headers: {
+        "Cache-Control": CACHE_CONTROL_HEADER_VALUE,
       },
     });
   } catch (error) {

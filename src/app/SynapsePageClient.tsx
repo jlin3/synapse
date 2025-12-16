@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import Header from "@/components/cardiology/Header";
 import PaperList from "@/components/cardiology/PaperList";
@@ -8,7 +8,7 @@ import SocialFeed from "@/components/cardiology/SocialFeed";
 import ImportModal from "@/components/cardiology/ImportModal";
 import { SortOption } from "@/components/cardiology/FilterPanel";
 import { Paper } from "@/types";
-import { isIdentifierLikeQuery, normalizeQueryForCache, normalizeQueryForSearch } from "@/lib/search";
+import { isIdentifierLikeQuery } from "@/lib/search";
 
 interface SocialPost {
   id: string;
@@ -31,7 +31,7 @@ type SocialFeedCacheEntry = {
 };
 
 function getSocialFeedQuery(query: string) {
-  const q = normalizeQueryForSearch(query);
+  const q = query.trim();
   // Keep consistent with the API default ("cardiology research")
   return q.length > 0 ? `${q} research` : "cardiology research";
 }
@@ -50,19 +50,20 @@ interface FilterState {
   studyType: string | null;
 }
 
-export default function SynapsePage() {
-  const [searchQuery, setSearchQuery] = useState(DEFAULT_QUERY);
+export default function SynapsePageClient(props: {
+  initialQuery?: string;
+  initialPosts?: SocialPost[];
+}) {
+  const initialQuery = props.initialQuery || DEFAULT_QUERY;
+  const initialPosts = props.initialPosts || [];
+
+  const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [papers, setPapers] = useState<Paper[]>([]);
-  const [posts, setPosts] = useState<SocialPost[]>([]);
+  const [posts, setPosts] = useState<SocialPost[]>(initialPosts);
   const [loadingPapers, setLoadingPapers] = useState(true);
-  const [loadingPosts, setLoadingPosts] = useState(true);
+  const [loadingPosts, setLoadingPosts] = useState(initialPosts.length === 0);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isAiSearching, setIsAiSearching] = useState(false);
-
-  const papersAbortRef = useRef<AbortController | null>(null);
-  const postsAbortRef = useRef<AbortController | null>(null);
-  const lastPapersKeyRef = useRef<string | null>(null);
-  const lastPostsKeyRef = useRef<string | null>(null);
 
   const primeSocialFeedFromCache = useCallback((query: string) => {
     try {
@@ -106,19 +107,6 @@ export default function SynapsePage() {
       sortBy: SortOption = "hot",
       filters?: { minCitations?: number; fromDate?: string }
     ) => {
-      const normalizedQuery = normalizeQueryForSearch(query);
-      const cacheKey = normalizeQueryForCache(
-        `${normalizedQuery}::${sortBy}::${filters?.minCitations || ""}::${filters?.fromDate || ""}`
-      );
-
-      // De-dupe identical requests
-      if (lastPapersKeyRef.current === cacheKey) return;
-      lastPapersKeyRef.current = cacheKey;
-
-      papersAbortRef.current?.abort();
-      const controller = new AbortController();
-      papersAbortRef.current = controller;
-
       setLoadingPapers(true);
       try {
         // Map sort options to OpenAlex sort params
@@ -132,44 +120,24 @@ export default function SynapsePage() {
         }
 
         const params = new URLSearchParams({
-          query: normalizedQuery,
+          query,
           sort: sortParam,
-          sortBy,
         });
-
-        // Auto windowing for "Top this week/month" unless user explicitly set a fromDate
-        let fromDate = filters?.fromDate;
-        if (!fromDate) {
-          const now = new Date();
-          if (sortBy === "top_week") {
-            const d = new Date(now);
-            d.setDate(d.getDate() - 7);
-            fromDate = d.toISOString().slice(0, 10);
-          } else if (sortBy === "top_month") {
-            const d = new Date(now);
-            d.setDate(d.getDate() - 30);
-            fromDate = d.toISOString().slice(0, 10);
-          }
-        }
 
         if (filters?.minCitations) {
           params.set("minCitations", filters.minCitations.toString());
         }
-        if (fromDate) {
-          params.set("fromDate", fromDate);
+        if (filters?.fromDate) {
+          params.set("fromDate", filters.fromDate);
         }
 
-        const response = await fetch(`/api/papers?${params.toString()}`, {
-          signal: controller.signal,
-        });
+        const response = await fetch(`/api/papers?${params.toString()}`);
         const data = await response.json();
         if (data.papers) {
           setPapers(data.papers);
         }
       } catch (error) {
-        if ((error as any)?.name !== "AbortError") {
-          console.error("Error fetching papers:", error);
-        }
+        console.error("Error fetching papers:", error);
       } finally {
         setLoadingPapers(false);
       }
@@ -177,48 +145,54 @@ export default function SynapsePage() {
     []
   );
 
-  const fetchPosts = useCallback(async (query: string, opts?: { showLoading?: boolean }) => {
-    const showLoading = opts?.showLoading ?? true;
-    const normalizedQuery = normalizeQueryForSearch(query);
-    const cacheKey = normalizeQueryForCache(getSocialFeedQuery(normalizedQuery));
-
-    // De-dupe identical requests
-    if (lastPostsKeyRef.current === cacheKey) return;
-    lastPostsKeyRef.current = cacheKey;
-
-    postsAbortRef.current?.abort();
-    const controller = new AbortController();
-    postsAbortRef.current = controller;
-
-    if (showLoading) setLoadingPosts(true);
-    try {
-      const socialQuery = getSocialFeedQuery(normalizedQuery);
-      const response = await fetch(
-        `/api/social-feed?query=${encodeURIComponent(socialQuery)}`,
-        { signal: controller.signal }
-      );
-      const data = await response.json();
-      if (data.posts) {
-        setPosts(data.posts);
-        writeSocialFeedCache(normalizedQuery, data.posts);
-      }
-    } catch (error) {
-      if ((error as any)?.name !== "AbortError") {
+  const fetchPosts = useCallback(
+    async (query: string, opts?: { showLoading?: boolean }) => {
+      const showLoading = opts?.showLoading ?? true;
+      if (showLoading) setLoadingPosts(true);
+      try {
+        const socialQuery = getSocialFeedQuery(query);
+        const response = await fetch(`/api/social-feed?query=${encodeURIComponent(socialQuery)}`);
+        const data = await response.json();
+        if (data.posts) {
+          setPosts(data.posts);
+          writeSocialFeedCache(query, data.posts);
+        }
+      } catch (error) {
         console.error("Error fetching posts:", error);
+      } finally {
+        if (showLoading) setLoadingPosts(false);
       }
-    } finally {
-      if (showLoading) setLoadingPosts(false);
-    }
-  }, [writeSocialFeedCache]);
+    },
+    [writeSocialFeedCache]
+  );
 
+  // On first mount:
+  // - start papers fetch
+  // - ensure Social Feed cache is primed (SSR-provided initialPosts) and refresh in background
   useEffect(() => {
-    fetchPapers(DEFAULT_QUERY);
-    const cacheHit = primeSocialFeedFromCache(DEFAULT_QUERY);
-    fetchPosts(DEFAULT_QUERY, { showLoading: !cacheHit });
-  }, [fetchPapers, fetchPosts, primeSocialFeedFromCache]);
+    fetchPapers(initialQuery);
+
+    // If SSR gave us posts, make sure they land in localStorage for future instant loads.
+    if (initialPosts.length > 0) {
+      writeSocialFeedCache(initialQuery, initialPosts);
+      // Background refresh without showing a spinner
+      fetchPosts(initialQuery, { showLoading: false });
+      return;
+    }
+
+    // Otherwise, try local cache first, then fetch.
+    const cacheHit = primeSocialFeedFromCache(initialQuery);
+    fetchPosts(initialQuery, { showLoading: !cacheHit });
+  }, [
+    fetchPapers,
+    fetchPosts,
+    initialPosts,
+    initialQuery,
+    primeSocialFeedFromCache,
+    writeSocialFeedCache,
+  ]);
 
   const handleSearch = async () => {
-    if (isAiSearching) return;
     setIsAiSearching(true);
     try {
       // If the query looks like an identifier (e.g., BPC-157), keep it verbatim.
@@ -234,12 +208,12 @@ export default function SynapsePage() {
       const aiResponse = await fetch("/api/ai-search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: normalizeQueryForSearch(searchQuery) }),
+        body: JSON.stringify({ query: searchQuery }),
       });
 
       if (aiResponse.ok) {
         const aiResult = await aiResponse.json();
-        const searchTerms = normalizeQueryForSearch(aiResult.searchTerms?.join(" ") || searchQuery);
+        const searchTerms = aiResult.searchTerms?.join(" ") || searchQuery;
 
         const cacheHit = primeSocialFeedFromCache(searchTerms);
 
@@ -336,3 +310,5 @@ export default function SynapsePage() {
     </div>
   );
 }
+
+

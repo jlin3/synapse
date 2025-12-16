@@ -109,9 +109,158 @@ function generateFallbackMetadata(title: string, abstract: string | null): Paper
   return { studyType, rigorLevel, claimType, badges };
 }
 
+type BatchPaperInput = {
+  paperId?: string;
+  title: string;
+  abstract: string | null;
+};
+
+type ModelBatchResult = PaperMetadata & { paperId?: string };
+
+function safeParseJsonObject<T>(content: string): T | null {
+  try {
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) return null;
+    return JSON.parse(jsonMatch[0]) as T;
+  } catch {
+    return null;
+  }
+}
+
+function safeParseJsonArray<T>(content: string): T[] | null {
+  try {
+    const jsonMatch = content.match(/\[[\s\S]*\]/);
+    if (!jsonMatch) return null;
+    return JSON.parse(jsonMatch[0]) as T[];
+  } catch {
+    return null;
+  }
+}
+
 export async function POST(request: Request) {
   try {
-    const { paperId, title, abstract } = await request.json();
+    const body = await request.json();
+
+    // New batch shape: { papers: [{ paperId?, title, abstract }] }
+    if (Array.isArray(body?.papers)) {
+      const papers = (body.papers as BatchPaperInput[]).filter((p) => p && typeof p.title === "string");
+      if (papers.length === 0) {
+        return NextResponse.json({ error: "papers[] with title is required" }, { status: 400 });
+      }
+
+      const metadataByPaperId: Record<string, PaperMetadata> = {};
+      const toProcess: Array<{ key: string; title: string; abstract: string | null; paperId?: string }> = [];
+
+      // Serve cached where possible (by paperId), otherwise queue for processing.
+      for (const p of papers) {
+        const key = p.paperId || `${p.title}::${p.abstract || ""}`;
+        if (p.paperId) {
+          const cached = getCachedMetadata(p.paperId);
+          if (cached) {
+            metadataByPaperId[p.paperId] = cached;
+            continue;
+          }
+        }
+        toProcess.push({ key, title: p.title, abstract: p.abstract, paperId: p.paperId });
+      }
+
+      // If no API key, fallback heuristics for all uncached.
+      if (!XAI_API_KEY) {
+        for (const p of toProcess) {
+          const fallback = generateFallbackMetadata(p.title, p.abstract);
+          if (p.paperId) {
+            setCachedMetadata(p.paperId, fallback);
+            metadataByPaperId[p.paperId] = fallback;
+          } else {
+            metadataByPaperId[p.key] = fallback;
+          }
+        }
+        return NextResponse.json({ metadataByPaperId, cached: false });
+      }
+
+      // Batch classify via a single LLM call; fallback heuristics per-item if parsing fails.
+      const systemPrompt = `You are a scientific methodology expert. Analyze research paper titles and abstracts to classify them.
+
+Return a JSON object with these fields:
+- studyType: The type of study (e.g., "Randomized Controlled Trial", "Meta-Analysis", "Cohort Study", "Case Report", "Systematic Review", "Observational Study", "Clinical Trial", "Original Research")
+- rigorLevel: "high" (RCT, meta-analysis, large trials), "medium" (cohort, observational), or "low" (case reports, opinion pieces)
+- claimType: "novel" (new finding), "replication" (confirms previous work), "review" (summarizes existing work), "meta-analysis", or "unknown"
+- badges: Array of 1-3 short badges like ["RCT", "Human Study", "Novel Finding"] or ["Meta-Analysis", "High Impact"]
+
+Be concise with badges - max 3 words each.`;
+
+      const userPrompt = `Analyze these papers. Return ONLY a JSON array of objects, keyed by paperId, with this exact shape:
+[
+  { "paperId": "W...", "studyType": "...", "rigorLevel": "high|medium|low", "claimType": "novel|replication|review|meta-analysis|unknown", "badges": ["..."] }
+]
+
+Papers:
+${toProcess
+  .map(
+    (p, idx) =>
+      `${idx + 1}. paperId: ${p.paperId || "unknown"}\nTitle: ${p.title}\nAbstract: ${p.abstract || "Not available"}\n`
+  )
+  .join("\n")}`;
+
+      let parsed: ModelBatchResult[] | null = null;
+      try {
+        const response = await fetch("https://api.x.ai/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${XAI_API_KEY}`,
+          },
+          body: JSON.stringify({
+            model: "grok-3-mini",
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: userPrompt },
+            ],
+            temperature: 0.1,
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const content = data.choices?.[0]?.message?.content || "";
+          parsed = safeParseJsonArray<ModelBatchResult>(content);
+        }
+      } catch {
+        parsed = null;
+      }
+
+      const parsedById = new Map<string, PaperMetadata>();
+      if (parsed) {
+        for (const item of parsed) {
+          if (item?.paperId && item.studyType) {
+            const { paperId, ...rest } = item;
+            parsedById.set(paperId, rest);
+          }
+        }
+      }
+
+      for (let i = 0; i < toProcess.length; i++) {
+        const p = toProcess[i];
+        const modelMeta = p.paperId ? parsedById.get(p.paperId) : undefined;
+        const finalMeta =
+          modelMeta && modelMeta.studyType ? modelMeta : generateFallbackMetadata(p.title, p.abstract);
+        if (p.paperId) {
+          setCachedMetadata(p.paperId, finalMeta);
+          metadataByPaperId[p.paperId] = finalMeta;
+        } else {
+          metadataByPaperId[p.key] = finalMeta;
+        }
+      }
+
+      return NextResponse.json({ metadataByPaperId, cached: false });
+    }
+
+    // Backward-compatible single-paper shape
+    const { paperId, title, abstract } = body as {
+      paperId?: string;
+      title?: string;
+      abstract?: string | null;
+    };
 
     if (!title) {
       return NextResponse.json({ error: "title is required" }, { status: 400 });
@@ -127,7 +276,7 @@ export async function POST(request: Request) {
 
     // If no API key, use heuristic fallback
     if (!XAI_API_KEY) {
-      const fallback = generateFallbackMetadata(title, abstract);
+      const fallback = generateFallbackMetadata(title, abstract || null);
       if (paperId) setCachedMetadata(paperId, fallback);
       return NextResponse.json({ metadata: fallback, cached: false });
     }
@@ -172,19 +321,17 @@ Return only valid JSON, no other text.`;
       const data = await response.json();
       const content = data.choices?.[0]?.message?.content || "";
 
-      // Parse the JSON response
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        const metadata: PaperMetadata = JSON.parse(jsonMatch[0]);
-        if (paperId) setCachedMetadata(paperId, metadata);
-        return NextResponse.json({ metadata, cached: false });
+      const parsed = safeParseJsonObject<PaperMetadata>(content);
+      if (parsed) {
+        if (paperId) setCachedMetadata(paperId, parsed);
+        return NextResponse.json({ metadata: parsed, cached: false });
       }
     } catch {
       // Fall through to heuristic
     }
 
     // Fallback to heuristic
-    const fallback = generateFallbackMetadata(title, abstract);
+    const fallback = generateFallbackMetadata(title, abstract || null);
     if (paperId) setCachedMetadata(paperId, fallback);
     return NextResponse.json({ metadata: fallback, cached: false });
   } catch (error) {

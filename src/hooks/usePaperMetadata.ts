@@ -36,36 +36,29 @@ export function usePaperMetadata(papers: PaperInput[]) {
     }
 
     setIsLoading(true);
+    // Batch request to reduce N network calls -> 1 call
+    try {
+      const response = await fetch("/api/paper-metadata", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          papers: papersToFetch.map((p) => ({ paperId: p.id, title: p.title, abstract: p.abstract })),
+        }),
+      });
 
-    // Fetch metadata for each paper (limit concurrent requests)
-    const batchSize = 3;
-    for (let i = 0; i < papersToFetch.length; i += batchSize) {
-      const batch = papersToFetch.slice(i, i + batchSize);
+      if (response.ok) {
+        const data = await response.json();
+        const results = (data.metadataByPaperId || {}) as Record<string, PaperMetadata>;
 
-      await Promise.all(
-        batch.map(async (paper) => {
-          try {
-            const response = await fetch("/api/paper-metadata", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                paperId: paper.id,
-                title: paper.title,
-                abstract: paper.abstract,
-              }),
-            });
-
-            if (response.ok) {
-              const data = await response.json();
-              const paperMetadata = data.metadata as PaperMetadata;
-              sessionCache.set(paper.id, paperMetadata);
-              setMetadata((prev) => ({ ...prev, [paper.id]: paperMetadata }));
-            }
-          } catch (error) {
-            console.error("Error fetching metadata for paper:", paper.id, error);
-          }
-        })
-      );
+        if (results && typeof results === "object") {
+          Object.entries(results).forEach(([paperId, paperMetadata]) => {
+            if (paperMetadata) sessionCache.set(paperId, paperMetadata);
+          });
+          setMetadata((prev) => ({ ...prev, ...results }));
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching paper metadata batch:", error);
     }
 
     setIsLoading(false);
