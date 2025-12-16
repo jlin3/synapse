@@ -56,6 +56,64 @@ export interface OpenAlexWork {
 
 // Paper type is imported from @/types
 
+// Decode HTML entities (e.g., &amp; -> &, &lt; -> <)
+function decodeHtmlEntities(text: string): string {
+  if (!text) return text;
+  return text
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&#x27;/g, "'")
+    .replace(/&#x2F;/g, "/")
+    .replace(/&nbsp;/g, " ");
+}
+
+// High-impact journals get a prestige boost for "hot" ranking
+const HIGH_IMPACT_JOURNALS = new Set([
+  "nature", "science", "cell", "the lancet", "lancet", "nejm",
+  "new england journal of medicine", "jama", "bmj", "circulation",
+  "european heart journal", "journal of the american college of cardiology",
+  "jacc", "nature medicine", "nature cardiovascular research",
+  "annals of internal medicine", "plos medicine", "jama cardiology",
+  "jama internal medicine", "the bmj", "circulation research",
+  "cardiovascular research", "heart", "esc heart failure",
+]);
+
+// Study types that indicate higher rigor
+const HIGH_RIGOR_CONCEPTS = new Set([
+  "randomized controlled trial", "rct", "meta-analysis", "systematic review",
+  "clinical trial", "double-blind", "placebo-controlled",
+]);
+
+function getJournalPrestigeScore(journal: string | null): number {
+  if (!journal) return 0;
+  const normalized = journal.toLowerCase().trim();
+  if (HIGH_IMPACT_JOURNALS.has(normalized)) return 3.0;
+  // Partial matches for journal families
+  if (normalized.includes("nature") || normalized.includes("lancet") ||
+      normalized.includes("jama") || normalized.includes("nejm")) return 2.5;
+  if (normalized.includes("circulation") || normalized.includes("heart") ||
+      normalized.includes("cardio")) return 1.5;
+  return 0;
+}
+
+function getRigorScore(concepts: Array<{ name: string; score: number }> | undefined): number {
+  if (!concepts) return 0;
+  let rigorScore = 0;
+  for (const c of concepts) {
+    const name = (c.name || "").toLowerCase();
+    if (HIGH_RIGOR_CONCEPTS.has(name) || name.includes("randomized") ||
+        name.includes("meta-analysis") || name.includes("systematic review") ||
+        name.includes("clinical trial")) {
+      rigorScore = Math.max(rigorScore, 2.0);
+    }
+  }
+  return rigorScore;
+}
+
 function reconstructAbstract(invertedIndex: Record<string, number[]> | null): string | null {
   if (!invertedIndex) return null;
 
@@ -154,15 +212,18 @@ function transformWork(work: OpenAlexWork): Paper {
     work.locations?.find((l) => l.pdf_url)?.pdf_url ||
     null;
 
+  const abstract = reconstructAbstract(work.abstract_inverted_index);
+  const journal = work.primary_location?.source?.display_name || null;
+
   return {
     id: work.id,
-    title: work.title,
+    title: decodeHtmlEntities(work.title),
     authors: work.authorships.map((a) => a.author.display_name).slice(0, 5),
     publicationDate: work.publication_date,
     doi: work.doi,
-    abstract: reconstructAbstract(work.abstract_inverted_index),
+    abstract: abstract ? decodeHtmlEntities(abstract) : null,
     citedByCount: work.cited_by_count,
-    journal: work.primary_location?.source?.display_name || null,
+    journal: journal ? decodeHtmlEntities(journal) : null,
     concepts,
     pdfUrl,
     githubUrl: extractGitHubUrl(work.locations),
@@ -257,40 +318,44 @@ export async function GET(request: Request) {
     // Trust OpenAlex's relevance scoring - it uses semantic matching across title,
     // abstract, and full text. No client-side filtering needed for general queries.
 
-    // Improve "Hot" ranking: heavily favor recent papers (60-180 days) while still
-    // considering citations and trend. This surfaces timely, impactful research.
+    // Improve "Hot" ranking: balance recency, citations, journal prestige, and rigor.
+    // Hot papers should be recent, getting cited, from reputable sources, and high rigor.
     if (sortBy === "hot") {
       const now = Date.now();
       const msPerDay = 24 * 60 * 60 * 1000;
 
       const scoreHot = (p: Paper) => {
+        // 1. Citations (log-scaled to compress heavy tails)
         const cited = Math.max(0, p.citedByCount || 0);
-        const citations = Math.log10(1 + cited); // compress heavy tails (0-4 range typically)
+        const citationScore = Math.log10(1 + cited) * 1.5; // 0-6 range typically
 
+        // 2. Recency boost - favor 30-90 day sweet spot
         const pubMs = Date.parse(p.publicationDate || "");
         const ageDays = Number.isFinite(pubMs) ? (now - pubMs) / msPerDay : 3650;
-
-        // Strong recency scoring: papers in the sweet spot (30-90 days) get highest boost
-        // - 0-30 days: very new, boost = 3.0
-        // - 30-90 days: sweet spot (citations starting + still fresh), boost = 4.0
-        // - 90-180 days: recent, boost = 2.5
-        // - 180-365 days: older but still relevant, boost = 1.0
-        // - >365 days: minimal boost = 0.2
         let recencyBoost = 0.2;
         if (ageDays <= 30) {
-          recencyBoost = 3.0;
+          recencyBoost = 2.0; // very new
         } else if (ageDays <= 90) {
-          recencyBoost = 4.0; // sweet spot
+          recencyBoost = 2.5; // sweet spot (citations starting + still fresh)
         } else if (ageDays <= 180) {
-          recencyBoost = 2.5;
+          recencyBoost = 1.5;
         } else if (ageDays <= 365) {
-          recencyBoost = 1.0;
+          recencyBoost = 0.5;
         }
 
-        const trend = Math.max(-100, Math.min(200, p.trendScore || 0)) / 100; // approx -1..2
+        // 3. Citation trend (momentum)
+        const trend = Math.max(-100, Math.min(200, p.trendScore || 0)) / 100;
+        const trendScore = trend * 1.0;
 
-        // Weighting: recency now dominates for "hot", citations secondary, trend tertiary
-        return recencyBoost * 2.5 + citations * 1.2 + trend * 0.6;
+        // 4. Journal prestige - high-impact journals get a boost
+        const journalScore = getJournalPrestigeScore(p.journal);
+
+        // 5. Rigor signals from concepts (RCT, meta-analysis, etc.)
+        const rigorScore = getRigorScore(p.concepts || []);
+
+        // Combined score: citations + recency + trend + prestige + rigor
+        // This surfaces recent papers from top journals with high rigor that are getting cited
+        return citationScore + recencyBoost + trendScore + journalScore + rigorScore;
       };
 
       papers = [...papers].sort((a, b) => scoreHot(b) - scoreHot(a));

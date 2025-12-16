@@ -14,6 +14,38 @@ interface PostCardProps {
   index: number;
 }
 
+// Format timestamp to relative time (e.g., "2h", "1d", "Dec 15")
+function formatTimestamp(ts: string): string {
+  if (!ts) return "";
+  
+  // If already in relative format (e.g., "2h", "1d"), return as-is
+  if (/^\d+[mhdw]$/.test(ts.trim())) {
+    return ts;
+  }
+  
+  // Try to parse as ISO date
+  const date = new Date(ts);
+  if (isNaN(date.getTime())) {
+    // If can't parse, return original (might already be formatted)
+    return ts;
+  }
+  
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / (1000 * 60));
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  
+  if (diffMins < 1) return "now";
+  if (diffMins < 60) return `${diffMins}m`;
+  if (diffHours < 24) return `${diffHours}h`;
+  if (diffDays < 7) return `${diffDays}d`;
+  
+  // For older posts, show date
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  return `${months[date.getMonth()]} ${date.getDate()}`;
+}
+
 export default function PostCard({
   content,
   author,
@@ -50,7 +82,7 @@ export default function PostCard({
             <span className="font-semibold text-[color:var(--foreground)] truncate">{author}</span>
             <span className="text-[color:var(--foreground-muted)] text-sm truncate">{handle}</span>
             <span className="text-[color:var(--foreground-subtle)]">·</span>
-            <span className="text-[color:var(--foreground-muted)] text-sm shrink-0">{timestamp}</span>
+            <span className="text-[color:var(--foreground-muted)] text-sm shrink-0">{formatTimestamp(timestamp)}</span>
             {url && (
               <a
                 href={url}
