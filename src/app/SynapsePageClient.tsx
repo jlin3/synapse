@@ -334,7 +334,7 @@ export default function SynapsePageClient(props: {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] relative">
+    <div className="min-h-screen bg-[var(--background)] relative">
       {/* Top gradient glow effect */}
       <div className="top-gradient" />
 
@@ -352,7 +352,7 @@ export default function SynapsePageClient(props: {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="lg:col-span-3 bg-zinc-900/30 rounded-2xl border border-zinc-800/50 p-6 backdrop-blur-sm"
+            className="lg:col-span-3 bg-[var(--panel-bg)] rounded-2xl border border-[color:var(--panel-border)] p-6 backdrop-blur-sm"
           >
             <PaperList
               papers={papers}
@@ -366,7 +366,7 @@ export default function SynapsePageClient(props: {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="lg:col-span-2 bg-zinc-900/30 rounded-2xl border border-zinc-800/50 p-6 backdrop-blur-sm"
+            className="lg:col-span-2 bg-[var(--panel-bg)] rounded-2xl border border-[color:var(--panel-border)] p-6 backdrop-blur-sm"
           >
             <SocialFeed posts={posts} loading={loadingPosts} />
           </motion.div>

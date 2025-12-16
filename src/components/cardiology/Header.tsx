@@ -1,8 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Search, Upload, History, Sparkles, ArrowUp, Paperclip } from "lucide-react";
+import { Upload, History, Sparkles, ArrowUp, Paperclip } from "lucide-react";
 import { useState } from "react";
+import ThemeToggle from "@/components/ThemeToggle";
 
 interface HeaderProps {
   searchQuery: string;
@@ -37,14 +38,16 @@ export default function Header({
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
-      className="sticky top-0 z-50 px-6 py-4 backdrop-blur-xl bg-[#0a0a0a]/80 border-b border-zinc-800/50"
+      className="sticky top-0 z-50 px-6 py-4 backdrop-blur-xl bg-[var(--header-bg)] border-b border-[color:var(--header-border)]"
     >
       <nav className="max-w-7xl mx-auto">
         {/* Top row - Logo and actions */}
         <div className="flex items-center justify-between gap-8 mb-4">
           <div className="flex items-center gap-3">
             <SynapseLogo />
-            <span className="text-xl font-semibold tracking-tight text-white">Synapse</span>
+            <span className="text-xl font-semibold tracking-tight text-[color:var(--foreground)]">
+              Synapse
+            </span>
             <span className="text-[10px] bg-gradient-to-r from-purple-500 to-pink-500 text-white px-2 py-0.5 rounded-full font-medium uppercase tracking-wider">
               Beta
             </span>
@@ -54,12 +57,13 @@ export default function Header({
             {onImportClick && (
               <button
                 onClick={onImportClick}
-                className="px-4 py-2 bg-zinc-800 text-zinc-300 text-sm font-medium rounded-lg hover:bg-zinc-700 transition-colors border border-zinc-700 flex items-center gap-2"
+                className="px-4 py-2 bg-[var(--button-surface)] text-[color:var(--foreground-muted)] text-sm font-medium rounded-lg hover:bg-[var(--button-surface-hover)] hover:text-[color:var(--foreground)] transition-colors border border-[color:var(--button-border)] flex items-center gap-2"
               >
                 <Upload className="w-4 h-4" />
                 Import
               </button>
             )}
+            <ThemeToggle />
             <a
               href="https://synapsesocial.com"
               target="_blank"
@@ -76,12 +80,12 @@ export default function Header({
           <div
             className={`absolute -inset-0.5 bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500 rounded-2xl transition-opacity duration-300 blur ${isFocused ? "opacity-40" : "opacity-0 group-hover:opacity-20"}`}
           />
-          <div className="relative bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden">
+          <div className="relative bg-[var(--input-surface)] border border-[color:var(--panel-border)] rounded-2xl overflow-hidden">
             <div className="flex items-center">
               {/* Sparkles icon */}
               <div className="pl-4 pr-2">
                 <Sparkles
-                  className={`w-5 h-5 ${isAiSearching ? "text-purple-400 animate-pulse" : "text-zinc-500"}`}
+                  className={`w-5 h-5 ${isAiSearching ? "text-purple-400 animate-pulse" : "text-[color:var(--foreground-subtle)]"}`}
                 />
               </div>
 
@@ -94,7 +98,7 @@ export default function Header({
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
                 placeholder="Ask anything about research... (⌘↵ to search)"
-                className="flex-1 py-4 bg-transparent text-white placeholder-zinc-500 focus:outline-none text-base"
+                className="flex-1 py-4 bg-transparent text-[color:var(--foreground)] placeholder-[color:var(--input-placeholder)] focus:outline-none text-base"
               />
 
               {/* Action buttons */}
@@ -102,7 +106,7 @@ export default function Header({
                 {/* Paperclip (visual only) */}
                 <button
                   type="button"
-                  className="p-2 text-zinc-500 hover:text-zinc-300 transition-colors rounded-lg hover:bg-zinc-800"
+                  className="p-2 text-[color:var(--foreground-subtle)] hover:text-[color:var(--foreground)] transition-colors rounded-lg hover:bg-[var(--button-surface)]"
                   title="Attach file (coming soon)"
                 >
                   <Paperclip className="w-5 h-5" />
@@ -113,7 +117,7 @@ export default function Header({
                   <button
                     type="button"
                     onClick={onHistoryClick}
-                    className="p-2 text-zinc-500 hover:text-zinc-300 transition-colors rounded-lg hover:bg-zinc-800"
+                    className="p-2 text-[color:var(--foreground-subtle)] hover:text-[color:var(--foreground)] transition-colors rounded-lg hover:bg-[var(--button-surface)]"
                     title="Search history"
                   >
                     <History className="w-5 h-5" />

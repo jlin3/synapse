@@ -55,7 +55,7 @@ export default function FilterPanel({ filters, onFilterChange }: FilterPanelProp
       <div className="relative">
         <button
           onClick={() => setShowDropdown(!showDropdown)}
-          className="flex items-center gap-2 px-3 py-2 bg-zinc-800/50 border border-zinc-700/50 rounded-lg text-sm text-zinc-300 hover:bg-zinc-800 transition-colors"
+          className="flex items-center gap-2 px-3 py-2 bg-[var(--chip-surface)] border border-[color:var(--chip-border)] rounded-lg text-sm text-[color:var(--foreground)] hover:bg-[var(--surface-2)] transition-colors"
         >
           {currentSortLabel}
           <ChevronDown
@@ -71,7 +71,7 @@ export default function FilterPanel({ filters, onFilterChange }: FilterPanelProp
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="absolute top-full left-0 mt-2 w-48 bg-zinc-800 border border-zinc-700 rounded-xl shadow-xl overflow-hidden z-20"
+                className="absolute top-full left-0 mt-2 w-48 bg-[var(--surface-2)] border border-[color:var(--chip-border)] rounded-xl shadow-xl overflow-hidden z-20"
               >
                 {sortOptions.map((option) => (
                   <button
@@ -80,7 +80,7 @@ export default function FilterPanel({ filters, onFilterChange }: FilterPanelProp
                     className={`w-full px-4 py-2.5 text-left text-sm transition-colors ${
                       filters.sortBy === option.value
                         ? "bg-purple-500/20 text-purple-400"
-                        : "text-zinc-300 hover:bg-zinc-700"
+                        : "text-[color:var(--foreground)] hover:bg-[var(--surface-2-hover)]"
                     }`}
                   >
                     {option.label}
@@ -98,7 +98,7 @@ export default function FilterPanel({ filters, onFilterChange }: FilterPanelProp
         className={`flex items-center gap-2 px-3 py-2 border rounded-lg text-sm transition-colors ${
           hasActiveFilters
             ? "bg-purple-500/10 border-purple-500/30 text-purple-400"
-            : "bg-zinc-800/50 border-zinc-700/50 text-zinc-300 hover:bg-zinc-800"
+            : "bg-[var(--chip-surface)] border-[color:var(--chip-border)] text-[color:var(--foreground)] hover:bg-[var(--surface-2)]"
         }`}
       >
         <Filter className="w-4 h-4" />
@@ -113,13 +113,13 @@ export default function FilterPanel({ filters, onFilterChange }: FilterPanelProp
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="absolute top-full left-0 right-0 mt-2 bg-zinc-900 border border-zinc-800 rounded-xl p-4 z-20"
+            className="absolute top-full left-0 right-0 mt-2 bg-[var(--surface-2)] border border-[color:var(--panel-border)] rounded-xl p-4 z-20"
           >
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-medium text-white">Advanced Filters</h3>
+              <h3 className="text-sm font-medium text-[color:var(--foreground)]">Advanced Filters</h3>
               <button
                 onClick={() => setShowAdvanced(false)}
-                className="p-1 text-zinc-500 hover:text-white transition-colors"
+                className="p-1 text-[color:var(--foreground-subtle)] hover:text-[color:var(--foreground)] transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -128,7 +128,7 @@ export default function FilterPanel({ filters, onFilterChange }: FilterPanelProp
             <div className="grid grid-cols-3 gap-4">
               {/* Min Citations */}
               <div>
-                <label className="block text-xs text-zinc-500 mb-2">Min Citations</label>
+                <label className="block text-xs text-[color:var(--foreground-subtle)] mb-2">Min Citations</label>
                 <input
                   type="number"
                   value={filters.minCitations || ""}
@@ -139,13 +139,13 @@ export default function FilterPanel({ filters, onFilterChange }: FilterPanelProp
                     })
                   }
                   placeholder="0"
-                  className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500/50"
+                  className="w-full px-3 py-2 bg-[var(--input-surface)] border border-[color:var(--chip-border)] rounded-lg text-[color:var(--foreground)] text-sm focus:outline-none focus:border-purple-500/50"
                 />
               </div>
 
               {/* Date Range */}
               <div>
-                <label className="block text-xs text-zinc-500 mb-2">From Date</label>
+                <label className="block text-xs text-[color:var(--foreground-subtle)] mb-2">From Date</label>
                 <input
                   type="date"
                   value={filters.dateRange || ""}
@@ -155,13 +155,13 @@ export default function FilterPanel({ filters, onFilterChange }: FilterPanelProp
                       dateRange: e.target.value || null,
                     })
                   }
-                  className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500/50"
+                  className="w-full px-3 py-2 bg-[var(--input-surface)] border border-[color:var(--chip-border)] rounded-lg text-[color:var(--foreground)] text-sm focus:outline-none focus:border-purple-500/50"
                 />
               </div>
 
               {/* Study Type */}
               <div>
-                <label className="block text-xs text-zinc-500 mb-2">Study Type</label>
+                <label className="block text-xs text-[color:var(--foreground-subtle)] mb-2">Study Type</label>
                 <select
                   value={filters.studyType || "All Types"}
                   onChange={(e) =>
@@ -170,7 +170,7 @@ export default function FilterPanel({ filters, onFilterChange }: FilterPanelProp
                       studyType: e.target.value === "All Types" ? null : e.target.value,
                     })
                   }
-                  className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500/50"
+                  className="w-full px-3 py-2 bg-[var(--input-surface)] border border-[color:var(--chip-border)] rounded-lg text-[color:var(--foreground)] text-sm focus:outline-none focus:border-purple-500/50"
                 >
                   {studyTypes.map((type) => (
                     <option key={type} value={type}>

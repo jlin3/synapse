@@ -73,7 +73,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" data-theme="dark">
       <head>
         <meta property="og:image" content={`${siteUrl}/opengraph-image`} />
         <meta property="og:image:secure_url" content={`${siteUrl}/opengraph-image`} />
@@ -81,6 +81,12 @@ export default function RootLayout({
         <meta property="og:image:height" content="630" />
         <meta property="og:image:type" content="image/png" />
         <link rel="preload" href={`${siteUrl}/opengraph-image`} as="image" type="image/png" />
+        <script
+          // Prevent a theme flash by setting the attribute before React hydrates.
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('synapse:theme');if(t!=='light'&&t!=='dark'){t='dark'}document.documentElement.setAttribute('data-theme',t)}catch(e){document.documentElement.setAttribute('data-theme','dark')}})();`,
+          }}
+        />
       </head>
       <body className="antialiased">{children}</body>
     </html>

@@ -190,17 +190,18 @@ export default function PaperCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.03 }}
       onClick={onClick}
-      className="group bg-zinc-900/50 rounded-xl border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900 transition-all duration-300 cursor-pointer overflow-hidden"
+      data-paper-id={id}
+      className="group bg-[var(--surface-1)] rounded-xl border border-[color:var(--panel-border)] hover:border-[color:var(--card-border)] hover:bg-[var(--surface-1-hover)] transition-all duration-300 cursor-pointer overflow-hidden"
     >
       <div className="p-4">
         {/* Top row - Badges */}
         <div className="flex items-center gap-2 mb-2 flex-wrap">
-          <span className="text-xs text-zinc-500">{formattedDate}</span>
+          <span className="text-xs text-[color:var(--foreground-muted)]">{formattedDate}</span>
 
           {/* Citation count with trend */}
-          <div className="flex items-center gap-1 px-2 py-0.5 bg-zinc-800 rounded-full">
-            <BarChart3 className="w-3 h-3 text-zinc-400" />
-            <span className="text-[10px] font-medium text-zinc-300">
+          <div className="flex items-center gap-1 px-2 py-0.5 bg-[var(--chip-surface)] border border-[color:var(--chip-border)] rounded-full">
+            <BarChart3 className="w-3 h-3 text-[color:var(--foreground-subtle)]" />
+            <span className="text-[10px] font-medium text-[color:var(--foreground)]">
               {citedByCount.toLocaleString()}
             </span>
             {trendScore !== 0 && (
@@ -246,7 +247,7 @@ export default function PaperCard({
             <button
               key={concept.id}
               onClick={(e) => handleTagClick(e, concept.name)}
-              className="px-2 py-0.5 text-[10px] bg-zinc-800 text-zinc-400 rounded-full border border-zinc-700 hover:border-purple-500/50 hover:text-purple-400 transition-colors"
+              className="px-2 py-0.5 text-[10px] bg-[var(--chip-surface)] text-[color:var(--foreground-muted)] rounded-full border border-[color:var(--chip-border)] hover:border-purple-500/40 hover:text-purple-400 transition-colors"
             >
               {concept.name.toLowerCase().replace(/\s+/g, "-")}
             </button>
@@ -254,12 +255,12 @@ export default function PaperCard({
         </div>
 
         {/* Title */}
-        <h3 className="text-base font-semibold text-white leading-snug group-hover:text-purple-400 transition-colors mb-2">
+        <h3 className="text-base font-semibold text-[color:var(--foreground)] leading-snug group-hover:text-purple-400 transition-colors mb-2">
           {title}
         </h3>
 
         {/* Authors and Journal */}
-        <div className="flex items-center gap-3 text-xs text-zinc-500 mb-2">
+        <div className="flex items-center gap-3 text-xs text-[color:var(--foreground-muted)] mb-2">
           <div className="flex items-center gap-1">
             <Users className="w-3.5 h-3.5" />
             <span className="truncate max-w-[200px]">
@@ -268,7 +269,7 @@ export default function PaperCard({
             </span>
           </div>
           {journal && (
-            <span className="px-2 py-0.5 bg-zinc-800 text-zinc-400 text-[10px] rounded-full truncate max-w-[180px]">
+            <span className="px-2 py-0.5 bg-[var(--chip-surface)] border border-[color:var(--chip-border)] text-[color:var(--foreground-muted)] text-[10px] rounded-full truncate max-w-[180px]">
               {journal}
             </span>
           )}
@@ -278,15 +279,41 @@ export default function PaperCard({
         {truncatedAbstract && (
           <div className="relative mb-3">
             <Sparkles className="absolute -left-0.5 top-0.5 w-3.5 h-3.5 text-purple-500/40" />
-            <p className="text-xs text-zinc-400 leading-relaxed pl-4 line-clamp-3">
+            <p className="text-xs text-[color:var(--foreground-muted)] leading-relaxed pl-4 line-clamp-3">
               {truncatedAbstract}
             </p>
           </div>
         )}
 
         {/* Bottom row - Actions */}
-        <div className="flex items-center justify-end pt-3 border-t border-zinc-800/50">
+        <div className="flex items-center justify-end pt-3 border-t border-[color:var(--divider)]">
           <div className="flex items-center gap-2">
+            {/* PDF link */}
+            {pdfUrl && (
+              <a
+                href={pdfUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleExternalLinkClick}
+                className="flex items-center gap-1 px-2 py-1 text-[10px] text-[color:var(--foreground-muted)] hover:text-[color:var(--foreground)] bg-[var(--chip-surface)] rounded-lg border border-[color:var(--chip-border)] hover:border-[color:var(--card-border)] transition-colors"
+              >
+                <span>PDF</span>
+              </a>
+            )}
+
+            {/* arXiv link */}
+            {arxivId && (
+              <a
+                href={`https://arxiv.org/abs/${arxivId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleExternalLinkClick}
+                className="flex items-center gap-1 px-2 py-1 text-[10px] text-[color:var(--foreground-muted)] hover:text-[color:var(--foreground)] bg-[var(--chip-surface)] rounded-lg border border-[color:var(--chip-border)] hover:border-[color:var(--card-border)] transition-colors"
+              >
+                <span>arXiv</span>
+              </a>
+            )}
+
             {/* GitHub link */}
             {githubUrl && (
               <a
@@ -294,7 +321,7 @@ export default function PaperCard({
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={handleExternalLinkClick}
-                className="flex items-center gap-1 px-2 py-1 text-[10px] text-zinc-400 hover:text-white bg-zinc-800 rounded-lg border border-zinc-700 hover:border-zinc-600 transition-colors"
+                className="flex items-center gap-1 px-2 py-1 text-[10px] text-[color:var(--foreground-muted)] hover:text-[color:var(--foreground)] bg-[var(--chip-surface)] rounded-lg border border-[color:var(--chip-border)] hover:border-[color:var(--card-border)] transition-colors"
               >
                 <Github className="w-3 h-3" />
                 <span>Code</span>
@@ -316,7 +343,7 @@ export default function PaperCard({
                 className={`flex items-center gap-1 px-2 py-1 rounded-lg border transition-colors ${
                   isSaved
                     ? "text-purple-400 bg-purple-500/10 border-purple-500/30"
-                    : "text-zinc-400 bg-zinc-800 border-zinc-700 hover:text-purple-400 hover:border-purple-500/30"
+                    : "text-[color:var(--foreground-muted)] bg-[var(--chip-surface)] border-[color:var(--chip-border)] hover:text-purple-400 hover:border-purple-500/30"
                 }`}
               >
                 <Bookmark className={`w-3.5 h-3.5 ${isSaved ? "fill-current" : ""}`} />
@@ -338,11 +365,11 @@ export default function PaperCard({
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
-                      className="absolute right-0 bottom-full mb-2 w-52 bg-zinc-800 border border-zinc-700 rounded-xl shadow-xl overflow-hidden z-20"
+                      className="absolute right-0 bottom-full mb-2 w-52 bg-[var(--surface-2)] border border-[color:var(--chip-border)] rounded-xl shadow-xl overflow-hidden z-20"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <div className="p-2 border-b border-zinc-700">
-                        <p className="text-[10px] text-zinc-500 px-2">Save to collection</p>
+                      <div className="p-2 border-b border-[color:var(--divider)]">
+                        <p className="text-[10px] text-[color:var(--foreground-subtle)] px-2">Save to collection</p>
                       </div>
                       <div className="max-h-40 overflow-y-auto">
                         {collections.map((collection) => {
@@ -351,7 +378,7 @@ export default function PaperCard({
                             <button
                               key={collection.id}
                               onClick={() => handleSaveToCollection(collection.id)}
-                              className="w-full px-3 py-2 flex items-center justify-between text-xs text-zinc-300 hover:bg-zinc-700 transition-colors"
+                              className="w-full px-3 py-2 flex items-center justify-between text-xs text-[color:var(--foreground)] hover:bg-[var(--surface-2-hover)] transition-colors"
                             >
                               <span>{collection.name}</span>
                               {isInCollection && <Check className="w-3.5 h-3.5 text-purple-400" />}
@@ -359,7 +386,7 @@ export default function PaperCard({
                           );
                         })}
                       </div>
-                      <div className="p-2 border-t border-zinc-700">
+                      <div className="p-2 border-t border-[color:var(--divider)]">
                         {showNewCollectionInput ? (
                           <div className="flex gap-1">
                             <input
@@ -368,7 +395,7 @@ export default function PaperCard({
                               onChange={(e) => setNewCollectionName(e.target.value)}
                               onKeyDown={(e) => e.key === "Enter" && handleCreateCollection()}
                               placeholder="Name"
-                              className="flex-1 px-2 py-1 bg-zinc-900 border border-zinc-700 rounded text-xs text-white focus:outline-none focus:border-purple-500/50"
+                              className="flex-1 px-2 py-1 bg-[var(--input-surface)] border border-[color:var(--chip-border)] rounded text-xs text-[color:var(--foreground)] focus:outline-none focus:border-purple-500/50"
                               autoFocus
                               onClick={(e) => e.stopPropagation()}
                             />
@@ -382,7 +409,7 @@ export default function PaperCard({
                         ) : (
                           <button
                             onClick={() => setShowNewCollectionInput(true)}
-                            className="w-full px-3 py-1.5 flex items-center gap-2 text-xs text-purple-400 hover:bg-zinc-700 rounded transition-colors"
+                            className="w-full px-3 py-1.5 flex items-center gap-2 text-xs text-purple-400 hover:bg-[var(--surface-2-hover)] rounded transition-colors"
                           >
                             <FolderPlus className="w-3.5 h-3.5" />
                             New collection
@@ -402,7 +429,7 @@ export default function PaperCard({
                 className={`flex items-center gap-1 px-2 py-1 rounded-l-lg border-y border-l transition-colors ${
                   isLiked
                     ? "text-green-400 bg-green-500/10 border-green-500/30"
-                    : "text-zinc-400 bg-zinc-800 border-zinc-700 hover:text-green-400 hover:border-green-500/30"
+                    : "text-[color:var(--foreground-muted)] bg-[var(--chip-surface)] border-[color:var(--chip-border)] hover:text-green-400 hover:border-green-500/30"
                 }`}
               >
                 <ThumbsUp className={`w-3.5 h-3.5 ${isLiked ? "fill-current" : ""}`} />
@@ -413,7 +440,7 @@ export default function PaperCard({
                 className={`flex items-center gap-1 px-2 py-1 rounded-r-lg border transition-colors ${
                   isDisliked
                     ? "text-red-400 bg-red-500/10 border-red-500/30"
-                    : "text-zinc-400 bg-zinc-800 border-zinc-700 hover:text-red-400 hover:border-red-500/30"
+                    : "text-[color:var(--foreground-muted)] bg-[var(--chip-surface)] border-[color:var(--chip-border)] hover:text-red-400 hover:border-red-500/30"
                 }`}
               >
                 <ThumbsDown className={`w-3.5 h-3.5 ${isDisliked ? "fill-current" : ""}`} />
@@ -428,7 +455,7 @@ export default function PaperCard({
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={handleExternalLinkClick}
-                className="p-1.5 rounded-lg text-zinc-500 hover:text-purple-400 hover:bg-zinc-800 transition-colors"
+                className="p-1.5 rounded-lg text-[color:var(--foreground-subtle)] hover:text-purple-400 hover:bg-[var(--button-surface)] transition-colors"
                 aria-label="Open paper"
               >
                 <ExternalLink className="w-3.5 h-3.5" />

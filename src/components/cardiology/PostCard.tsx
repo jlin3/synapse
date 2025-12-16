@@ -36,7 +36,7 @@ export default function PostCard({
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.4, delay: index * 0.05 }}
       onClick={handleClick}
-      className={`p-4 bg-zinc-900/50 rounded-xl border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900 transition-all duration-300 ${
+      className={`p-4 bg-[var(--surface-1)] rounded-xl border border-[color:var(--panel-border)] hover:border-[color:var(--card-border)] hover:bg-[var(--surface-1-hover)] transition-all duration-300 ${
         url ? "cursor-pointer" : ""
       }`}
     >
@@ -47,29 +47,29 @@ export default function PostCard({
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-semibold text-white truncate">{author}</span>
-            <span className="text-zinc-500 text-sm truncate">{handle}</span>
-            <span className="text-zinc-600">·</span>
-            <span className="text-zinc-500 text-sm shrink-0">{timestamp}</span>
+            <span className="font-semibold text-[color:var(--foreground)] truncate">{author}</span>
+            <span className="text-[color:var(--foreground-muted)] text-sm truncate">{handle}</span>
+            <span className="text-[color:var(--foreground-subtle)]">·</span>
+            <span className="text-[color:var(--foreground-muted)] text-sm shrink-0">{timestamp}</span>
             {url && (
               <a
                 href={url}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="ml-auto shrink-0 p-1 rounded hover:bg-zinc-800 transition-colors"
+                className="ml-auto shrink-0 p-1 rounded hover:bg-[var(--button-surface)] transition-colors"
                 aria-label="Open on X"
               >
-                <ExternalLink className="w-4 h-4 text-zinc-500 hover:text-purple-400" />
+                <ExternalLink className="w-4 h-4 text-[color:var(--foreground-subtle)] hover:text-[color:var(--accent-purple)]" />
               </a>
             )}
           </div>
 
-          <p className="mt-2 text-zinc-300 text-sm leading-relaxed whitespace-pre-wrap">
+          <p className="mt-2 text-[color:var(--foreground)] text-sm leading-relaxed whitespace-pre-wrap">
             {content}
           </p>
 
-          <div className="mt-3 flex items-center gap-4 text-zinc-500">
+          <div className="mt-3 flex items-center gap-4 text-[color:var(--foreground-muted)]">
             {likes !== undefined && likes > 0 && (
               <div className="flex items-center gap-1.5 text-sm hover:text-pink-500 transition-colors">
                 <Heart className="w-4 h-4" />

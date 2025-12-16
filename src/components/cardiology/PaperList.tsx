@@ -40,7 +40,6 @@ export default function PaperList({ papers, loading, onFilterChange, onTagClick 
 
   const {
     collections,
-    isLoaded,
     getAllBookmarkedPapers,
     addToCollection,
     removeFromCollection,
@@ -106,11 +105,13 @@ export default function PaperList({ papers, loading, onFilterChange, onTagClick 
         <div className="flex items-center justify-between mb-4 gap-4 flex-wrap">
           <div className="flex items-center gap-3">
             {/* View Toggle */}
-            <div className="flex rounded-lg bg-zinc-800/50 p-1 border border-zinc-700/50">
+            <div className="flex rounded-lg bg-[var(--chip-surface)] p-1 border border-[color:var(--chip-border)]">
               <button
                 onClick={() => setView("all")}
                 className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${
-                  view === "all" ? "bg-zinc-700 text-white" : "text-zinc-400 hover:text-white"
+                  view === "all"
+                    ? "bg-[var(--surface-2)] text-[color:var(--foreground)]"
+                    : "text-[color:var(--foreground-muted)] hover:text-[color:var(--foreground)]"
                 }`}
               >
                 All
@@ -118,13 +119,15 @@ export default function PaperList({ papers, loading, onFilterChange, onTagClick 
               <button
                 onClick={() => setView("saved")}
                 className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all flex items-center gap-1.5 ${
-                  view === "saved" ? "bg-zinc-700 text-white" : "text-zinc-400 hover:text-white"
+                  view === "saved"
+                    ? "bg-[var(--surface-2)] text-[color:var(--foreground)]"
+                    : "text-[color:var(--foreground-muted)] hover:text-[color:var(--foreground)]"
                 }`}
               >
                 <Bookmark className={`w-3.5 h-3.5 ${view === "saved" ? "fill-current" : ""}`} />
                 Saved
                 {savedCount > 0 && (
-                  <span className="ml-1 px-1.5 py-0.5 text-xs bg-zinc-900 rounded-full">
+                  <span className="ml-1 px-1.5 py-0.5 text-xs bg-[var(--surface-2)] rounded-full">
                     {savedCount}
                   </span>
                 )}
