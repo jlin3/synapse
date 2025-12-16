@@ -209,16 +209,24 @@ export async function GET(request: Request) {
       filters.push(`from_publication_date:${fromDate}`);
     }
 
-    // Hybrid keyword behavior: if the query looks like an identifier (e.g., BPC-157),
-    // require the identifier token to appear in title OR abstract.
-    if (isIdentifierLikeQuery(query)) {
-      const tokens = extractIdentifierTokens(query);
-      const token = tokens[0];
-      if (token) {
-        // OpenAlex supports OR with '|' inside the filter parameter.
-        // See: https://docs.openalex.org/how-to-use-the-api/get-lists-of-entities/filter-entity-lists
-        filters.push(`title.search:${token}|abstract.search:${token}`);
-      }
+    // ALWAYS require the search term to appear in title OR abstract for better relevance.
+    // This prevents highly-cited but unrelated papers from dominating results.
+    // For identifier-like queries (e.g., BPC-157), use the extracted token.
+    // For general queries (e.g., "peptides"), use the full normalized query.
+    const searchToken = isIdentifierLikeQuery(query)
+      ? extractIdentifierTokens(query)[0] || query
+      : query;
+    if (searchToken && searchToken.length >= 3) {
+      // OpenAlex supports OR with '|' inside the filter parameter.
+      // See: https://docs.openalex.org/how-to-use-the-api/get-lists-of-entities/filter-entity-lists
+      filters.push(`title.search:${searchToken}|abstract.search:${searchToken}`);
+    }
+
+    // For "hot" ranking, also restrict to recent papers (last 180 days) to surface fresh research
+    if (sortBy === "hot" && !fromDate) {
+      const hotWindowDate = new Date();
+      hotWindowDate.setDate(hotWindowDate.getDate() - 180);
+      filters.push(`from_publication_date:${hotWindowDate.toISOString().split("T")[0]}`);
     }
 
     if (filters.length > 0) {
@@ -238,40 +246,53 @@ export async function GET(request: Request) {
     const data = await response.json();
     let papers: Paper[] = data.results.map(transformWork);
 
-    // Safety net: enforce exact-token presence for identifier-like queries even if
-    // OpenAlex ranking includes adjacent results.
-    if (isIdentifierLikeQuery(query)) {
-      const token = extractIdentifierTokens(query)[0];
-      if (token) {
-        const tokenLower = token.toLowerCase();
-        papers = papers.filter((p) => {
-          const title = (p.title || "").toLowerCase();
-          const abs = (p.abstract || "").toLowerCase();
-          return title.includes(tokenLower) || abs.includes(tokenLower);
-        });
-      }
+    // Safety net: enforce that the search term appears in title OR abstract.
+    // This catches any edge cases where OpenAlex returns tangentially related papers.
+    const queryTerms = query.toLowerCase().split(/\s+/).filter(t => t.length >= 3);
+    if (queryTerms.length > 0) {
+      papers = papers.filter((p) => {
+        const title = (p.title || "").toLowerCase();
+        const abs = (p.abstract || "").toLowerCase();
+        const combined = `${title} ${abs}`;
+        // Require at least one significant query term to be present
+        return queryTerms.some(term => combined.includes(term));
+      });
     }
 
-    // Improve "Hot" ranking without changing the backend (Option A).
-    // If the client requests sortBy=hot, we fetch high-citation candidates from OpenAlex
-    // and then locally re-rank using a blend of citations, recency, and trend.
+    // Improve "Hot" ranking: heavily favor recent papers (60-180 days) while still
+    // considering citations and trend. This surfaces timely, impactful research.
     if (sortBy === "hot") {
       const now = Date.now();
       const msPerDay = 24 * 60 * 60 * 1000;
 
       const scoreHot = (p: Paper) => {
         const cited = Math.max(0, p.citedByCount || 0);
-        const citations = Math.log10(1 + cited); // compress heavy tails
+        const citations = Math.log10(1 + cited); // compress heavy tails (0-4 range typically)
 
         const pubMs = Date.parse(p.publicationDate || "");
         const ageDays = Number.isFinite(pubMs) ? (now - pubMs) / msPerDay : 3650;
-        const recency = Math.max(0, 1 - ageDays / 365); // 0..1 over last year
+
+        // Strong recency scoring: papers in the sweet spot (30-90 days) get highest boost
+        // - 0-30 days: very new, boost = 3.0
+        // - 30-90 days: sweet spot (citations starting + still fresh), boost = 4.0
+        // - 90-180 days: recent, boost = 2.5
+        // - 180-365 days: older but still relevant, boost = 1.0
+        // - >365 days: minimal boost = 0.2
+        let recencyBoost = 0.2;
+        if (ageDays <= 30) {
+          recencyBoost = 3.0;
+        } else if (ageDays <= 90) {
+          recencyBoost = 4.0; // sweet spot
+        } else if (ageDays <= 180) {
+          recencyBoost = 2.5;
+        } else if (ageDays <= 365) {
+          recencyBoost = 1.0;
+        }
 
         const trend = Math.max(-100, Math.min(200, p.trendScore || 0)) / 100; // approx -1..2
 
-        // Weighting tuned for a "research feed" feel:
-        // citations dominate, but recency/trend can bubble up new papers.
-        return citations * 2.0 + recency * 1.0 + trend * 0.8;
+        // Weighting: recency now dominates for "hot", citations secondary, trend tertiary
+        return recencyBoost * 2.5 + citations * 1.2 + trend * 0.6;
       };
 
       papers = [...papers].sort((a, b) => scoreHot(b) - scoreHot(a));

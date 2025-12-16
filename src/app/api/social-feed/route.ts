@@ -220,51 +220,24 @@ async function fetchPostsFromGrok(queryForPrompt: string): Promise<SocialPost[]>
       Authorization: `Bearer ${XAI_API_KEY}`,
     },
     body: JSON.stringify({
-      model: "grok-3",
+      model: "grok-3-fast", // Use grok-3-fast for ~2x speed improvement
       messages: [
         {
           role: "system",
-          content: `You are a research assistant that finds real X/Twitter posts about cardiology and medical research.
-
-IMPORTANT: Return REAL posts from X/Twitter with ACTUAL URLs that users can click to view the original post.
-
-Return a JSON array with this exact structure:
-[
-  {
-    "id": "unique_tweet_id",
-    "content": "the actual tweet text",
-    "author": "Real Display Name",
-    "handle": "@realusername",
-    "timestamp": "time like '2h' or 'Dec 10'",
-    "url": "https://x.com/username/status/1234567890",
-    "likes": 42,
-    "retweets": 10
-  }
-]
-
-Requirements:
-- Return ONLY real posts you can verify exist on X
-- Include the ACTUAL post URL in the format https://x.com/username/status/[tweet_id]
-- Focus on posts from researchers, cardiologists, medical journals, and science communicators
-- Include posts discussing cardiology papers, heart disease research, cardiovascular studies
-- Prefer posts that link to papers (doi.org, arxiv.org, journals) when possible
-- Return 10-14 posts
-- Return ONLY the JSON array, no other text`,
+          content: `Find real X/Twitter posts about medical/scientific research. Return JSON array:
+[{"id":"tweet_id","content":"text","author":"Name","handle":"@user","timestamp":"2h","url":"https://x.com/user/status/123","likes":42,"retweets":10}]
+Requirements: Real posts with actual URLs (x.com/user/status/ID format). Focus on researchers, doctors, journals. Prefer posts with paper links (doi, arxiv). Return 12-16 posts. JSON only.`,
         },
         {
           role: "user",
-          content: `Search X/Twitter for recent posts about: ${queryForPrompt}. Find real posts from researchers, doctors, and medical professionals discussing cardiology research, heart studies, and cardiovascular medicine papers. Return only the JSON array with real, clickable post URLs.`,
+          content: `Find recent X posts about: "${queryForPrompt}". Include posts about research papers, DOIs, arxiv, preprints, journals when relevant. Return JSON array only.`,
         },
       ],
       search_parameters: {
         mode: "auto",
-        sources: [
-          {
-            type: "x",
-          },
-        ],
+        sources: [{ type: "x" }],
       },
-      temperature: 0.3,
+      temperature: 0.2,
     }),
   });
 
@@ -340,23 +313,17 @@ export async function GET(request: Request) {
     }
 
     const p = (async () => {
-      // Two-query strategy for better recall:
-      // - base query
-      // - paper/link focused variant
-      const q1 = queryForPrompt;
-      const q2 = `${queryForPrompt} (paper OR doi OR arxiv OR preprint OR medrxiv OR biorxiv)`;
+      // Single optimized query for speed - prompt already includes paper/DOI keywords
+      const posts = await fetchPostsFromGrok(queryForPrompt);
 
-      const [a, b] = await Promise.all([fetchPostsFromGrok(q1), fetchPostsFromGrok(q2)]);
-      const merged = cleanAndDedupePosts([...a, ...b]);
-
-      // Deterministic ranking: engagement + recency + paper-link signals
-      const ranked = [...merged].sort((x, y) => computePostScore(y) - computePostScore(x));
-
-      const posts = ranked.slice(0, 12);
       if (posts.length === 0) return MOCK_POSTS;
 
-      setCachedPosts(queryKey, posts);
-      return posts;
+      // Deterministic ranking: engagement + recency + paper-link signals
+      const ranked = [...posts].sort((x, y) => computePostScore(y) - computePostScore(x));
+
+      const finalPosts = ranked.slice(0, 12);
+      setCachedPosts(queryKey, finalPosts);
+      return finalPosts;
     })();
 
     inflight.set(queryKey, p);
