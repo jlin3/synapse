@@ -56,10 +56,13 @@ export interface OpenAlexWork {
 
 // Paper type is imported from @/types
 
-// Decode HTML entities (e.g., &amp; -> &, &lt; -> <)
+// Decode HTML entities and strip HTML tags
 function decodeHtmlEntities(text: string): string {
   if (!text) return text;
   return text
+    // Strip HTML tags (e.g., <i>, </i>, <b>, etc.)
+    .replace(/<[^>]*>/g, "")
+    // Decode common HTML entities
     .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
@@ -68,7 +71,10 @@ function decodeHtmlEntities(text: string): string {
     .replace(/&apos;/g, "'")
     .replace(/&#x27;/g, "'")
     .replace(/&#x2F;/g, "/")
-    .replace(/&nbsp;/g, " ");
+    .replace(/&nbsp;/g, " ")
+    // Clean up any double spaces
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 // High-impact journals get a prestige boost for "hot" ranking
@@ -275,6 +281,14 @@ export async function GET(request: Request) {
 
     // Add filters
     const filters: string[] = [];
+    
+    // CRITICAL: Only get actual research papers, not journals, datasets, or other types
+    // OpenAlex type values: https://docs.openalex.org/api-entities/works/work-object#type
+    filters.push("type:article|type:review|type:preprint");
+    
+    // Require papers to have at least one author (filters out journal records)
+    filters.push("authorships.author.id:*");
+    
     if (minCitations) {
       filters.push(`cited_by_count:>${minCitations}`);
     }
@@ -315,8 +329,19 @@ export async function GET(request: Request) {
     const data = await response.json();
     let papers: Paper[] = data.results.map(transformWork);
 
-    // Trust OpenAlex's relevance scoring - it uses semantic matching across title,
-    // abstract, and full text. No client-side filtering needed for general queries.
+    // Filter out low-quality results that slip through:
+    // - Journal records (title matches journal name, no abstract)
+    // - Papers with no authors
+    // - Extremely short titles (likely metadata issues)
+    papers = papers.filter((p) => {
+      // Must have at least one author
+      if (!p.authors || p.authors.length === 0) return false;
+      // Must have a reasonable title
+      if (!p.title || p.title.length < 20) return false;
+      // Filter out entries where title = journal (journal records)
+      if (p.journal && p.title.toLowerCase().trim() === p.journal.toLowerCase().trim()) return false;
+      return true;
+    });
 
     // Improve "Hot" ranking: balance recency, citations, journal prestige, and rigor.
     // Hot papers should be recent, getting cited, from reputable sources, and high rigor.
@@ -353,9 +378,15 @@ export async function GET(request: Request) {
         // 5. Rigor signals from concepts (RCT, meta-analysis, etc.)
         const rigorScore = getRigorScore(p.concepts || []);
 
-        // Combined score: citations + recency + trend + prestige + rigor
+        // 6. Penalty for corrections/errata (less interesting for "hot" feed)
+        const title = (p.title || "").toLowerCase();
+        const isCorrection = title.startsWith("correction") || title.startsWith("erratum") ||
+                            title.includes("correction to:") || title.includes("erratum to:");
+        const correctionPenalty = isCorrection ? -5.0 : 0;
+
+        // Combined score: citations + recency + trend + prestige + rigor - penalties
         // This surfaces recent papers from top journals with high rigor that are getting cited
-        return citationScore + recencyBoost + trendScore + journalScore + rigorScore;
+        return citationScore + recencyBoost + trendScore + journalScore + rigorScore + correctionPenalty;
       };
 
       papers = [...papers].sort((a, b) => scoreHot(b) - scoreHot(a));
