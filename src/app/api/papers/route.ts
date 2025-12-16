@@ -282,13 +282,6 @@ export async function GET(request: Request) {
     // Add filters
     const filters: string[] = [];
     
-    // CRITICAL: Only get actual research papers, not journals, datasets, or other types
-    // OpenAlex type values: https://docs.openalex.org/api-entities/works/work-object#type
-    filters.push("type:article|type:review|type:preprint");
-    
-    // Require papers to have at least one author (filters out journal records)
-    filters.push("authorships.author.id:*");
-    
     if (minCitations) {
       filters.push(`cited_by_count:>${minCitations}`);
     }
@@ -329,22 +322,15 @@ export async function GET(request: Request) {
     const data = await response.json();
     let papers: Paper[] = data.results.map(transformWork);
 
-    // Filter out low-quality results that slip through:
-    // - Journal records (title matches journal name, no abstract)
-    // - Papers with no authors
-    // - Extremely short titles (likely metadata issues)
+    // Light filtering for quality - keep journals but remove broken records
     papers = papers.filter((p) => {
-      // Must have at least one author
-      if (!p.authors || p.authors.length === 0) return false;
-      // Must have a reasonable title
-      if (!p.title || p.title.length < 20) return false;
-      // Filter out entries where title = journal (journal records)
-      if (p.journal && p.title.toLowerCase().trim() === p.journal.toLowerCase().trim()) return false;
+      // Must have a title
+      if (!p.title || p.title.length < 10) return false;
       return true;
     });
 
-    // Improve "Hot" ranking: balance recency, citations, journal prestige, and rigor.
-    // Hot papers should be recent, getting cited, from reputable sources, and high rigor.
+    // Improve "Hot" ranking: balance recency, citations, journal prestige, rigor, and accessibility.
+    // Hot papers should be recent, getting cited, from reputable sources, high rigor, and accessible.
     if (sortBy === "hot") {
       const now = Date.now();
       const msPerDay = 24 * 60 * 60 * 1000;
@@ -368,9 +354,9 @@ export async function GET(request: Request) {
           recencyBoost = 0.5;
         }
 
-        // 3. Citation trend (momentum)
+        // 3. Citation trend (momentum) - papers gaining citations quickly
         const trend = Math.max(-100, Math.min(200, p.trendScore || 0)) / 100;
-        const trendScore = trend * 1.0;
+        const trendScore = trend * 1.2;
 
         // 4. Journal prestige - high-impact journals get a boost
         const journalScore = getJournalPrestigeScore(p.journal);
@@ -378,15 +364,34 @@ export async function GET(request: Request) {
         // 5. Rigor signals from concepts (RCT, meta-analysis, etc.)
         const rigorScore = getRigorScore(p.concepts || []);
 
-        // 6. Penalty for corrections/errata (less interesting for "hot" feed)
+        // 6. Open Access boost - OA papers get more visibility and engagement
+        const openAccessBoost = p.isOpenAccess ? 1.0 : 0;
+
+        // 7. PDF availability - papers with accessible full text
+        const pdfBoost = p.pdfUrl ? 0.8 : 0;
+
+        // 8. Abstract quality - papers with substantive abstracts are real research
+        const abstractLength = (p.abstract || "").length;
+        const abstractBoost = abstractLength > 500 ? 1.0 : abstractLength > 200 ? 0.5 : 0;
+
+        // 9. Author collaboration - collaborative papers (3-10 authors) often indicate significant research
+        const authorCount = p.authors?.length || 0;
+        const collaborationBoost = authorCount >= 3 && authorCount <= 15 ? 0.5 : 0;
+
+        // 10. Concept specificity - papers with high-confidence concept tags
+        const conceptScore = (p.concepts || []).reduce((sum, c) => sum + (c.score > 0.5 ? 0.2 : 0), 0);
+        const conceptBoost = Math.min(conceptScore, 1.0); // cap at 1.0
+
+        // 11. Penalty for corrections/errata (less interesting for "hot" feed)
         const title = (p.title || "").toLowerCase();
         const isCorrection = title.startsWith("correction") || title.startsWith("erratum") ||
                             title.includes("correction to:") || title.includes("erratum to:");
-        const correctionPenalty = isCorrection ? -5.0 : 0;
+        const correctionPenalty = isCorrection ? -8.0 : 0;
 
-        // Combined score: citations + recency + trend + prestige + rigor - penalties
-        // This surfaces recent papers from top journals with high rigor that are getting cited
-        return citationScore + recencyBoost + trendScore + journalScore + rigorScore + correctionPenalty;
+        // Combined score: all positive signals minus penalties
+        return citationScore + recencyBoost + trendScore + journalScore + rigorScore +
+               openAccessBoost + pdfBoost + abstractBoost + collaborationBoost + conceptBoost +
+               correctionPenalty;
       };
 
       papers = [...papers].sort((a, b) => scoreHot(b) - scoreHot(a));
