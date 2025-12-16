@@ -1,338 +1,66 @@
-"use client";
+import { headers } from "next/headers";
+import SynapsePageClient from "./SynapsePageClient";
+import type { Paper, PaperMetadata } from "@/types";
 
-import { useState, useEffect, useCallback, useRef } from "react";
-import { motion } from "framer-motion";
-import Header from "@/components/cardiology/Header";
-import PaperList from "@/components/cardiology/PaperList";
-import SocialFeed from "@/components/cardiology/SocialFeed";
-import ImportModal from "@/components/cardiology/ImportModal";
-import { SortOption } from "@/components/cardiology/FilterPanel";
-import { Paper } from "@/types";
-import { isIdentifierLikeQuery, normalizeQueryForCache, normalizeQueryForSearch } from "@/lib/search";
-
-interface SocialPost {
-  id: string;
-  content: string;
-  author: string;
-  handle: string;
-  timestamp: string;
-  url: string | null;
-  likes?: number;
-  retweets?: number;
-}
-
-const SOCIAL_FEED_CACHE_KEY_PREFIX = "synapse:social-feed:";
-const SOCIAL_FEED_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24h
 const DEFAULT_QUERY = "cardiology";
 
-type SocialFeedCacheEntry = {
-  expiresAt: number;
-  posts: SocialPost[];
-};
-
-function getSocialFeedQuery(query: string) {
-  const q = normalizeQueryForSearch(query);
-  // Keep consistent with the API default ("cardiology research")
-  return q.length > 0 ? `${q} research` : "cardiology research";
+function getOriginFromHeaders(h: Headers): string {
+  const proto = h.get("x-forwarded-proto") || "http";
+  const host = h.get("x-forwarded-host") || h.get("host") || "localhost:3000";
+  return `${proto}://${host}`;
 }
 
-interface ImportedTopic {
-  name: string;
-  query: string;
-  source: "pubmed" | "google_scholar";
-  importedAt: string;
-}
+export default async function Page() {
+  const h = await headers();
+  const origin = getOriginFromHeaders(h);
 
-interface FilterState {
-  sortBy: SortOption;
-  minCitations: number | null;
-  dateRange: string | null;
-  studyType: string | null;
-}
+  const initialQuery = DEFAULT_QUERY;
+  let initialPapers: Paper[] = [];
+  let initialMetadataByPaperId: Record<string, PaperMetadata> = {};
 
-export default function SynapsePage() {
-  const [searchQuery, setSearchQuery] = useState(DEFAULT_QUERY);
-  const [papers, setPapers] = useState<Paper[]>([]);
-  const [posts, setPosts] = useState<SocialPost[]>([]);
-  const [loadingPapers, setLoadingPapers] = useState(true);
-  const [loadingPosts, setLoadingPosts] = useState(true);
-  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-  const [isAiSearching, setIsAiSearching] = useState(false);
-
-  const papersAbortRef = useRef<AbortController | null>(null);
-  const postsAbortRef = useRef<AbortController | null>(null);
-  const lastPapersKeyRef = useRef<string | null>(null);
-  const lastPostsKeyRef = useRef<string | null>(null);
-
-  const primeSocialFeedFromCache = useCallback((query: string) => {
-    try {
-      const socialQuery = getSocialFeedQuery(query);
-      const raw = localStorage.getItem(`${SOCIAL_FEED_CACHE_KEY_PREFIX}${socialQuery}`);
-      if (!raw) return false;
-
-      const parsed = JSON.parse(raw) as SocialFeedCacheEntry;
-      if (!parsed || !Array.isArray(parsed.posts) || typeof parsed.expiresAt !== "number") {
-        return false;
-      }
-      if (Date.now() > parsed.expiresAt) {
-        localStorage.removeItem(`${SOCIAL_FEED_CACHE_KEY_PREFIX}${socialQuery}`);
-        return false;
-      }
-
-      setPosts(parsed.posts);
-      setLoadingPosts(false);
-      return true;
-    } catch {
-      return false;
+  try {
+    const papersRes = await fetch(
+      `${origin}/api/papers?query=${encodeURIComponent(initialQuery)}&sort=cited_by_count:desc&sortBy=hot`,
+      { next: { revalidate: 300 } }
+    );
+    if (papersRes.ok) {
+      const papersJson = await papersRes.json();
+      initialPapers = (papersJson.papers || []) as Paper[];
     }
-  }, []);
+  } catch {
+    // ignore SSR fetch errors; client will recover
+  }
 
-  const writeSocialFeedCache = useCallback((query: string, nextPosts: SocialPost[]) => {
-    try {
-      const socialQuery = getSocialFeedQuery(query);
-      const entry: SocialFeedCacheEntry = {
-        posts: nextPosts,
-        expiresAt: Date.now() + SOCIAL_FEED_CACHE_TTL_MS,
-      };
-      localStorage.setItem(`${SOCIAL_FEED_CACHE_KEY_PREFIX}${socialQuery}`, JSON.stringify(entry));
-    } catch {
-      // ignore cache write failures (e.g., blocked storage)
-    }
-  }, []);
-
-  const fetchPapers = useCallback(
-    async (
-      query: string,
-      sortBy: SortOption = "hot",
-      filters?: { minCitations?: number; fromDate?: string }
-    ) => {
-      const normalizedQuery = normalizeQueryForSearch(query);
-      const cacheKey = normalizeQueryForCache(
-        `${normalizedQuery}::${sortBy}::${filters?.minCitations || ""}::${filters?.fromDate || ""}`
-      );
-
-      // De-dupe identical requests
-      if (lastPapersKeyRef.current === cacheKey) return;
-      lastPapersKeyRef.current = cacheKey;
-
-      papersAbortRef.current?.abort();
-      const controller = new AbortController();
-      papersAbortRef.current = controller;
-
-      setLoadingPapers(true);
-      try {
-        // Map sort options to OpenAlex sort params
-        let sortParam = "publication_date:desc";
-        if (sortBy === "hot" || sortBy === "top_all") {
-          sortParam = "cited_by_count:desc";
-        } else if (sortBy === "new") {
-          sortParam = "publication_date:desc";
-        } else if (sortBy === "top_week" || sortBy === "top_month") {
-          sortParam = "cited_by_count:desc";
-        }
-
-        const params = new URLSearchParams({
-          query: normalizedQuery,
-          sort: sortParam,
-          sortBy,
-        });
-
-        // Auto windowing for "Top this week/month" unless user explicitly set a fromDate
-        let fromDate = filters?.fromDate;
-        if (!fromDate) {
-          const now = new Date();
-          if (sortBy === "top_week") {
-            const d = new Date(now);
-            d.setDate(d.getDate() - 7);
-            fromDate = d.toISOString().slice(0, 10);
-          } else if (sortBy === "top_month") {
-            const d = new Date(now);
-            d.setDate(d.getDate() - 30);
-            fromDate = d.toISOString().slice(0, 10);
-          }
-        }
-
-        if (filters?.minCitations) {
-          params.set("minCitations", filters.minCitations.toString());
-        }
-        if (fromDate) {
-          params.set("fromDate", fromDate);
-        }
-
-        const response = await fetch(`/api/papers?${params.toString()}`, {
-          signal: controller.signal,
-        });
-        const data = await response.json();
-        if (data.papers) {
-          setPapers(data.papers);
-        }
-      } catch (error) {
-        if ((error as any)?.name !== "AbortError") {
-          console.error("Error fetching papers:", error);
-        }
-      } finally {
-        setLoadingPapers(false);
-      }
-    },
-    []
-  );
-
-  const fetchPosts = useCallback(async (query: string, opts?: { showLoading?: boolean }) => {
-    const showLoading = opts?.showLoading ?? true;
-    const normalizedQuery = normalizeQueryForSearch(query);
-    const cacheKey = normalizeQueryForCache(getSocialFeedQuery(normalizedQuery));
-
-    // De-dupe identical requests
-    if (lastPostsKeyRef.current === cacheKey) return;
-    lastPostsKeyRef.current = cacheKey;
-
-    postsAbortRef.current?.abort();
-    const controller = new AbortController();
-    postsAbortRef.current = controller;
-
-    if (showLoading) setLoadingPosts(true);
-    try {
-      const socialQuery = getSocialFeedQuery(normalizedQuery);
-      const response = await fetch(
-        `/api/social-feed?query=${encodeURIComponent(socialQuery)}`,
-        { signal: controller.signal }
-      );
-      const data = await response.json();
-      if (data.posts) {
-        setPosts(data.posts);
-        writeSocialFeedCache(normalizedQuery, data.posts);
-      }
-    } catch (error) {
-      if ((error as any)?.name !== "AbortError") {
-        console.error("Error fetching posts:", error);
-      }
-    } finally {
-      if (showLoading) setLoadingPosts(false);
-    }
-  }, [writeSocialFeedCache]);
-
-  useEffect(() => {
-    fetchPapers(DEFAULT_QUERY);
-    const cacheHit = primeSocialFeedFromCache(DEFAULT_QUERY);
-    fetchPosts(DEFAULT_QUERY, { showLoading: !cacheHit });
-  }, [fetchPapers, fetchPosts, primeSocialFeedFromCache]);
-
-  const handleSearch = async () => {
-    if (isAiSearching) return;
-    setIsAiSearching(true);
-    try {
-      // If the query looks like an identifier (e.g., BPC-157), keep it verbatim.
-      // AI expansion often dilutes identifiers and hurts exact keyword matching.
-      if (isIdentifierLikeQuery(searchQuery)) {
-        const cacheHit = primeSocialFeedFromCache(searchQuery);
-        fetchPapers(searchQuery);
-        fetchPosts(searchQuery, { showLoading: !cacheHit });
-        return;
-      }
-
-      // Try AI search first
-      const aiResponse = await fetch("/api/ai-search", {
+  try {
+    if (initialPapers.length > 0) {
+      const metaRes = await fetch(`${origin}/api/paper-metadata`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: normalizeQueryForSearch(searchQuery) }),
+        body: JSON.stringify({
+          papers: initialPapers.map((p) => ({
+            paperId: p.id,
+            title: p.title,
+            abstract: p.abstract,
+          })),
+        }),
+        next: { revalidate: 300 },
       });
 
-      if (aiResponse.ok) {
-        const aiResult = await aiResponse.json();
-        const searchTerms = normalizeQueryForSearch(aiResult.searchTerms?.join(" ") || searchQuery);
-
-        const cacheHit = primeSocialFeedFromCache(searchTerms);
-
-        // Use the interpreted search terms
-        fetchPapers(searchTerms, "hot", {
-          minCitations: aiResult.filters?.minCitations || undefined,
-          fromDate: aiResult.filters?.dateRange?.split("-")[0] || undefined,
-        });
-        fetchPosts(searchTerms, { showLoading: !cacheHit });
-      } else {
-        // Fallback to regular search
-        const cacheHit = primeSocialFeedFromCache(searchQuery);
-        fetchPapers(searchQuery);
-        fetchPosts(searchQuery, { showLoading: !cacheHit });
+      if (metaRes.ok) {
+        const metaJson = await metaRes.json();
+        initialMetadataByPaperId = (metaJson.metadataByPaperId || {}) as Record<string, PaperMetadata>;
       }
-    } catch (error) {
-      console.error("AI search error:", error);
-      const cacheHit = primeSocialFeedFromCache(searchQuery);
-      fetchPapers(searchQuery);
-      fetchPosts(searchQuery, { showLoading: !cacheHit });
-    } finally {
-      setIsAiSearching(false);
     }
-  };
-
-  const handleFilterChange = (filters: FilterState) => {
-    const dateFilter = filters.dateRange || undefined;
-    fetchPapers(searchQuery, filters.sortBy, {
-      minCitations: filters.minCitations || undefined,
-      fromDate: dateFilter,
-    });
-  };
-
-  const handleTagClick = (tag: string) => {
-    setSearchQuery(tag);
-    fetchPapers(tag);
-    const cacheHit = primeSocialFeedFromCache(tag);
-    fetchPosts(tag, { showLoading: !cacheHit });
-  };
-
-  const handleImportSuccess = (topic: ImportedTopic) => {
-    setSearchQuery(topic.query);
-    fetchPapers(topic.query);
-    const cacheHit = primeSocialFeedFromCache(topic.query);
-    fetchPosts(topic.query, { showLoading: !cacheHit });
-  };
+  } catch {
+    // ignore SSR fetch errors; client will recover
+  }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] relative">
-      {/* Top gradient glow effect */}
-      <div className="top-gradient" />
-
-      <Header
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        onSearch={handleSearch}
-        onImportClick={() => setIsImportModalOpen(true)}
-        isAiSearching={isAiSearching}
-      />
-
-      <main className="max-w-7xl mx-auto px-6 py-6 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 min-h-[600px] h-[calc(100vh-180px)]">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="lg:col-span-3 bg-zinc-900/30 rounded-2xl border border-zinc-800/50 p-6 backdrop-blur-sm"
-          >
-            <PaperList
-              papers={papers}
-              loading={loadingPapers}
-              onFilterChange={handleFilterChange}
-              onTagClick={handleTagClick}
-            />
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="lg:col-span-2 bg-zinc-900/30 rounded-2xl border border-zinc-800/50 p-6 backdrop-blur-sm"
-          >
-            <SocialFeed posts={posts} loading={loadingPosts} />
-          </motion.div>
-        </div>
-      </main>
-
-      {/* Import Modal */}
-      <ImportModal
-        isOpen={isImportModalOpen}
-        onClose={() => setIsImportModalOpen(false)}
-        onImportSuccess={handleImportSuccess}
-      />
-    </div>
+    <SynapsePageClient
+      initialQuery={initialQuery}
+      initialPapers={initialPapers}
+      initialMetadataByPaperId={initialMetadataByPaperId}
+      initialPosts={[]}
+    />
   );
 }

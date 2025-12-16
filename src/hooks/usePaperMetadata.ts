@@ -12,12 +12,24 @@ interface PaperInput {
 // Local cache to avoid refetching during the session
 const sessionCache = new Map<string, PaperMetadata>();
 
+export function primePaperMetadataCache(metadataByPaperId: Record<string, PaperMetadata>) {
+  if (!metadataByPaperId || typeof metadataByPaperId !== "object") return;
+  for (const [paperId, meta] of Object.entries(metadataByPaperId)) {
+    if (!paperId || !meta) continue;
+    sessionCache.set(paperId, meta);
+  }
+}
+
 export function usePaperMetadata(papers: PaperInput[]) {
   const [metadata, setMetadata] = useState<Record<string, PaperMetadata>>({});
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchMetadata = useCallback(async () => {
     if (papers.length === 0) return;
+
+    // Avoid synchronous state updates directly from the effect callsite.
+    // (Some eslint configs flag cascading renders when setState happens synchronously inside effects.)
+    await Promise.resolve();
 
     // Filter papers that we don't have metadata for
     const papersToFetch = papers.filter((p) => !sessionCache.has(p.id) && !metadata[p.id]);
@@ -62,10 +74,13 @@ export function usePaperMetadata(papers: PaperInput[]) {
     }
 
     setIsLoading(false);
-  }, [papers.map((p) => p.id).join(",")]);
+  }, [papers, metadata]);
 
   useEffect(() => {
-    fetchMetadata();
+    const t = window.setTimeout(() => {
+      void fetchMetadata();
+    }, 0);
+    return () => window.clearTimeout(t);
   }, [fetchMetadata]);
 
   const getMetadata = useCallback(
