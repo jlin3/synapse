@@ -176,7 +176,6 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const rawQuery = searchParams.get("query") || "cardiology";
   const query = normalizeQueryForSearch(rawQuery) || "cardiology";
-  const sort = searchParams.get("sort") || "publication_date:desc";
   const sortBy = searchParams.get("sortBy") || "";
   const page = searchParams.get("page") || "1";
   const minCitations = searchParams.get("minCitations");
@@ -186,7 +185,6 @@ export async function GET(request: Request) {
     const requestedPage = Math.max(1, parseInt(page || "1", 10) || 1);
     const requestedPerPage = 20;
     // For "hot", pull a broader candidate set once and then slice locally.
-    // This avoids extra upstream calls while improving local reranking.
     const candidatePerPage = sortBy === "hot" ? 80 : requestedPerPage;
     const upstreamPage = sortBy === "hot" ? "1" : String(requestedPage);
 
@@ -194,7 +192,21 @@ export async function GET(request: Request) {
     url.searchParams.set("search", query);
     url.searchParams.set("per_page", String(candidatePerPage));
     url.searchParams.set("page", upstreamPage);
-    url.searchParams.set("sort", sort);
+    
+    // OpenAlex best practice: use relevance_score when searching for best semantic matching.
+    // Only override with date/citations sort when explicitly requested via sortBy.
+    // See: https://docs.openalex.org/how-to-use-the-api/get-lists-of-entities/sort-entity-lists
+    let openAlexSort = "relevance_score:desc"; // Default: relevance-based ranking
+    if (sortBy === "newest") {
+      openAlexSort = "publication_date:desc";
+    } else if (sortBy === "citations") {
+      openAlexSort = "cited_by_count:desc";
+    } else if (sortBy === "hot") {
+      // For hot, get relevance-sorted candidates, then rerank locally
+      openAlexSort = "relevance_score:desc";
+    }
+    url.searchParams.set("sort", openAlexSort);
+    
     url.searchParams.set(
       "select",
       "id,title,publication_date,doi,authorships,abstract_inverted_index,cited_by_count,primary_location,locations,concepts,open_access,biblio,counts_by_year"
@@ -209,20 +221,16 @@ export async function GET(request: Request) {
       filters.push(`from_publication_date:${fromDate}`);
     }
 
-    // ALWAYS require the search term to appear in title OR abstract for better relevance.
-    // This prevents highly-cited but unrelated papers from dominating results.
-    // For identifier-like queries (e.g., BPC-157), use the extracted token.
-    // For general queries (e.g., "peptides"), use the full normalized query.
-    const searchToken = isIdentifierLikeQuery(query)
-      ? extractIdentifierTokens(query)[0] || query
-      : query;
-    if (searchToken && searchToken.length >= 3) {
-      // OpenAlex supports OR with '|' inside the filter parameter.
-      // See: https://docs.openalex.org/how-to-use-the-api/get-lists-of-entities/filter-entity-lists
-      filters.push(`title.search:${searchToken}|abstract.search:${searchToken}`);
+    // For identifier-like queries (e.g., BPC-157), add a stricter title/abstract filter
+    // to ensure exact identifier matches. General queries rely on OpenAlex's semantic search.
+    if (isIdentifierLikeQuery(query)) {
+      const token = extractIdentifierTokens(query)[0];
+      if (token && token.length >= 3) {
+        filters.push(`title.search:${token}|abstract.search:${token}`);
+      }
     }
 
-    // For "hot" ranking, also restrict to recent papers (last 180 days) to surface fresh research
+    // For "hot" ranking, restrict to recent papers (last 180 days) to surface fresh research
     if (sortBy === "hot" && !fromDate) {
       const hotWindowDate = new Date();
       hotWindowDate.setDate(hotWindowDate.getDate() - 180);
@@ -246,18 +254,8 @@ export async function GET(request: Request) {
     const data = await response.json();
     let papers: Paper[] = data.results.map(transformWork);
 
-    // Safety net: enforce that the search term appears in title OR abstract.
-    // This catches any edge cases where OpenAlex returns tangentially related papers.
-    const queryTerms = query.toLowerCase().split(/\s+/).filter(t => t.length >= 3);
-    if (queryTerms.length > 0) {
-      papers = papers.filter((p) => {
-        const title = (p.title || "").toLowerCase();
-        const abs = (p.abstract || "").toLowerCase();
-        const combined = `${title} ${abs}`;
-        // Require at least one significant query term to be present
-        return queryTerms.some(term => combined.includes(term));
-      });
-    }
+    // Trust OpenAlex's relevance scoring - it uses semantic matching across title,
+    // abstract, and full text. No client-side filtering needed for general queries.
 
     // Improve "Hot" ranking: heavily favor recent papers (60-180 days) while still
     // considering citations and trend. This surfaces timely, impactful research.
