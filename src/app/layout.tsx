@@ -80,7 +80,6 @@ export default function RootLayout({
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:image:type" content="image/png" />
-        <link rel="preload" href={`${siteUrl}/opengraph-image`} as="image" type="image/png" />
         <script
           // Prevent a theme flash by setting the attribute before React hydrates.
           dangerouslySetInnerHTML={{
